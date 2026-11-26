@@ -77,11 +77,12 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Archivos recientes / pruebas / PR: ninguno registrado.
 
 ### I-2 MongoDB / calidad / documentación
-- Rama actual: `docs/incorporar-reglas-i2`, creada desde `develop` (alineada con `origin/develop`, 0/0). Último commit verificado al redactar: `8443f77` (incorporación de línea base y plan); `e847c92` (gitignore).
-- Siguiente: cerrar BASE-03 con la revisión del equipo, ratificación D-002 y creación de Issues; luego DOC-01 cuando BASE-02 y BASE-05 estén verificadas. Plan detallado en `docs/plan-ejecucion-i2.md`.
-- Estado: siete documentos incorporados a la raíz y plan de ejecución I-2 propuesto; código documental no verificado. No se marcan tareas como VERIFIED ni MERGED.
+- Rama actual: `feature/mongo-document-schema`, creada desde `docs/incorporar-reglas-i2` (que parte de `develop`, aún sin la línea base mergeada). Último commit verificado al redactar: `aa0f405` (validadores, índices y plantillas); base documental en `8443f77`.
+- Siguiente: cerrar BASE-03 con la revisión del equipo, ratificación D-002 y creación de Issues; cuando BASE-02 y BASE-05 estén verificadas, ejecutar DOC-01 (aplicar validadores e índices) y DOC-02 (cargar plantillas) con las pruebas PM. Plan detallado en `docs/plan-ejecucion-i2.md`.
+- Estado: siete documentos en raíz, plan propuesto y artefactos de diseño documental preparados. DOC-01/DOC-02 siguen PENDING: sin MongoDB real ni contratos verificados. No se marcan tareas como VERIFIED ni MERGED.
+- Artefactos de diseño (permitidos en paralelo según plan §5): tres esquemas `$jsonSchema`, diez índices declarados, seis plantillas v1, aplicador de validadores y sembrador. No se tocó backend, contratos ni esquemas ajenos.
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
-- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md` y `docs/plan-ejecucion-i2.md`. Pruebas de software: NOT_RUN (sin bootstrap ni scripts, PROJECT §6). PR: pendiente; `gh` no disponible en este entorno.
+- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md` y `database/document/**`. Prueba ejecutable sin motor: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones (2026-11-26). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 
 ### I-3 Neo4j / trazabilidad / UX
 - Rama actual: por verificar. Último commit: por verificar.
@@ -287,6 +288,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: NOT_RUN. Sin bootstrap, `package.json` funcional ni scripts; no se ejecutaron lint, typecheck, tests ni build. No se inventaron resultados.
 - Bloqueadores/dependencias/decisiones: B-001 inspeccionado por I-2 pero no resuelto (falta BASE-01/02 de I-1); B-002 y B-003 pendientes; estructura `backend/src` no canónica requiere acuerdo (AI-11/AI-20); D-002 pendiente de ratificación; Issues no creadas.
 - Próxima acción concreta: equipo ratifica línea base y plan, confirma roles y revisores; I-1 ejecuta BASE-01/02; con acceso a GitHub crear las issues propuestas; I-2 inicia DOC-01 solo con BASE-02 y BASE-05 verificadas.
+
+### TC-SESSION-20261126-I2-002
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-document-schema`).
+- Objetivo: primer incremento de la parte documental — diseño de validadores, índices y plantillas v1 dentro de `database/document/**`, sin invadir módulos ajenos ni inventar contratos.
+- RF/RN: RNF-10, RF-16, RN-51..54/107/115/116; documentación v1.1 y eventos v1.0 sin cambios (D-002).
+- Trabajo realizado: tres esquemas `$jsonSchema` strict/error para las 3 colecciones oficiales; 10 índices según DATA_MODEL §3; seis plantillas v1 con UUID de fixture 801..806 y productos 301/302/304/306/307/General-null; aplicador de validadores y sembrador idempotente con `$setOnInsert` y conversión Decimal128/Int32; verificación estática sin dependencias. DOC-01/DOC-02 permanecen PENDING porque requieren BASE-02 y BASE-05.
+- Archivos modificados: `database/document/validators/*.schema.json`, `database/document/validators/apply-validators.mjs`, `database/document/indexes/create-indexes.mongosh.js`, `database/document/data/plantillas-inspeccion.json`, `database/document/data/seed-templates.mjs`, `database/document/tests/static-check.mjs`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/mongo-document-schema`; `aa0f405` (artefactos). PR pendiente; la rama deriva de la rama documental porque `develop` aún no contiene la línea base (AI-15: contradicción reportada).
+- Pruebas reales: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones, 2026-11-26. PM-01..23, lint, typecheck, build e integración: NOT_RUN, sin Mongo ni dependencias instaladas; no se inventaron resultados.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (falta BASE-01/02 de I-1); BASE-05 sin contratos compartidos; D-002 pendiente de ratificación; Issues no creadas (sin `gh`). No se agregaron colecciones ni dependencias fuera del stack.
+- Próxima acción concreta: I-1 habilita BASE-01/02 y el equipo BASE-05; luego aplicar validadores e índices, cargar plantillas y ejecutar PM-01/02/07/11/12/23 sobre Mongo real.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
