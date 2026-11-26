@@ -26,7 +26,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 |---|---|---|---|---|---|---|
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
-| BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
+| BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | IN_PROGRESS | Siete documentos copiados a raíz y plan `docs/plan-ejecucion-i2.md` en rama `docs/incorporar-reglas-i2`; commit `8443f77`. Pendiente revisión del equipo, ratificación D-002 e Issues (sin `gh` en este entorno) |
 | BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | PENDING | — |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
 | BASE-06 | F0 | Equipo | Fixtures UUID, reloj, harness y resultados esperados comunes | BASE-05 | PENDING | — |
@@ -77,11 +77,11 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Archivos recientes / pruebas / PR: ninguno registrado.
 
 ### I-2 MongoDB / calidad / documentación
-- Rama actual: por verificar. Último commit: por verificar.
-- Siguiente: BASE-03, luego DOC-01 cuando esté infraestructura/contratos. Puede preparar revisión documental y criterios de validadores sin inventar esquemas.
-- Estado: documentación inicial preparada fuera del repositorio; código no verificado.
-- Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter; I-3 TraceabilityReader; coordinación BASE-05.
-- Archivos recientes / pruebas / PR: siete Markdown de planificación; ninguna prueba de software ejecutada, ningún PR conocido.
+- Rama actual: `docs/incorporar-reglas-i2`, creada desde `develop` (alineada con `origin/develop`, 0/0). Último commit verificado al redactar: `8443f77` (incorporación de línea base y plan); `e847c92` (gitignore).
+- Siguiente: cerrar BASE-03 con la revisión del equipo, ratificación D-002 y creación de Issues; luego DOC-01 cuando BASE-02 y BASE-05 estén verificadas. Plan detallado en `docs/plan-ejecucion-i2.md`.
+- Estado: siete documentos incorporados a la raíz y plan de ejecución I-2 propuesto; código documental no verificado. No se marcan tareas como VERIFIED ni MERGED.
+- Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
+- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md` y `docs/plan-ejecucion-i2.md`. Pruebas de software: NOT_RUN (sin bootstrap ni scripts, PROJECT §6). PR: pendiente; `gh` no disponible en este entorno.
 
 ### I-3 Neo4j / trazabilidad / UX
 - Rama actual: por verificar. Último commit: por verificar.
@@ -276,6 +276,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Archivos: PROJECT.md, DATA_MODEL.md, REQUIREMENTS.md, PROGRESS.md.
 - Rama/commit/PR: no disponible. Pruebas del software: NOT_RUN; revisión documental no equivale a prueba de implementación.
 - Próximo paso: BASE-03 y BASE-01, revisar v1.1 con equipo, preparar contratos y entorno; ejecutar DEMO-01/02 y BENCH-01 cuando se cumplan dependencias.
+
+### TC-SESSION-20261126-I2-001
+- Fecha: 2026-11-26. Responsable: I-2 (rama `docs/incorporar-reglas-i2`).
+- Objetivo: BASE-03 parcial — incorporar la línea base v1.1 al repositorio, ignorar la carpeta de trabajo del agente y proponer un plan de ejecución para la parte documental.
+- RF/RN: no se modifica ningún RF/RN; se respeta D-002 (AGENTS/BUSINESS_RULES/API_CONTRACT v1.0 y resto v1.1).
+- Trabajo realizado: inspección real del repo (rama `feat/Implement`/`develop`, commit `11a1dbf`, remoto `EdwarDa2/TraceChain`, árbol con marcadores vacíos, sin `gh`, suites NOT_RUN); `.gitignore` con `/InformacionAgente/`; siete documentos copiados a raíz; prompt de rol en `docs/rol-i2.md`; plan `docs/plan-ejecucion-i2.md` con brechas, dependencias, secuencia DOC-01..09, TEST-02 e issues propuestas; `PROGRESS.md` actualizado en sección I-2, BASE-03 e historial.
+- Archivos modificados: `.gitignore`, `AGENTS.md`, `PROJECT.md`, `REQUIREMENTS.md`, `BUSINESS_RULES.md`, `DATA_MODEL.md`, `API_CONTRACT.md`, `PROGRESS.md`, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`.
+- Rama/commit/PR: `docs/incorporar-reglas-i2`; `e847c92` (chore), `8443f77` (docs, incorporación); este punto de control se confirma en el commit siguiente de la rama. PR pendiente (sin `gh`; enlace manual posible).
+- Pruebas reales: NOT_RUN. Sin bootstrap, `package.json` funcional ni scripts; no se ejecutaron lint, typecheck, tests ni build. No se inventaron resultados.
+- Bloqueadores/dependencias/decisiones: B-001 inspeccionado por I-2 pero no resuelto (falta BASE-01/02 de I-1); B-002 y B-003 pendientes; estructura `backend/src` no canónica requiere acuerdo (AI-11/AI-20); D-002 pendiente de ratificación; Issues no creadas.
+- Próxima acción concreta: equipo ratifica línea base y plan, confirma roles y revisores; I-1 ejecuta BASE-01/02; con acceso a GitHub crear las issues propuestas; I-2 inicia DOC-01 solo con BASE-02 y BASE-05 verificadas.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
