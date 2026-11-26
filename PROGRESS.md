@@ -77,12 +77,12 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Archivos recientes / pruebas / PR: ninguno registrado.
 
 ### I-2 MongoDB / calidad / documentación
-- Rama actual: `feature/mongo-document-schema`, creada desde `docs/incorporar-reglas-i2` (que parte de `develop`, aún sin la línea base mergeada). Último commit verificado al redactar: `aa0f405` (validadores, índices y plantillas); base documental en `8443f77`.
-- Siguiente: cerrar BASE-03 con la revisión del equipo, ratificación D-002 y creación de Issues; cuando BASE-02 y BASE-05 estén verificadas, ejecutar DOC-01 (aplicar validadores e índices) y DOC-02 (cargar plantillas) con las pruebas PM. Plan detallado en `docs/plan-ejecucion-i2.md`.
-- Estado: siete documentos en raíz, plan propuesto y artefactos de diseño documental preparados. DOC-01/DOC-02 siguen PENDING: sin MongoDB real ni contratos verificados. No se marcan tareas como VERIFIED ni MERGED.
-- Artefactos de diseño (permitidos en paralelo según plan §5): tres esquemas `$jsonSchema`, diez índices declarados, seis plantillas v1, aplicador de validadores y sembrador. No se tocó backend, contratos ni esquemas ajenos.
+- Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `09a7dec` (validador de parámetros y 18 pruebas), `2623222`/`290ce0b` (capa documental), `943f37f` (checkpoint en rama docs).
+- Siguiente: cerrar BASE-03 con la revisión del equipo, ratificación D-002 y creación de Issues; cuando BASE-02 y BASE-05 estén verificadas, ejecutar DOC-01 (aplicar validadores e índices) y DOC-02 (cargar plantillas) con las pruebas PM; DOC-03 continúa sobre el validador de parámetros ya probado. Plan detallado en `docs/plan-ejecucion-i2.md`.
+- Estado: siete documentos en raíz, plan propuesto, capa documental preparada y validador dinámico con pruebas. DOC-01/DOC-02 siguen PENDING: sin MongoDB real ni contratos verificados. No se marcan tareas como VERIFIED ni MERGED.
+- Artefactos de diseño (permitidos en paralelo según plan §5): tres esquemas `$jsonSchema`, diez índices declarados, seis plantillas v1, aplicador de validadores, sembrador y `backend/src/modules/inspections/parameters.validator.mts` con 18 pruebas unitarias (RF-16, RN-52/115, PM-05/06). Se usa extensión `.mts` para ejecutar con `node --experimental-strip-types` mientras `backend/package.json` está vacío (I-1); se convertirá a `.ts` cuando BASE-01 lo habilite.
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
-- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md` y `database/document/**`. Prueba ejecutable sin motor: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones (2026-11-26). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
+- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**` y `backend/src/modules/inspections/**`. Pruebas ejecutadas: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones; `node --experimental-strip-types --test backend/src/modules/inspections/parameters.validator.spec.mts` → 18/18 OK (2026-11-26). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 
 ### I-3 Neo4j / trazabilidad / UX
 - Rama actual: por verificar. Último commit: por verificar.
@@ -299,6 +299,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones, 2026-11-26. PM-01..23, lint, typecheck, build e integración: NOT_RUN, sin Mongo ni dependencias instaladas; no se inventaron resultados.
 - Bloqueadores/dependencias/decisiones: B-001 abierto (falta BASE-01/02 de I-1); BASE-05 sin contratos compartidos; D-002 pendiente de ratificación; Issues no creadas (sin `gh`). No se agregaron colecciones ni dependencias fuera del stack.
 - Próxima acción concreta: I-1 habilita BASE-01/02 y el equipo BASE-05; luego aplicar validadores e índices, cargar plantillas y ejecutar PM-01/02/07/11/12/23 sobre Mongo real.
+
+### TC-SESSION-20261126-I2-003
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: siguiente funcionalidad de I-2 con pruebas desde el primer día — validación dinámica de parámetros de inspección contra la plantilla.
+- RF/RN: RF-16/RF-17, RNF-06/RNF-10, RN-52/RN-55/RN-115; PM-05/PM-06; códigos de error oficiales mapeados a INVALID_INSPECTION_PARAMETERS (422).
+- Trabajo realizado: `parameters.validator.mts` con comparación decimal exacta (BigInt, sin float), validación de TEXTO/ENTERO/DECIMAL/BOOLEANO/SELECCION, límites inclusivos, claves desconocidas, requeridos ausentes, Int32, 34 dígitos y plantillas inválidas; 18 pruebas unitarias. DOC-03 sigue PENDING: falta el servicio NestJS y `packages/contracts`.
+- Archivos modificados: `backend/src/modules/inspections/parameters.validator.mts`, `backend/src/modules/inspections/parameters.validator.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: código en `feature/mongo-schema`, commit `09a7dec`; PR pendiente, sin integrar en `develop`. No se borró ninguna rama ni archivo.
+- Pruebas reales: `node --experimental-strip-types --test backend/src/modules/inspections/parameters.validator.spec.mts` → 18/18 OK, 143 ms, 2026-11-26. Tres fallos iniciales por códigos internos inconsistentes fueron corregidos y conservan su registro en el historial de la rama. PM-01..23, lint, typecheck y build: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-05 sin contratos; `.mts` elegido porque `backend/package.json` está vacío y Node rechaza módulos `.ts` bajo él — se convertirá a `.ts` tras BASE-01 (AI-15 reportado); D-002 pendiente de ratificación.
+- Próxima acción concreta: repetir el patrón «funcionalidad + pruebas» para `QualityReader` y agregaciones (DOC-04) como lógica pura; mantener sin merge hasta que el equipo lo autorice.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
