@@ -1,0 +1,70 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "E-16 expedientes_incidencias",
+    "description": "Expediente escrito solo por handler Mongo. Fuente: DATA_MODEL.md §3, RN-116.",
+    "required": ["_id", "incidencia_id", "descripcion", "inspecciones_ids", "hallazgos", "evidencias", "version", "ultimo_evento_id", "created_at", "updated_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "incidencia_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "descripcion": { "bsonType": "string", "minLength": 1, "maxLength": 5000 },
+      "inspecciones_ids": {
+        "bsonType": "array",
+        "maxItems": 50,
+        "uniqueItems": true,
+        "items": {
+          "bsonType": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        }
+      },
+      "hallazgos": {
+        "bsonType": "array",
+        "maxItems": 30,
+        "items": {
+          "bsonType": "object",
+          "required": ["tipo", "parametro", "descripcion", "severidad"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": {
+              "enum": ["IMPUREZAS", "HUMEDAD", "PESO", "EMPAQUE", "APARIENCIA", "TEXTURA", "TEMPERATURA", "OTRO"]
+            },
+            "parametro": { "bsonType": "null", "description": "Siempre null en expediente (RN-116)" },
+            "descripcion": { "bsonType": "string", "minLength": 1, "maxLength": 5000 },
+            "severidad": { "enum": ["BAJA", "MEDIA", "ALTA"] }
+          }
+        }
+      },
+      "evidencias": {
+        "bsonType": "array",
+        "maxItems": 20,
+        "items": {
+          "bsonType": "object",
+          "required": ["tipo", "referencia", "fecha_registro"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": { "enum": ["IMAGEN", "DOCUMENTO", "REFERENCIA"] },
+            "referencia": { "bsonType": "string", "minLength": 1, "maxLength": 500 },
+            "descripcion": { "bsonType": ["string", "null"], "maxLength": 5000 },
+            "fecha_registro": { "bsonType": "date" }
+          }
+        }
+      },
+      "observaciones": { "bsonType": ["string", "null"], "maxLength": 3000 },
+      "resolucion_detallada": { "bsonType": ["string", "null"], "maxLength": 5000 },
+      "version": { "bsonType": "int", "minimum": 1 },
+      "ultimo_evento_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "created_at": { "bsonType": "date" },
+      "updated_at": { "bsonType": "date" }
+    }
+  }
+}
