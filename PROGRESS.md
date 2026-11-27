@@ -71,11 +71,11 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
-- Rama actual: `feature/pg-bootstrap`, creada desde `develop` (`2746582`). Último commit de esta sesión: BASE-01/BASE-02.
-- Siguiente: REL-03 (repositorios SQL de incidencia/bloqueo), REL-04 (auth/roles), REL-05/07/08/09/10/11 (catálogos, recepciones, producción, distribución, dashboard y detalle) y las interfaces frontend de I-1. BASE-05 sigue pendiente de coordinación del equipo.
-- Estado: bootstrap, entorno, esquema relacional y capa transaccional (locks ordenados, stock exacto, outbox e idempotencia) preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
+- Rama actual: `feature/pg-incident-auth`, creada desde `develop` (`e9c4daf`). El bootstrap quedó integrado en `develop` (`e9c4daf`); esta rama continúa REL-03/REL-04.
+- Siguiente: REL-05/07/08/09/10/11 (catálogos, recepciones, producción, distribución, dashboard y detalle integrado) y las interfaces frontend de I-1. BASE-05 sigue pendiente de coordinación del equipo.
+- Estado: bootstrap, entorno, esquema relacional, capa transaccional, repositorios de incidencia/bloqueo y autenticación preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
 - Artefactos: `package.json` raíz con workspaces, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig*`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml` (5 servicios, volúmenes y DB en loopback) y `.github/workflows/ci.yml`.
-- Archivos recientes / pruebas / PR: lo anterior más `backend/src/database/postgres/transaction.mts` y `tests/unit/transactional-repositories.spec.mts`. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7. Las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
+- Archivos recientes / pruebas / PR: `backend/src/database/postgres/incident-repositories.mts`, `backend/src/modules/auth/auth.mts` y `tests/unit/incident-auth.spec.mts`, además de los artefactos ya integrados. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7, incidencias/auth 10/10; las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
 
 ### I-2 MongoDB / calidad / documentación
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
@@ -409,6 +409,18 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: 7/7 transaccionales; 9/9 bootstrap; 7/7 esquema; 84/84 y 309/309 de I-2 siguen verdes en `develop`. Contra PostgreSQL real: NOT_RUN.
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Sin transacción distribuida: I/O de Mongo/Neo queda fuera de la transacción SQL (AGENTS §2).
 - Próxima acción concreta: completar REL-03 (repositorios de incidencia/bloqueo con versión confirmada), REL-04 (auth Argon2id/JWT/roles) y los casos de uso REL-05..11, manteniendo TDD.
+
+### TC-SESSION-20261126-I1-004
+- Fecha: 2026-11-26. Responsable: I-1 (rama `feature/pg-incident-auth`).
+- Objetivo: REL-03 y REL-04 — repositorios SQL de incidencias/bloqueos y autenticación/autorización.
+- RF/RN: RF-01/RF-02/RF-20..23/RF-31/32, RNF-04/05, RN-07/08/11/63/64/92/116/117/125, PS-01..12.
+- Metodología TDD: `tests/unit/incident-auth.spec.mts` primero (roja), después ambos módulos; verde 10/10. Un fallo de sintaxis por *parameter property* de TypeScript en modo strip-only se corrigió con asignación explícita en `AuthError`.
+- Trabajo realizado: `incident-repositories.mts` con create/find/lock, versión confirmada derivada de eventos COMPLETADOS, start/close con WHERE de estado y repositorio de bloqueos con createMany/release/activeByLots; `auth.mts` con JWT HS256 (claims iss/aud/iat/exp), verificación con timingSafeEqual, RBAC y límite de 5 intentos por IP/60 s. Argon2id queda como puerto inyectado hasta que BASE-01 instale dependencias.
+- Archivos modificados: `backend/src/database/postgres/incident-repositories.mts`, `backend/src/modules/auth/auth.mts`, `tests/unit/incident-auth.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/pg-incident-auth`; PR pendiente, sin integrar. No se borró nada.
+- Pruebas reales: 10/10 incidencias/auth; 23/23 de las suites I-1 anteriores y 84/84 de I-2 permanecen verdes en `develop`. Base de datos real: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Contraseñas nunca en texto plano; errores sin exponer secretos (AI-16).
+- Próxima acción concreta: REL-05/07/08/09/10/11 con TDD: catálogos, recepciones, producción, distribución, dashboard y detalle integrado, reutilizando `InventoryWriter`, `OutboxWriter` e idempotencia.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
