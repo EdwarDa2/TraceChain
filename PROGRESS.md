@@ -90,6 +90,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Siguiente: revisión/PR de GRA-01 y coordinación de REL-06 antes de iniciar GRA-02. BASE-04, Cytoscape.js y todo frontend continúan pospuestos por decisión expresa durante esta fase.
 - Estado: GRA-01 **VERIFIED** localmente, no `MERGED`: exactamente 6 constraints de nodo, 7 constraints de relación y 6 índices de código aplicados en Neo4j 5.26 Community mediante scripts idempotentes. BASE-02 pasó smoke 3/3 con el override corregido y BASE-05 pasó typecheck/build específico. B-004 resuelto.
 - Archivos recientes / pruebas / PR: `database/graph/schema/001_node_constraints.cypher`, `002_relationship_constraints.cypher`, `003_indexes.cypher`, `database/graph/apply-schema.mjs`, pruebas estática/integración en `database/graph/tests/**`; correcciones autorizadas en `docker-compose.test.yml`, `tests/unit/base02-validation.spec.mts` y `tests/integration/engines-smoke.mjs`. TDD rojo 0/4 por scripts ausentes → verde 4/4; integración real 2/2; segunda aplicación idempotente exit 0. `npm ci` con Node 22.22.0/npm 10.9.4 exit 0; contratos typecheck/build exit 0; typecheck global FALLÓ en archivos preexistentes de backend/frontend ajenos a I-3 y build global no se ejecutó por `&&`. PG/PI/E2E/QE/DA: NOT_RUN.
+- Corrección CI para PR #9 (2026-11-26): `frontend/package.json` ahora incluye `.mts` en lint y `eslint.config.mjs` ya no los ignora. `npm run lint` pasó con Node 22.22.0/npm 10.9.4; los cuatro `.mts` actuales de frontend sí se revisan. `npm run typecheck` sigue FALLANDO por TS5097 en backend/frontend y TS2352/TS2339 en código ajeno; B-005 permanece abierto. Cambios de configuración compartida requieren revisión de I-1 en PR.
 
 ## 5. Estado RF (fuente REQUIREMENTS.md)
 | RF | Funcionalidad | Estado | Evidencia |
@@ -483,6 +484,14 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Bloqueadores/dependencias/decisiones: B-004 resuelto; B-005 abierto y asignado a dueños de módulos. GRA-02 depende además de REL-06 y no se inicia unilateralmente. Frontend sigue fuera de alcance.
 - Rama/commit/PR: merge local `55736f5`; corrección de puerto `ede63a8`; commit de GRA-01 pendiente al registrar esta entrada; PR pendiente.
 - Próxima acción concreta: commit de GRA-01 y solicitud de revisión; después coordinar evidencia/estado real de REL-06 para iniciar handlers GRA-02.
+
+### TC-SESSION-20261126-I3-003
+- Fecha: 2026-11-26. Responsable: I-3 (rama `feature/graph-schema`, PR #9).
+- Objetivo: corregir el fallo de lint CI del PR sin desactivar lint ni adelantar frontend visual (RNF-18/19, AI-12/18).
+- Trabajo realizado: se comprobó que `frontend/src` contiene cuatro archivos `.mts` pero el script buscaba solo `.ts/.tsx` y ESLint ignoraba `.mts`. Se incluyó `.mts` en `frontend/package.json` y se retiró la exclusión global del tipo en `eslint.config.mjs`; queda pendiente revisión del coordinador I-1 para esa configuración.
+- Archivos: `frontend/package.json`, `eslint.config.mjs`, `PROGRESS.md`. Ningún componente ni contrato modificado.
+- Pruebas reales: Docker `node:22.22.0-bookworm` (npm 10.9.4, dependencias instaladas): `npm run lint` → exit 0 el 2026-11-26. `npm run typecheck` → exit 1: TS5097 en imports `.mts` de módulos backend/frontend; TS2352 en `backend/src/modules/incidents/dossier.mts:211`; TS2339 en `backend/src/modules/operations/operations.mts:115`. Contratos sí pasan. Build/test/integración: NOT_RUN en esta corrección (no ocultar fallo).
+- Bloqueos y siguiente acción: B-005 sigue abierto; I-1 revisa configuración y corrige `operations.mts`, I-2 coordina módulos `.mts`/dossier y frontend de sus features. Repetir CI y solicitar revisión humana antes de merge; no afirmar PR verde por el éxito aislado de lint.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
