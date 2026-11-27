@@ -1,0 +1,7 @@
+# Override SOLO de pruebas: PostgreSQL se publica en 55432 para no interferir
+# con una instalación local en 5432. No detiene ni modifica servicios ajenos.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.test.yml up -d postgres mongodb neo4j
+services:
+  postgres:
+    ports:
+      - "127.0.0.1:55432:5432"

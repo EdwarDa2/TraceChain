@@ -1,2 +1,16 @@
 # Documentación de trabajo del agente (no versionar)
 /InformacionAgente/
+
+# Dependencias y artefactos generados
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Secretos y entorno local
+.env
+.env.local
+.env.*.local
