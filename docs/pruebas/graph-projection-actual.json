@@ -1,0 +1,95 @@
+{
+  "fixtureType": "proyeccion_neo4j_controlada_no_integracion_multimodelo",
+  "nodesByType": {
+    "Distribucion": 3,
+    "Lote": 9,
+    "Proceso": 5,
+    "Producto": 7,
+    "Proveedor": 3,
+    "Ubicacion": 4
+  },
+  "nodes": 31,
+  "relationshipsByType": {
+    "CORRESPONDE_A": 9,
+    "ENTREGADO_A": 3,
+    "GENERA": 5,
+    "INCLUIDO_EN": 3,
+    "SALE_DE": 3,
+    "SUMINISTRA": 4,
+    "UTILIZADO_EN": 8
+  },
+  "relationships": 35,
+  "lots": 9,
+  "processes": 5,
+  "distributions": 3,
+  "forward": [
+    "LP-001",
+    "LP-002",
+    "LP-003",
+    "LP-004"
+  ],
+  "forwardDepths": {
+    "LP-001": 1,
+    "LP-002": 1,
+    "LP-003": 2,
+    "LP-004": 2
+  },
+  "backward": [
+    "LP-001",
+    "MP-001",
+    "MP-002",
+    "MP-003"
+  ],
+  "common": [
+    "MP-001",
+    "MP-002"
+  ],
+  "destinationNames": [
+    "Centro",
+    "Norte"
+  ],
+  "forwardStatus": "COMPLETO",
+  "shortStatus": "PARCIAL",
+  "shortWarnings": [
+    "DEPTH_LIMIT"
+  ],
+  "exactCapStatus": "COMPLETO",
+  "exceededCapStatus": "PARCIAL",
+  "exceededCapWarnings": [
+    "RESULT_LIMIT"
+  ],
+  "shortestDepth": 2,
+  "shortestStatus": "COMPLETO",
+  "absentPaths": 0,
+  "absentStatus": "COMPLETO",
+  "suppliers": [
+    "PROV-001",
+    "PROV-002",
+    "PROV-003"
+  ],
+  "relevantProcesses": [
+    "OP-000001",
+    "OP-000002",
+    "OP-000003",
+    "OP-000004"
+  ],
+  "genealogyLp001Forward": [
+    "LP-003"
+  ],
+  "genealogyLp001Backward": [
+    "MP-001",
+    "MP-002",
+    "MP-003"
+  ],
+  "visualNodes": 9,
+  "visualEdges": 8,
+  "visualTruncated": false,
+  "smallVisualTruncated": true,
+  "unsupportedHere": [
+    "PostgreSQL stock",
+    "MongoDB inspections",
+    "incidents",
+    "HTTP API",
+    "benchmark"
+  ]
+}

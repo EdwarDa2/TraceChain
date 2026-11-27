@@ -1,0 +1,16 @@
+metrica,esperado,obtenido,alcance
+nodos_neo4j,31,31,proyeccion_aislada
+relaciones_neo4j,35,35,proyeccion_aislada
+lotes_neo4j,9,9,proyeccion_aislada
+procesos_neo4j,5,5,proyeccion_aislada
+distribuciones_neo4j,3,3,proyeccion_aislada
+descendientes_mp001,4,4,proyeccion_aislada
+antecedentes_comunes_lp003_lp004,2,2,proyeccion_aislada
+destinos_mp001_derivados,2,2,proyeccion_aislada
+profundidad_minima_mp001_lp003,2,2,proyeccion_aislada
+rutas_mp001_lp005,0,0,proyeccion_aislada
+subgrafo_productivo_nodos,9,9,proyeccion_aislada
+subgrafo_productivo_aristas,8,8,proyeccion_aislada
+inspecciones_mongodb,no_ejecutado,no_ejecutado,pendiente_multimodelo
+existencias_postgresql,no_ejecutado,no_ejecutado,pendiente_multimodelo
+qe01_qe05,no_ejecutado,no_ejecutado,pendiente_benchmark

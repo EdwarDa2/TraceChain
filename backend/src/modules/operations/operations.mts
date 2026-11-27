@@ -25,12 +25,26 @@ export interface OperationsDeps {
     confirm(solicitud: SolicitudIdempotente, status: number, body: unknown, tx: Tx): Promise<void>;
   };
   catalogo: {
-    producto(id: string): Promise<{ id: string; name: string; active: boolean; type: string; unit: string } | null>;
-    proveedor(id: string): Promise<{ id: string; active: boolean } | null>;
-    ubicacion(id: string): Promise<{ id: string; active: boolean } | null>;
+    producto(id: string, tx: Tx): Promise<{ id: string; name: string; active: boolean; type: string; unit: string } | null>;
+    proveedor(id: string, tx: Tx): Promise<{ id: string; active: boolean } | null>;
+    ubicacion(id: string, tx: Tx): Promise<{ id: string; active: boolean } | null>;
     insertarProveedor(datos: { code: string; name: string }, tx: Tx): Promise<void>;
     insertarProducto(datos: { code: string; name: string }, tx: Tx): Promise<void>;
     insertarUbicacion(datos: { code: string; name: string }, tx: Tx): Promise<void>;
+  };
+  records: {
+    insertLot(input: { id: string; code: string; productId: string; supplierId: string | null;
+      supplierLotCode?: string | null; quantity: string; at: string;
+      expirationDate: string | null; actorId: string }, tx: Tx): Promise<void>;
+    insertProduction(input: { id: string; name: string; locationId: string; at: string;
+      notes?: string | null; actorId: string }, tx: Tx): Promise<{ code: string; createdAt: string }>;
+    insertConsumption(id: string, orderId: string, lotId: string, quantity: string, tx: Tx): Promise<void>;
+    insertResult(id: string, orderId: string, lotId: string, quantity: string, tx: Tx): Promise<void>;
+    insertDistribution(input: { id: string; originId: string; destinationId: string; at: string;
+      notes?: string | null; actorId: string }, tx: Tx): Promise<{ code: string; createdAt: string }>;
+    insertDetail(id: string, distributionId: string, lotId: string, quantity: string, tx: Tx): Promise<void>;
+    inputLots(ids: string[], tx: Tx): Promise<Map<string, { code: string; unit: string; originAt: string;
+      expirationDate: string | null; blocked: boolean; lastMovementAt: string | null }>>;
   };
   reloj(): string;
   nuevoId(): string;
@@ -60,16 +74,58 @@ function solicitud(actorId: string, operacion: string, clave: string, cuerpo: un
   return { actorId, operacion, clave, hash: hashDe(cuerpo) };
 }
 
-async function validarCatalogo(entrada: { productId: string; supplierId?: string; locationId: string }, deps: OperationsDeps) {
-  const producto = await deps.catalogo.producto(entrada.productId);
+async function validarCatalogo(entrada: { productId: string; supplierId?: string; locationId: string },
+  deps: OperationsDeps, tx: Tx) {
+  const producto = await deps.catalogo.producto(entrada.productId, tx);
   if (producto === null || !producto.active) throw new Error('INACTIVE_RESOURCE: producto no elegible');
-  const ubicacion = await deps.catalogo.ubicacion(entrada.locationId);
-  if (ubicacion === null || !ubicacion.active) throw new Error('INACTIVE_RESOURCE: ubicación no activa');
   if (entrada.supplierId !== undefined) {
-    const proveedor = await deps.catalogo.proveedor(entrada.supplierId);
+    const proveedor = await deps.catalogo.proveedor(entrada.supplierId, tx);
     if (proveedor === null || !proveedor.active) throw new Error('INACTIVE_RESOURCE: proveedor no activo');
   }
+  const ubicacion = await deps.catalogo.ubicacion(entrada.locationId, tx);
+  if (ubicacion === null || !ubicacion.active) throw new Error('INACTIVE_RESOURCE: ubicación no activa');
   return producto;
+}
+
+function validarFecha(instant: string, now: string): number {
+  if (typeof instant !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{1,3})?(?:Z|[+-]\d\d:\d\d)$/.test(instant)) {
+    throw new Error('INVALID_OPERATION_DATE');
+  }
+  const value = Date.parse(instant);
+  if (!Number.isFinite(value) || value > Date.parse(now)) throw new Error('INVALID_OPERATION_DATE');
+  return value;
+}
+
+function validarUnidad(quantity: string, unit: string) {
+  if (unit === 'UNIDAD' && !quantity.endsWith('.000')) throw new Error('INVALID_QUANTITY');
+}
+
+function businessDate(at: number): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City',
+    year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(at));
+}
+
+function validarCaducidad(expirationDate: string | null, at: number, now: number) {
+  if (expirationDate !== null && (expirationDate < businessDate(at) ||
+      expirationDate < businessDate(now))) throw new Error('INVALID_OPERATION_DATE');
+}
+
+async function validarInsumos(ids: string[], at: number, deps: OperationsDeps, tx: Tx) {
+  const inputs = await deps.records.inputLots(ids, tx);
+  if (inputs.size !== ids.length) throw new Error('RESOURCE_NOT_FOUND');
+  for (const id of ids) {
+    const lot = inputs.get(id)!;
+    if (lot.blocked) throw new Error('LOT_BLOCKED');
+    if (lot.expirationDate !== null && (lot.expirationDate < businessDate(at) ||
+        lot.expirationDate < businessDate(Date.parse(deps.reloj())))) {
+      throw new Error('LOT_EXPIRED');
+    }
+    if (at < Date.parse(lot.originAt) ||
+        lot.lastMovementAt !== null && at < Date.parse(lot.lastMovementAt)) {
+      throw new Error('INVALID_OPERATION_DATE');
+    }
+  }
+  return inputs;
 }
 
 export async function crearProveedor(
@@ -88,6 +144,7 @@ export interface RecepcionEntrada {
   code: string;
   productId: string;
   supplierId: string;
+  supplierLotCode?: string | null;
   locationId: string;
   quantity: string;
   receivedAt: string;
@@ -98,7 +155,7 @@ export interface RecepcionEntrada {
 
 export interface OperacionResultado {
   graphSyncStatus: 'PENDIENTE';
-  id?: string;
+  id: string;
 }
 
 export async function registrarRecepcion(
@@ -111,8 +168,15 @@ export async function registrarRecepcion(
   const resultado = await deps.transaction.run(async (tx) => {
     const reserva = await deps.idempotencia.reserve(request, tx);
     if (reserva.replay) return reserva.body as OperacionResultado;
-    await validarCatalogo(entrada, deps);
+    const at = validarFecha(entrada.receivedAt, deps.reloj());
+    const producto = await validarCatalogo(entrada, deps, tx);
+    if (producto.type !== 'MATERIA_PRIMA') throw new Error('INVALID_OPERATION');
+    validarUnidad(quantity, producto.unit);
+    validarCaducidad(entrada.expirationDate, at, Date.parse(deps.reloj()));
     const loteId = deps.nuevoId();
+    await deps.records.insertLot({ id: loteId, code, productId: entrada.productId,
+      supplierId: entrada.supplierId, supplierLotCode: entrada.supplierLotCode, quantity, at: entrada.receivedAt,
+      expirationDate: entrada.expirationDate, actorId: entrada.actorId }, tx);
     await deps.inventory.changeStock({
       lotId: loteId,
       locationId: entrada.locationId,
@@ -134,7 +198,9 @@ export async function registrarRecepcion(
         supplierId: entrada.supplierId,
       },
     }, tx);
-    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: loteId };
+    const response = { id: loteId, code, initialQuantity: quantity,
+      unit: producto.unit, originType: 'RECEPCION' as const,
+      graphSyncStatus: 'PENDIENTE' as const };
     await deps.idempotencia.confirm(request, 201, response, tx);
     return response;
   });
@@ -143,6 +209,7 @@ export async function registrarRecepcion(
 
 export interface ProduccionEntrada {
   name: string;
+  notes?: string | null;
   locationId: string;
   producedAt: string;
   inputs: { lotId: string; quantity: string }[];
@@ -167,9 +234,33 @@ export async function registrarProduccion(
   return deps.transaction.run(async (tx) => {
     const reserva = await deps.idempotencia.reserve(request, tx);
     if (reserva.replay) return reserva.body as OperacionResultado;
-    const ordenId = deps.nuevoId();
+    const at = validarFecha(entrada.producedAt, deps.reloj());
+    if (typeof entrada.name !== 'string' || entrada.name.trim().length === 0 ||
+        entrada.name.length > 150) throw new Error('VALIDATION_ERROR');
+    const outputProducts = new Map<string, string>();
+    for (const item of [...entrada.outputs].sort((a, b) => a.productId.localeCompare(b.productId))) {
+      const product = await deps.catalogo.producto(item.productId, tx);
+      if (!product?.active) throw new Error('INACTIVE_RESOURCE');
+      if (product.type === 'MATERIA_PRIMA') throw new Error('INVALID_OPERATION');
+      validarUnidad(item.quantity, product.unit);
+      validarCaducidad(item.expirationDate, at, Date.parse(deps.reloj()));
+      outputProducts.set(item.productId, product.unit);
+    }
+    const location = await deps.catalogo.ubicacion(entrada.locationId, tx);
+    if (!location?.active) throw new Error('INACTIVE_RESOURCE');
     await deps.inventory.lockLots([...entrada.inputs.map((item) => item.lotId)].sort(), tx);
+    const inputs = await validarInsumos(entrada.inputs.map((item) => item.lotId), at, deps, tx);
+    for (const item of entrada.inputs) validarUnidad(item.quantity, inputs.get(item.lotId)!.unit);
+    const ordenId = deps.nuevoId();
+    const { code, createdAt } = await deps.records.insertProduction({
+      id: ordenId, name: entrada.name, locationId: entrada.locationId,
+      at: entrada.producedAt, notes: entrada.notes, actorId: entrada.actorId,
+    }, tx);
+    const inputRelations: { id: string; lotId: string; quantity: string; unit: string }[] = [];
+    const responseInputs: { id: string; lotId: string; lotCode: string; quantity: string; unit: string }[] = [];
     for (const item of entrada.inputs) {
+      const relationId = deps.nuevoId();
+      await deps.records.insertConsumption(relationId, ordenId, item.lotId, item.quantity, tx);
       await deps.inventory.changeStock({
         lotId: item.lotId,
         locationId: entrada.locationId,
@@ -180,10 +271,22 @@ export async function registrarProduccion(
         actorId: entrada.actorId,
         movementAt: entrada.producedAt,
       }, tx);
+      inputRelations.push({ id: relationId, lotId: item.lotId, quantity: item.quantity,
+        unit: inputs.get(item.lotId)!.unit });
+      responseInputs.push({ id: relationId, lotId: item.lotId, lotCode: inputs.get(item.lotId)!.code,
+        quantity: item.quantity, unit: inputs.get(item.lotId)!.unit });
     }
     const salidas: Record<string, unknown>[] = [];
+    const responseOutputs: { id: string; lotId: string; lotCode: string; productId: string;
+      expirationDate: string | null; quantity: string; unit: string }[] = [];
     for (const salida of entrada.outputs) {
       const loteId = deps.nuevoId();
+      const relationId = deps.nuevoId();
+      await deps.records.insertLot({ id: loteId, code: validarCodigo(salida.code),
+        productId: salida.productId, supplierId: null, quantity: salida.quantity,
+        at: entrada.producedAt, expirationDate: salida.expirationDate,
+        actorId: entrada.actorId }, tx);
+      await deps.records.insertResult(relationId, ordenId, loteId, salida.quantity, tx);
       await deps.inventory.changeStock({
         lotId: loteId,
         locationId: entrada.locationId,
@@ -195,11 +298,14 @@ export async function registrarProduccion(
         movementAt: entrada.producedAt,
       }, tx);
       salidas.push({
-        id: deps.nuevoId(),
+        id: relationId,
         lot: { id: loteId, code: validarCodigo(salida.code), productId: salida.productId, originType: 'PRODUCCION', originAt: entrada.producedAt },
         quantity: salida.quantity,
-        unit: 'KG',
+        unit: outputProducts.get(salida.productId)!,
       });
+      responseOutputs.push({ id: relationId, lotId: loteId, lotCode: validarCodigo(salida.code),
+        productId: salida.productId, expirationDate: salida.expirationDate,
+        quantity: salida.quantity, unit: outputProducts.get(salida.productId)! });
     }
     await deps.outbox.enqueue({
       eventId: deps.nuevoId(),
@@ -208,12 +314,16 @@ export async function registrarProduccion(
       entityId: ordenId,
       destination: 'NEO4J',
       payload: {
-        process: { id: ordenId, code: `OP-${ordenId}`, name: entrada.name, locationId: entrada.locationId, producedAt: entrada.producedAt },
-        inputs: entrada.inputs.map((item) => ({ id: deps.nuevoId(), lotId: item.lotId, quantity: item.quantity, unit: 'KG' })),
+        process: { id: ordenId, code, name: entrada.name, locationId: entrada.locationId, producedAt: entrada.producedAt },
+        inputs: inputRelations,
         outputs: salidas,
       },
     }, tx);
-    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: ordenId };
+    const response = { id: ordenId, code, name: entrada.name,
+      locationId: entrada.locationId, producedAt: entrada.producedAt,
+      inputCount: responseInputs.length, outputCount: responseOutputs.length,
+      notes: entrada.notes ?? null, actorId: entrada.actorId, createdAt,
+      inputs: responseInputs, outputs: responseOutputs, graphSyncStatus: 'PENDIENTE' as const };
     await deps.idempotencia.confirm(request, 201, response, tx);
     return response;
   });
@@ -223,6 +333,7 @@ export interface DistribucionEntrada {
   originLocationId: string;
   destinationLocationId: string;
   distributedAt: string;
+  notes?: string | null;
   items: { lotId: string; quantity: string }[];
   actorId: string;
   idempotencyKey: string;
@@ -243,9 +354,26 @@ export async function registrarDistribucion(
   return deps.transaction.run(async (tx) => {
     const reserva = await deps.idempotencia.reserve(request, tx);
     if (reserva.replay) return reserva.body as OperacionResultado;
+    const at = validarFecha(entrada.distributedAt, deps.reloj());
+    for (const locationId of [entrada.originLocationId, entrada.destinationLocationId].sort()) {
+      if (!(await deps.catalogo.ubicacion(locationId, tx))?.active) throw new Error('INACTIVE_RESOURCE');
+    }
+    await deps.inventory.lockLots(entrada.items.map((item) => item.lotId).sort(), tx);
+    const inputs = await validarInsumos(entrada.items.map((item) => item.lotId), at, deps, tx);
     const distribucionId = deps.nuevoId();
-    await deps.inventory.lockLots(entrada.items.map((item) => item.lotId), tx);
+    const { code, createdAt } = await deps.records.insertDistribution({ id: distribucionId,
+      originId: entrada.originLocationId, destinationId: entrada.destinationLocationId,
+      at: entrada.distributedAt, notes: entrada.notes, actorId: entrada.actorId }, tx);
+    const details: { id: string; lotId: string; quantity: string; unit: string }[] = [];
+    const responseItems: { id: string; lotId: string; lotCode: string; quantity: string; unit: string }[] = [];
     for (const item of entrada.items) {
+      const unit = inputs.get(item.lotId)!.unit;
+      validarUnidad(item.quantity, unit);
+      const detailId = deps.nuevoId();
+      await deps.records.insertDetail(detailId, distribucionId, item.lotId, item.quantity, tx);
+      details.push({ id: detailId, lotId: item.lotId, quantity: item.quantity, unit });
+      responseItems.push({ id: detailId, lotId: item.lotId, lotCode: inputs.get(item.lotId)!.code,
+        quantity: item.quantity, unit });
       const comun = {
         lotId: item.lotId,
         movementAt: entrada.distributedAt,
@@ -273,11 +401,15 @@ export async function registrarDistribucion(
       entityId: distribucionId,
       destination: 'NEO4J',
       payload: {
-        distribution: { id: distribucionId, distributedAt: entrada.distributedAt, originLocationId: entrada.originLocationId, destinationLocationId: entrada.destinationLocationId },
-        items: entrada.items.map((item) => ({ id: deps.nuevoId(), lotId: item.lotId, quantity: item.quantity, unit: 'KG' })),
+        distribution: { id: distribucionId, code, distributedAt: entrada.distributedAt, originLocationId: entrada.originLocationId, destinationLocationId: entrada.destinationLocationId },
+        items: details,
       },
     }, tx);
-    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: distribucionId };
+    const response = { id: distribucionId, code, originLocationId: entrada.originLocationId,
+      destinationLocationId: entrada.destinationLocationId, distributedAt: entrada.distributedAt,
+      itemCount: responseItems.length, notes: entrada.notes ?? null,
+      actorId: entrada.actorId, createdAt, items: responseItems,
+      graphSyncStatus: 'PENDIENTE' as const };
     await deps.idempotencia.confirm(request, 201, response, tx);
     return response;
   });

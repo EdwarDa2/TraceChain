@@ -1,11 +1,18 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { validateEnv } from './config/env.validation.mts';
 
 async function bootstrap() {
   const config = validateEnv(process.env);
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors({
+    origin: config.FRONTEND_URL,
+    methods: ['GET', 'POST', 'PATCH'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
+  });
+  app.useBodyParser('json', { limit: '1mb' });
   app.enableShutdownHooks();
   await app.listen(config.PORT);
 }

@@ -88,6 +88,14 @@ export function createInventoryWriter(): InventoryWriter {
     },
     async changeStock(cambio, tx) {
       const delta = aMilesimas(cambio.delta);
+      if (delta === 0n) throw new Error('INVALID_QUANTITY');
+      if (delta > 0n) {
+        // Recepción, nueva salida y destino de transferencia aún sin existencia.
+        // La FK al lote impide crear saldos huérfanos; UNIQUE serializa el upsert.
+        await tx.query(`INSERT INTO existencias (lote_id, ubicacion_id, cantidad)
+          VALUES ($1,$2,0) ON CONFLICT (lote_id,ubicacion_id) DO NOTHING`,
+        [cambio.lotId, cambio.locationId]);
+      }
       const consulta = await tx.query(
         'SELECT cantidad FROM existencias WHERE lote_id = $1 AND ubicacion_id = $2 FOR UPDATE',
         [cambio.lotId, cambio.locationId],
@@ -97,10 +105,13 @@ export function createInventoryWriter(): InventoryWriter {
       if (resultado.startsWith('-')) {
         throw new Error(`INSUFFICIENT_STOCK: lote ${cambio.lotId}`);
       }
-      await tx.query(
+      const updated = await tx.query(
         'UPDATE existencias SET cantidad = $1, updated_at = now() WHERE lote_id = $2 AND ubicacion_id = $3',
-        [resultado, cambio.locationId, cambio.lotId],
+        [resultado, cambio.lotId, cambio.locationId],
       );
+      if (updated.rowCount === 0) {
+        throw new Error('INTERNAL_ERROR: existencia ausente durante cambio de stock');
+      }
       await tx.query(
         `INSERT INTO movimientos
           (lote_id, ubicacion_id, tipo, sentido, cantidad, cantidad_anterior, cantidad_posterior,

@@ -79,10 +79,16 @@ export function verifyJwt(token: string, secreto: string, ahora: number): JwtCla
     throw new AuthError('UNAUTHORIZED', 401, 'Firma inválida');
   }
 
+  const header = decodificar(partes[0]!);
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') {
+    throw new AuthError('UNAUTHORIZED', 401, 'Cabecera inválida');
+  }
   const claims = decodificar(partes[1]!) as unknown as JwtClaims;
   if (claims.iss !== EMISOR || claims.aud !== AUDIENCIA ||
       claims.role !== 'OPERADOR' && claims.role !== 'ANALISTA_CALIDAD' ||
-      typeof claims.sub !== 'string' || typeof claims.iat !== 'number' || typeof claims.exp !== 'number') {
+      typeof claims.sub !== 'string' || typeof claims.iat !== 'number' || typeof claims.exp !== 'number' ||
+      !Number.isInteger(claims.iat) || !Number.isInteger(claims.exp) ||
+      claims.iat > ahora || claims.exp <= claims.iat) {
     throw new AuthError('UNAUTHORIZED', 401, 'Claims inválidos');
   }
   if (claims.exp <= ahora) throw new AuthError('TOKEN_EXPIRED', 401, 'Token expirado');

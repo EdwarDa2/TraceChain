@@ -143,6 +143,46 @@ async function production(tx: ManagedTransaction, event: Delivery) {
   }
 }
 
+async function distribution(tx: ManagedTransaction, event: Delivery) {
+  const data = object(event.payload.distribution);
+  const distributionId = id(data.id);
+  if (distributionId !== event.entityId) throw new PermanentDeliveryError();
+  const items = list(event.payload.items);
+  if (items.length > 50 || new Set(items.map((item) => id(item.lotId))).size !== items.length) {
+    throw new PermanentDeliveryError();
+  }
+  const originId = id(data.originLocationId);
+  const destinationId = id(data.destinationLocationId);
+  if (originId === destinationId) throw new PermanentDeliveryError();
+  const props = {
+    id: distributionId, codigo: text(data.code),
+    fecha_distribucion: neo4j.types.DateTime.fromStandardDate(new Date(instant(data.distributedAt))),
+  };
+  const ends = await tx.run(`MATCH (o:Ubicacion {id:$originId}), (d:Ubicacion {id:$destinationId})
+    RETURN count(o) AS n`, { originId, destinationId });
+  if (ends.records[0]?.get('n').toNumber() !== 1) throw new PermanentDeliveryError();
+  const found = await tx.run(`UNWIND $ids AS lotId OPTIONAL MATCH (l:Lote {id:lotId})
+    RETURN count(l) AS n`, { ids: items.map((item) => id(item.lotId)) });
+  if (found.records[0]?.get('n').toNumber() !== items.length) throw new PermanentDeliveryError();
+  await exactlyOne(tx, `MATCH (origin:Ubicacion {id:$originId}), (destination:Ubicacion {id:$destinationId})
+    MERGE (d:Distribucion {id:$distributionId}) SET d += $props
+    MERGE (d)-[:SALE_DE {id:$departureId}]->(origin)
+    MERGE (d)-[:ENTREGADO_A {id:$arrivalId}]->(destination)
+    RETURN count(d) AS n`, {
+    originId, destinationId, distributionId, props,
+    departureId: `SALE_DE:${distributionId}`, arrivalId: `ENTREGADO_A:${distributionId}`,
+  });
+  for (const item of items) {
+    const amount = quantity(item.quantity, item.unit);
+    await exactlyOne(tx, `MATCH (l:Lote {id:$lotId}), (d:Distribucion {id:$distributionId})
+      MERGE (l)-[r:INCLUIDO_EN {id:$detailId}]->(d)
+      SET r.cantidad_milesimas=$quantity, r.unidad=$unit
+      RETURN count(r) AS n`, {
+      lotId: id(item.lotId), distributionId, detailId: id(item.id), ...amount,
+    });
+  }
+}
+
 /** Transacción por evento; cualquier extremo ausente o payload inválido revierte TODO el evento. */
 export async function applyGraphEvent(driver: Driver, database: string, event: Delivery, signal: AbortSignal) {
   if (event.destination !== 'NEO4J' || event.payloadVersion !== 1 ||
@@ -161,6 +201,9 @@ export async function applyGraphEvent(driver: Driver, database: string, event: D
       } else if (event.eventType === 'PRODUCCION_REGISTRADA') {
         if (event.entityType !== 'PRODUCTION') throw new PermanentDeliveryError();
         await production(tx, event);
+      } else if (event.eventType === 'DISTRIBUCION_REGISTRADA') {
+        if (event.entityType !== 'DISTRIBUTION') throw new PermanentDeliveryError();
+        await distribution(tx, event);
       } else throw new PermanentDeliveryError();
       signal.throwIfAborted();
     });
