@@ -1,0 +1,24 @@
+{
+  "fecha": "2026-11-27",
+  "origen": [
+    "tests/integration/concurrency-sql.integration.mjs",
+    "tests/integration/outbox-recovery.integration.mjs"
+  ],
+  "entorno": "PostgreSQL 16, MongoDB 8, Neo4j 5.26, Node.js 22.22.0; esquema SQL y base Mongo temporales, UUID nuevos, limpieza por prueba",
+  "resultado": "2/2 OK (ejecutadas con el conjunto completo de integración: 5/5 OK)",
+  "concurrencia": {
+    "consumo70Y50Sobre100": "una operación confirmada; la otra INSUFFICIENT_STOCK; stock final 30.000 o 50.000 según orden; sin saldos negativos",
+    "idempotenciaEnCarrera": "misma clave y cuerpo: respuestas idénticas, una distribución, dos movimientos, una reserva",
+    "bloqueoVsDistribucion": "orden serializable por lock de lote; tras confirmar bloqueo, distribución posterior rechazada LOT_BLOCKED sin cambiar stock",
+    "dosIncidenciasMismoLote": "2 bloqueos activos; al retirar uno queda 1 y cantidad_utilizable=0; al retirar el segundo queda 0 y utilizable=physical"
+  },
+  "recuperacion": {
+    "neoCaido": "evento FALLIDO con reintento programado; SQL confirmado; sin nodos proyectados",
+    "procesandoResidual": "reclamado y aplicado sin saltar eventos; 4 nodos y 2 relaciones",
+    "replay": "reentrega de todos los eventos sin duplicar nodos ni relaciones",
+    "mongoCaido": "incidencia SQL conservada con expediente ERROR; sin dossier; tras recuperar, expediente v1 y SINCRONIZADO; replay sin nueva versión",
+    "falloPermanente": "evento FALLIDO sin próximo intento; no se reintenta automáticamente"
+  },
+  "alcance": "Pruebas de integración sobre motores reales con servicios y dispatcher reales. No se simula caída del proceso consumidor completo ni reinicio de contenedores; el fallo se inyecta en la función de aplicación del dispatcher. No es benchmark ni DEMO-150.",
+  "noEjecutado": ["DEMO-150", "DA-01..08", "QE-01..05", "fallo de red real del contenedor", "E2E"]
+}

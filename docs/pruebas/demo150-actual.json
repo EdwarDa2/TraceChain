@@ -1,0 +1,37 @@
+{
+  "fecha": "2026-11-27",
+  "origen": "tests/integration/demo150-seed.integration.mjs",
+  "entorno": "PostgreSQL 16, MongoDB 8, Neo4j 5.26, Node.js 22.22.0; esquema SQL y base Mongo temporales, UUID deterministas de harness, limpieza por prueba",
+  "resultado": "1/1 OK",
+  "observados": {
+    "lotes": 150,
+    "ordenesProduccion": 60,
+    "distribuciones": 40,
+    "movimientos": 350,
+    "eventosNeo": 159,
+    "nodosNeo": 279,
+    "relacionesNeo": 540,
+    "inspecciones": 80,
+    "noConformes": 40,
+    "incidencias": 10,
+    "expedientes": 10,
+    "nivelesDescendientesD01R1": { "1": 2, "2": 4, "3": 4, "4": 2 },
+    "antecedentesComunesD01B2C2": 3,
+    "rutasD01R1AD1": 2,
+    "profundidadMinimaD01R1AF1": 4,
+    "impactoLotes": 13,
+    "destinosImpacto": 4,
+    "stockD01F1": { "planta": 28, "sucursalB": 8, "sucursalC": 4 }
+  },
+  "casosCubiertos": [
+    "DA-01: conteos, stock, eventos y proyección exactos",
+    "DA-02: descendientes y niveles mínimos, sin propagar co-insumos",
+    "DA-03: 40/80 no conformes y antecedentes comunes de D01-b2/c2",
+    "DA-04: dos rutas a d1, camino mínimo a f1 y ausencia de ruta entre grupos",
+    "DA-05: impacto 13 lotes, cuatro destinos y stock sin doble conteo",
+    "DA-06: bloqueo manual de descendiente verificado, rechazo de distribución y cierre sin liberar",
+    "DA-07: profundidad 1 devuelve PARCIAL/DEPTH_LIMIT"
+  ],
+  "alcance": "Semilla generada por servicios reales, validadores Mongo reales y Outbox real drenado. UUID deterministas de harness, no los rangos oficiales de DATA_MODEL §5.1. Sin interfaz gráfica ni HTTP para toda la semilla; las verificaciones son por servicios y drivers. DA-08 (benchmark QE-01..05) NO EJECUTADO.",
+  "noEjecutado": ["DA-08", "QE-01..05", "UI/E2E-03..05", "repetición de carga en entorno ya usado", "caída de motores durante la semilla"]
+}

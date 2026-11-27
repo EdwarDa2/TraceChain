@@ -26,6 +26,7 @@ class ClienteFalso implements PgClientLike {
     if (/^SELECT/i.test(sql.trim()) && this.filas.length > 0) {
       return { rows: this.filas, rowCount: this.filas.length };
     }
+    if (sql.startsWith('UPDATE existencias')) return { rows: [], rowCount: 1 };
     return { rows: [], rowCount: 0 };
   }
   async release() {
@@ -96,7 +97,7 @@ test('changeStock usa decimal exacto y escribe movimiento con saldos correctos',
 
   assert.equal(resultado.cantidad, '70.000');
   const actualizacion = cliente.llamadas.find((llamada) => llamada.sql.startsWith('UPDATE existencias'))!;
-  assert.deepEqual(actualizacion.parametros, ['70.000', 'ubicacion-1', 'lote-1']);
+  assert.deepEqual(actualizacion.parametros, ['70.000', 'lote-1', 'ubicacion-1']);
   const movimiento = cliente.llamadas.find((llamada) => llamada.sql.startsWith('INSERT INTO movimientos'))!;
   assert.deepEqual(movimiento.parametros?.slice(0, 4), ['lote-1', 'ubicacion-1', 'DISTRIBUCION_SALIDA', 'SALIDA']);
   assert.equal(movimiento.parametros?.[4], '30.000');

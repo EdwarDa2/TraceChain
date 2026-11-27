@@ -88,7 +88,8 @@ async function versionDesdeEventos(id: string, tx: Tx): Promise<number | null> {
   let version: number | null = null;
   for (const fila of resultado.rows) {
     try {
-      const envelope = JSON.parse(texto(fila.payload)) as { payload?: Record<string, unknown> };
+      const envelope = (typeof fila.payload === 'string'
+        ? JSON.parse(fila.payload) : fila.payload) as { payload?: Record<string, unknown> };
       const datos = envelope.payload ?? {};
       const candidato = datos.nextVersion ?? datos.version;
       if (typeof candidato === 'number' && Number.isInteger(candidato)) {

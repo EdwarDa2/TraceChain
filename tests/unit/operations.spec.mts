@@ -28,7 +28,7 @@ function entorno(opciones: { proveedorActivo?: boolean } = {}): Entorno {
   const eventos: Record<string, unknown>[] = [];
   const insertados: string[] = [];
   let contador = 0;
-  const tx: Tx = { query: async () => ({ rows: [], rowCount: 0 }) };
+  const tx: Tx = { query: async () => ({ rows: [], rowCount: 1 }) };
 
   const deps: OperationsDeps = {
     transaction: { run: async (work) => work(tx) },
@@ -44,12 +44,24 @@ function entorno(opciones: { proveedorActivo?: boolean } = {}): Entorno {
       confirm: async () => {},
     },
     catalogo: {
-      producto: async (id) => ({ id, name: 'Harina', active: true, type: 'MATERIA_PRIMA', unit: 'KG' }),
+      producto: async (id) => ({ id, name: 'Producto ficticio', active: true,
+        type: id === 'prd-1' ? 'MATERIA_PRIMA' : 'INTERMEDIO', unit: 'KG' }),
       proveedor: async (id) => ({ id, active: opciones.proveedorActivo ?? true }),
       ubicacion: async (id) => ({ id, active: true }),
       insertarProveedor: async (datos) => { insertados.push(`proveedor:${datos.code}`); },
       insertarProducto: async (datos) => { insertados.push(`producto:${datos.code}`); },
       insertarUbicacion: async (datos) => { insertados.push(`ubicacion:${datos.code}`); },
+    },
+    records: {
+      insertLot: async () => {},
+      insertProduction: async () => ({ code: 'OP-000001', createdAt: AHORA }),
+      insertConsumption: async () => {},
+      insertResult: async () => {},
+      insertDistribution: async () => ({ code: 'DIST-000001', createdAt: AHORA }),
+      insertDetail: async () => {},
+      inputLots: async (ids) => new Map(ids.map((id) => [id, {
+        code: id.toUpperCase(), unit: 'KG', originAt: AHORA, expirationDate: null, blocked: false, lastMovementAt: null,
+      }])),
     },
     reloj: () => AHORA,
     nuevoId: () => `id-${++contador}`,
