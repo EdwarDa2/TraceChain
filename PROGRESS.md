@@ -27,7 +27,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
 | BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
-| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | PENDING | — |
+| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | TESTING | Shell, paleta, componentes y 14 rutas implementados; PRODUCT.md/DESIGN.md creados — TC-SESSION-20261127-I3-031; falta revisión visual/E2E |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
 | BASE-06 | F0 | Equipo | Fixtures UUID, reloj, harness y resultados esperados comunes | BASE-05 | PENDING | — |
 | REL-01 | F1 | I-1 | Migraciones 16 tablas + registro, constraints, índices y vistas | BASE-02, BASE-05 | PENDING | — |
@@ -54,10 +54,10 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | DOC-07 | F3 | I-2 | Bloquear/liberar con SQL y verificación grafo; TP-17/PI-08 | DOC-06, GRA-05, REL-03 | PENDING | — |
 | GRA-06 | F3 | I-3 | Impacto integrado y mapeo visual; PI-07/10 | GRA-04, GRA-05, DOC-05, DOC-06, REL-02 | PENDING | — |
 | REL-11 | F3 | I-1 | Detalle lote integrado QI-01; PI-09 | DOC-04, GRA-03, REL-02 | PENDING | — |
-| REL-12 | F4 | I-1 | 8 vistas/secciones operativas, login, inventario/producción/distribución | REL-11, REL-09, BASE-04 | PENDING | — |
-| DOC-08 | F4 | I-2 | UI inspecciones, formulario dinámico, detalle, indicadores | DOC-04, BASE-04 | PENDING | — |
-| DOC-09 | F4 | I-2 | UI incidencias, expediente, bloqueos, vínculo a impacto | DOC-07, BASE-04 | PENDING | — |
-| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | PENDING | — |
+| REL-12 | F4 | I-1 | 8 vistas/secciones operativas, login, inventario/producción/distribución | REL-11, REL-09, BASE-04 | TESTING | Vistas conectadas a API real; ver TC-SESSION-20261127-I3-031 |
+| DOC-08 | F4 | I-2 | UI inspecciones, formulario dinámico, detalle, indicadores | DOC-04, BASE-04 | TESTING | Formulario dinámico por plantilla activa y listado conectados; same session |
+| DOC-09 | F4 | I-2 | UI incidencias, expediente, bloqueos, vínculo a impacto | DOC-07, BASE-04 | TESTING | Detalle, transiciones, bloqueos y enlace a impacto conectados; same session |
+| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | TESTING | Trazabilidad con alternativa textual, impacto y dashboard implementados; GraphViewer visual pendiente |
 | TEST-01 | F5 | I-1 | TP y PS completos, SQL benchmark queries, evidencia | REL-12, DOC-07 | PENDING | — |
 | TEST-02 | F5 | I-2 | PM completos, evidencia documental y matriz RF/RN | DOC-08, DOC-09 | PENDING | — |
 | TEST-03 | F5 | I-3 | PG completos y Cypher benchmark queries | GRA-07 | PENDING | — |
@@ -695,6 +695,13 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Implementación: `frontend/src/app/globals.css` con tokens de paleta moderna Restrained para Operate, superficies/tinta/bordes, estados semánticos, foco, selección, caret, scrollbar, numeración tabular, `:active` y `prefers-reduced-motion`; `layout.tsx` importa el CSS y `page.tsx` usa `data-surface`/`data-muted`. No se crearon vistas funcionales ni componentes de negocio. D-003 registra la contradicción violeta y su alcance solo semántico.
 - Verificación real: `npm run lint --workspace frontend`, `npm run typecheck --workspace frontend` y `npm run build --workspace frontend` → exit 0; `next build` generó `/` y `/_not-found`. Detector mecánico de Impeccable (`detect --json --changed`) → `[]`, sin hallazgos. No se ejecutó still visual completo porque aún no hay superficies funcionales que revisar.
 - Límites: F4 sigue pendiente; `PRODUCT.md`/`DESIGN.md` no se han escrito porque falta la respuesta de prioridad de flujo. Siguiente: confirmar flujo principal, completar init de producto, sistema de diseño y las 14 vistas sobre los endpoints verificados.
+
+### TC-SESSION-20261127-I3-031
+- Fecha: 2026-11-27 15:10Z, I-3 en `feat/read-api` desde `develop` (`d9c3c90`). Usuario autorizó F4 y las tres skills; se tomó el flujo analítico como prioritario por `PROJECT.md §1.1`, registrándolo en `frontend/PRODUCT.md`. Sin cambios de contrato ni esquema.
+- Backend: se añadieron endpoints de lectura reales (`backend/src/modules/queries/`) para catálogos, lotes, inventario, movimientos, órdenes, distribuciones, inspecciones, plantillas, calidad, incidencias, expedientes, bloqueos, dashboard y sistema, más altas de catálogos y cambio de estado. `tests/integration/read-api.integration.mjs` → 1/1 OK con PostgreSQL, MongoDB y Neo4j reales, incluyendo auth 401, validación 400, duplicado 409 y escritura de catálogo.
+- Frontend: `frontend/PRODUCT.md`, `DESIGN.md`, `globals.css`, providers de auth/Query, hook `use-api`, componentes comunes y 14 rutas operativas sobre endpoints verificados. Prioridad analítica: dashboard, inspecciones, incidencias, impacto y trazabilidad; operaciones y catálogos como soporte. No se conectó un GraphViewer visual: la trazabilidad ofrece alternativa textual.
+- Verificación: `npm run typecheck`, `lint` y `build` de backend y frontend → exit 0; `next build` generó 14 rutas; detector de Impeccable → `[]`. No se ejecutó revisión visual completa en navegador ni auditoría WCAG manual; E2E sigue pendiente.
+- Límites: BASE-04, REL-12, DOC-08/09 y GRA-07 quedan TESTING, no VERIFIED. Faltan GraphViewer visual, navegación E2E real, foco/contraste auditados y release. Siguiente: revisar en navegador, corregir hallazgos y completar TEST-04.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
