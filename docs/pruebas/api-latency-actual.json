@@ -1,0 +1,49 @@
+{
+  "fecha": "2026-11-27T14:16:06.119Z",
+  "repetitions": 30,
+  "warmups": 5,
+  "proposito": "Latencia HTTP extremo a extremo; no comparable con las mediciones driver→motor.",
+  "entorno": {
+    "node": "v22.22.0",
+    "postgres": "PostgreSQL 16.16 (Debian 16.16-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "neo4j": "5.26.34"
+  },
+  "endpoints": {
+    "forward": {
+      "mean": 59.52349513333326,
+      "median": 58.927443000000494,
+      "p95": 74.58119699999952,
+      "stddev": 9.639763768258211
+    },
+    "backward": {
+      "mean": 72.88130356666697,
+      "median": 62.91185450000012,
+      "p95": 140.02223199999935,
+      "stddev": 34.66033525052032
+    },
+    "genealogy": {
+      "mean": 45.857387033333424,
+      "median": 45.77574800000002,
+      "p95": 55.622135999999955,
+      "stddev": 5.877566383329963
+    },
+    "common-origins": {
+      "mean": 41.469252199999936,
+      "median": 40.05797799999982,
+      "p95": 51.668321999999534,
+      "stddev": 5.1350420888539166
+    },
+    "paths": {
+      "mean": 38.26363166666651,
+      "median": 38.5711569999994,
+      "p95": 44.38462299999992,
+      "stddev": 4.279978940538088
+    },
+    "impact": {
+      "mean": 54.46665743333348,
+      "median": 50.7072160000007,
+      "p95": 69.7025250000006,
+      "stddev": 9.000971307368507
+    }
+  }
+}
