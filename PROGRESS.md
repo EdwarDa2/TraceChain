@@ -72,10 +72,10 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
 - Rama actual: `feature/pg-incident-auth`, creada desde `develop` (`e9c4daf`). El bootstrap quedó integrado en `develop` (`e9c4daf`); esta rama continúa REL-03/REL-04.
-- Siguiente: REL-05/07/08/09/10/11 (catálogos, recepciones, producción, distribución, dashboard y detalle integrado) y las interfaces frontend de I-1. BASE-05 sigue pendiente de coordinación del equipo.
-- Estado: bootstrap, entorno, esquema relacional, capa transaccional, repositorios de incidencia/bloqueo y autenticación preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
+- Siguiente: REL-10/11 (dashboard API y detalle integrado de lote) y las interfaces frontend de I-1. BASE-05 sigue pendiente de coordinación del equipo.
+- Estado: bootstrap, entorno, esquema, transacciones, repositorios, autenticación y casos de uso operativos preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
 - Artefactos: `package.json` raíz con workspaces, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig*`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml` (5 servicios, volúmenes y DB en loopback) y `.github/workflows/ci.yml`.
-- Archivos recientes / pruebas / PR: `backend/src/database/postgres/incident-repositories.mts`, `backend/src/modules/auth/auth.mts` y `tests/unit/incident-auth.spec.mts`, además de los artefactos ya integrados. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7, incidencias/auth 10/10; las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
+- Archivos recientes / pruebas / PR: `backend/src/modules/operations/operations.mts` y `tests/unit/operations.spec.mts`, además de los artefactos ya integrados. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7, incidencias/auth 10/10, operaciones 9/9; las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
 
 ### I-2 MongoDB / calidad / documentación
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
@@ -421,6 +421,18 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: 10/10 incidencias/auth; 23/23 de las suites I-1 anteriores y 84/84 de I-2 permanecen verdes en `develop`. Base de datos real: NOT_RUN.
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Contraseñas nunca en texto plano; errores sin exponer secretos (AI-16).
 - Próxima acción concreta: REL-05/07/08/09/10/11 con TDD: catálogos, recepciones, producción, distribución, dashboard y detalle integrado, reutilizando `InventoryWriter`, `OutboxWriter` e idempotencia.
+
+### TC-SESSION-20261126-I1-005
+- Fecha: 2026-11-26. Responsable: I-1 (rama `feature/pg-use-cases`).
+- Objetivo: REL-05/07/08/09 — catálogos, recepción, producción y distribución como casos de uso orquestados.
+- RF/RN: RF-04/05/06/07/11/12/14, RN-12..48/110/112/113, RNF-08/09.
+- Metodología TDD: `tests/unit/operations.spec.mts` primero (roja), después `operations.mts`; verde 9/9. Dos fallos propios corregidos: `lotId` vs `loteId` en el shorthand, y una aserción que esperaba el envelope del outbox en el doble (el envoltorio lo aplica `OutboxWriter`, no el caso de uso).
+- Trabajo realizado: validación de códigos/cantidades, `crearProveedor`, `registrarRecepcion` (catálogo activo, idempotencia, stock + outbox en transacción), `registrarProduccion` (1..50 entradas, 1..20 salidas, locks ordenados, dependencias completas) y `registrarDistribucion` (salida/entrada por ítem, mismo ID de lote), todos reutilizando `InventoryWriter`, `OutboxWriter` e idempotencia.
+- Archivos modificados: `backend/src/modules/operations/operations.mts`, `tests/unit/operations.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/pg-use-cases`; PR pendiente, sin integrar. No se borró nada.
+- Pruebas reales: 9/9 operaciones; 33/33 de I-1 previas y 84/84 de I-2 permanecen verdes en `develop`. PostgreSQL real: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Los catálogos inactivos rechazan operación (INACTIVE_RESOURCE); sin mocks en aplicación integrada.
+- Próxima acción concreta: REL-10/11 (dashboard y detalle de lote) e interfaces frontend de I-1, con TDD.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
