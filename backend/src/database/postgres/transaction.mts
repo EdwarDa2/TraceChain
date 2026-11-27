@@ -142,10 +142,12 @@ export interface OutboxWriter {
 export function createOutboxWriter(): OutboxWriter {
   return {
     async enqueue(evento, tx) {
+      // Serializar la asignación de secuencia hasta COMMIT (RN-120).
+      await tx.query('SELECT pg_advisory_xact_lock(82701, 0)');
       await tx.query(
         `INSERT INTO eventos_sincronizacion
-          (tipo_evento, entidad_id, motor_destino, payload, estado, tipo_entidad, intentos, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, 0, now())`,
+          (tipo_evento, entidad_id, motor_destino, payload, estado, tipo_entidad, id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [
           evento.eventType,
           evento.entityId,
@@ -153,6 +155,7 @@ export function createOutboxWriter(): OutboxWriter {
           JSON.stringify({ payloadVersion: 1, payload: evento.payload }),
           'PENDIENTE',
           evento.entityType,
+          evento.eventId,
         ],
       );
     },
