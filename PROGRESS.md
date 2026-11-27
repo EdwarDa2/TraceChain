@@ -26,7 +26,6 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 |---|---|---|---|---|---|---|
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
- docs/incorporar-reglas-i2
 | BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
 | BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | PENDING | — |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
@@ -78,21 +77,12 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Archivos recientes / pruebas / PR: ninguno registrado.
 
 ### I-2 MongoDB / calidad / documentación
- docs/incorporar-reglas-i2
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
 - Siguiente: **no queda trabajo de I-2 que no requiera integración**; BASE-03 sigue pendiente de revisión del equipo, ratificación D-002, Issues y decisión sobre el commit `130868b` de `develop`. Cuando BASE-01/02/04/05 estén verificadas: aplicar validadores e índices, cargar plantillas, ejecutar PM/TP/PI/E2E y migrar los `.mts` a `.ts`/`.tsx` conectando los puertos a adaptadores reales. Plan detallado en `docs/plan-ejecucion-i2.md`.
 - Estado: las nueve tareas específicas de I-2 (DOC-01..DOC-09) tienen artefactos con pruebas unitarias, pero ninguna está VERIFIED ni MERGED: faltan MongoDB real, NestJS, contratos e integración. El porcentaje formal sigue en 0 % (PROGRESS §1). No se cuenta código generado como verificado.
 - Artefactos de diseño (permitidos en paralelo según plan §5): tres esquemas `$jsonSchema`, diez índices, seis plantillas v1, aplicador, sembrador, `backend/src/modules/inspections/parameters.validator.mts` (18 pruebas), `backend/src/modules/quality/quality-aggregations.mts` (9 pruebas), `backend/src/modules/incidents/dossier.mts` (14 pruebas: CAS, replay, handlers y respuesta 202) , `backend/src/modules/incidents/incident-lifecycle.mts` (10 pruebas), `backend/src/modules/lot-blocks/block-service.mts` (14 pruebas: verificación de grafo, todo o nada, retiro individual), `frontend/src/features/inspections/inspection-form.mts` (6 pruebas) y `frontend/src/features/incidents/incident-view.mts` (7 pruebas). Se usa `.mts` para ejecutar con `node --experimental-strip-types` mientras `backend/package.json` y `frontend/package.json` están vacíos (I-1); se convertirá a `.ts`/`.tsx` cuando BASE-01 y BASE-04 lo habiliten.
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
-=======
-- Rama actual: por verificar. Último commit: por verificar.
-- Siguiente: BASE-03, luego DOC-01 cuando esté infraestructura/contratos. Puede preparar revisión documental y criterios de validadores sin inventar esquemas.
-- Estado: documentación inicial preparada fuera del repositorio; código no verificado.
-- Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter; I-3 TraceabilityReader; coordinación BASE-05.
-- Archivos recientes / pruebas / PR: siete Markdown de planificación; ninguna prueba de software ejecutada, ningún PR conocido.
- develop
-
 ### I-3 Neo4j / trazabilidad / UX
 - Rama actual: por verificar. Último commit: por verificar.
 - Siguiente: coordinar BASE-04 tras BASE-01 y GRA-01 cuando esté entorno.
@@ -286,7 +276,6 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Archivos: PROJECT.md, DATA_MODEL.md, REQUIREMENTS.md, PROGRESS.md.
 - Rama/commit/PR: no disponible. Pruebas del software: NOT_RUN; revisión documental no equivale a prueba de implementación.
 - Próximo paso: BASE-03 y BASE-01, revisar v1.1 con equipo, preparar contratos y entorno; ejecutar DEMO-01/02 y BENCH-01 cuando se cumplan dependencias.
- docs/incorporar-reglas-i2
 ### TC-SESSION-20261126-I2-001
 - Fecha: 2026-11-26. Responsable: I-2 (rama `docs/incorporar-reglas-i2`).
 - Objetivo: BASE-03 parcial — incorporar la línea base v1.1 al repositorio, ignorar la carpeta de trabajo del agente y proponer un plan de ejecución para la parte documental.
@@ -375,8 +364,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-01/02/04/05 y D-002 pendientes; `develop` recibió el commit ajeno `130868b` con los siete documentos (seis byte-idénticos a los nuestros, `PROGRESS.md` distinto). Reportado según AI-15; sin merge, rebase ni borrado.
 - Cierre de alcance independiente: DOC-01..DOC-09 y la preparación de TEST-02 están listos en forma de lógica pura, artefactos y documentación; el avance formal permanece en 0 % hasta verificación e integración con evidencia.
 
-=======
-develop
+### TC-SESSION-20261126-I2-009
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-integration-bridge`, creada desde `develop` integrado).
+- Objetivo: ayudar a I-1 únicamente en el puente que conecta su bootstrap con los módulos de I-2, sin tocar módulos relacionales, de infraestructura ni de grafos.
+- RF/RN: RNF-18/20, AI-14/AI-15; sin RF/RN nuevos ni cambios de contrato.
+- Trabajo realizado: `docs/integracion-i1-i2.md` con el entrego exacto (BASE-01/02/05/06, variables de entorno, puertos y orden de verificación) y `backend/src/database/mongodb/adapters.mts` con `createMongoDossierStore` y `createMongoQualityPorts` sobre una interfaz `MongoLikeDb` inyectable, mapeadores camelCase ↔ snake_case español y `Date` ↔ ISO, CAS sin `_id` en `$set` y manejo de UQ(11000). Se corrigieron marcadores de conflicto sin resolver en `PROGRESS.md` (se conservó la versión rica de I-2; la versión obsoleta sigue en el historial de Git).
+- Archivos modificados: `docs/integracion-i1-i2.md`, `backend/src/database/mongodb/adapters.mts`, `backend/src/database/mongodb/adapters.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/mongo-integration-bridge`; PR pendiente, sin integrar. No se borró código ajeno ni se hicieron merges en esta sesión.
+- Pruebas reales: `node --experimental-strip-types --test <8 suites>` → 84/84 OK (78 anteriores + 6 del adaptador), 2026-11-26. `static-check.mjs` → 309 verificaciones OK en la rama integrada. PM-01..23, lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias).
+- Bloqueadores/dependencias/decisiones: B-001 abierto; I-1 debe habilitar workspaces, Docker/Mongo y `packages/contracts`; I-3 debe proveer `verifyDescendant`; D-002 pendiente de ratificación. El adaptador usa una interfaz estructural para evitar importar el driver hasta que BASE-01 exista (AI-15 reportado).
+- Próxima acción concreta: que I-1 integre esta rama cuando corresponda y, tras BASE-02, ejecutar validadores/índices/plantillas y conectar `client.db(...)` a estos adaptadores para correr PM-01..23.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:
