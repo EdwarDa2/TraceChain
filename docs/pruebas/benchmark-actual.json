@@ -1,0 +1,448 @@
+{
+  "fecha": "2026-11-27",
+  "metodologia": "Semilla 42; tres casos base 100/1000/10000 lotes con profundidades reales 3/8/15; diez componentes productivos independientes; 5 calentamientos y 30 repeticiones medidas por motor/consulta/caso; orden alternado de motor; comparación de hash antes de cronometrar.",
+  "totalMediciones": 900,
+  "totalCalentamientos": 150,
+  "errores": 0,
+  "equivalenciaVerificada": true,
+  "entorno": {
+    "node": "v22.22.0",
+    "postgres": "PostgreSQL 16.16 (Debian 16.16-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "neo4j": "5.26.34",
+    "os": "linux x64",
+    "cpus": 12,
+    "totalMemoryGb": 3.69
+  },
+  "casos": [
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "topologia": {
+        "groups": 10,
+        "layers": 4,
+        "lots": 100,
+        "processes": 70,
+        "consumptions": 140,
+        "results": 70,
+        "distributions": 20,
+        "maxDepthObserved": 3
+      },
+      "hashesEquivalentes": {
+        "QE01": true,
+        "QE02": true,
+        "QE03": true,
+        "QE04": true,
+        "QE05": true
+      }
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "topologia": {
+        "groups": 10,
+        "layers": 9,
+        "lots": 1000,
+        "processes": 880,
+        "consumptions": 1760,
+        "results": 880,
+        "distributions": 40,
+        "maxDepthObserved": 8
+      },
+      "hashesEquivalentes": {
+        "QE01": true,
+        "QE02": true,
+        "QE03": true,
+        "QE04": true,
+        "QE05": true
+      }
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "topologia": {
+        "groups": 10,
+        "layers": 16,
+        "lots": 10000,
+        "processes": 9370,
+        "consumptions": 18740,
+        "results": 9370,
+        "distributions": 40,
+        "maxDepthObserved": 15
+      },
+      "hashesEquivalentes": {
+        "QE01": true,
+        "QE02": true,
+        "QE03": true,
+        "QE04": true,
+        "QE05": true
+      }
+    }
+  ],
+  "resultados": [
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE01",
+      "motor": "SQL",
+      "mediaMs": 3.314,
+      "medianaMs": 3.096,
+      "p95Ms": 4.841,
+      "desviacionMs": 0.833,
+      "tasaErrores": 0,
+      "resultados": 6
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE01",
+      "motor": "CYPHER",
+      "mediaMs": 7.949,
+      "medianaMs": 7.871,
+      "p95Ms": 11.24,
+      "desviacionMs": 1.728,
+      "tasaErrores": 0,
+      "resultados": 6
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE02",
+      "motor": "SQL",
+      "mediaMs": 3.227,
+      "medianaMs": 3.153,
+      "p95Ms": 4.551,
+      "desviacionMs": 0.758,
+      "tasaErrores": 0,
+      "resultados": 8
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE02",
+      "motor": "CYPHER",
+      "mediaMs": 7.956,
+      "medianaMs": 7.97,
+      "p95Ms": 11.182,
+      "desviacionMs": 1.598,
+      "tasaErrores": 0,
+      "resultados": 8
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE03",
+      "motor": "SQL",
+      "mediaMs": 3.55,
+      "medianaMs": 3.306,
+      "p95Ms": 5.157,
+      "desviacionMs": 0.858,
+      "tasaErrores": 0,
+      "resultados": 4
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE03",
+      "motor": "CYPHER",
+      "mediaMs": 8.709,
+      "medianaMs": 8.364,
+      "p95Ms": 12.843,
+      "desviacionMs": 2.124,
+      "tasaErrores": 0,
+      "resultados": 4
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE04",
+      "motor": "SQL",
+      "mediaMs": 3.233,
+      "medianaMs": 3.136,
+      "p95Ms": 5.079,
+      "desviacionMs": 0.79,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE04",
+      "motor": "CYPHER",
+      "mediaMs": 8.337,
+      "medianaMs": 8.043,
+      "p95Ms": 11.115,
+      "desviacionMs": 2.067,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE05",
+      "motor": "SQL",
+      "mediaMs": 3.354,
+      "medianaMs": 3.135,
+      "p95Ms": 5.427,
+      "desviacionMs": 0.884,
+      "tasaErrores": 0,
+      "resultados": 2
+    },
+    {
+      "caso": "100",
+      "profundidad": 3,
+      "consulta": "QE05",
+      "motor": "CYPHER",
+      "mediaMs": 8.393,
+      "medianaMs": 8.004,
+      "p95Ms": 12.46,
+      "desviacionMs": 2.085,
+      "tasaErrores": 0,
+      "resultados": 2
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE01",
+      "motor": "SQL",
+      "mediaMs": 4.73,
+      "medianaMs": 4.487,
+      "p95Ms": 7.439,
+      "desviacionMs": 1.437,
+      "tasaErrores": 0,
+      "resultados": 36
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE01",
+      "motor": "CYPHER",
+      "mediaMs": 8.701,
+      "medianaMs": 8.548,
+      "p95Ms": 12.096,
+      "desviacionMs": 2.015,
+      "tasaErrores": 0,
+      "resultados": 36
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE02",
+      "motor": "SQL",
+      "mediaMs": 4.706,
+      "medianaMs": 4.66,
+      "p95Ms": 7.132,
+      "desviacionMs": 1.071,
+      "tasaErrores": 0,
+      "resultados": 44
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE02",
+      "motor": "CYPHER",
+      "mediaMs": 10.272,
+      "medianaMs": 9.182,
+      "p95Ms": 15.267,
+      "desviacionMs": 3.519,
+      "tasaErrores": 0,
+      "resultados": 44
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE03",
+      "motor": "SQL",
+      "mediaMs": 3.569,
+      "medianaMs": 3.544,
+      "p95Ms": 4.897,
+      "desviacionMs": 0.806,
+      "tasaErrores": 0,
+      "resultados": 3
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE03",
+      "motor": "CYPHER",
+      "mediaMs": 8.132,
+      "medianaMs": 8.194,
+      "p95Ms": 10.781,
+      "desviacionMs": 1.681,
+      "tasaErrores": 0,
+      "resultados": 3
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE04",
+      "motor": "SQL",
+      "mediaMs": 4.191,
+      "medianaMs": 4.094,
+      "p95Ms": 5.382,
+      "desviacionMs": 0.785,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE04",
+      "motor": "CYPHER",
+      "mediaMs": 8.749,
+      "medianaMs": 8.518,
+      "p95Ms": 12.063,
+      "desviacionMs": 1.982,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE05",
+      "motor": "SQL",
+      "mediaMs": 4.379,
+      "medianaMs": 4.465,
+      "p95Ms": 5.389,
+      "desviacionMs": 0.88,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "1000",
+      "profundidad": 8,
+      "consulta": "QE05",
+      "motor": "CYPHER",
+      "mediaMs": 8.196,
+      "medianaMs": 8.149,
+      "p95Ms": 10.862,
+      "desviacionMs": 1.563,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE01",
+      "motor": "SQL",
+      "mediaMs": 232.813,
+      "medianaMs": 172.699,
+      "p95Ms": 525.581,
+      "desviacionMs": 135.05,
+      "tasaErrores": 0,
+      "resultados": 127
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE01",
+      "motor": "CYPHER",
+      "mediaMs": 155.027,
+      "medianaMs": 147.235,
+      "p95Ms": 258.307,
+      "desviacionMs": 35.719,
+      "tasaErrores": 0,
+      "resultados": 127
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE02",
+      "motor": "SQL",
+      "mediaMs": 146.296,
+      "medianaMs": 141.033,
+      "p95Ms": 187.25,
+      "desviacionMs": 19.355,
+      "tasaErrores": 0,
+      "resultados": 135
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE02",
+      "motor": "CYPHER",
+      "mediaMs": 139.347,
+      "medianaMs": 134.439,
+      "p95Ms": 169.671,
+      "desviacionMs": 17.07,
+      "tasaErrores": 0,
+      "resultados": 135
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE03",
+      "motor": "SQL",
+      "mediaMs": 29.919,
+      "medianaMs": 3.664,
+      "p95Ms": 177.284,
+      "desviacionMs": 59.313,
+      "tasaErrores": 0,
+      "resultados": 3
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE03",
+      "motor": "CYPHER",
+      "mediaMs": 8.155,
+      "medianaMs": 7.939,
+      "p95Ms": 12.316,
+      "desviacionMs": 2.382,
+      "tasaErrores": 0,
+      "resultados": 3
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE04",
+      "motor": "SQL",
+      "mediaMs": 216.35,
+      "medianaMs": 150.127,
+      "p95Ms": 581.719,
+      "desviacionMs": 139.749,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE04",
+      "motor": "CYPHER",
+      "mediaMs": 46.09,
+      "medianaMs": 42.219,
+      "p95Ms": 69.766,
+      "desviacionMs": 8.948,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE05",
+      "motor": "SQL",
+      "mediaMs": 176.121,
+      "medianaMs": 170.385,
+      "p95Ms": 229.552,
+      "desviacionMs": 27.106,
+      "tasaErrores": 0,
+      "resultados": 1
+    },
+    {
+      "caso": "10000",
+      "profundidad": 15,
+      "consulta": "QE05",
+      "motor": "CYPHER",
+      "mediaMs": 129.128,
+      "medianaMs": 121.724,
+      "p95Ms": 182.687,
+      "desviacionMs": 22.403,
+      "tasaErrores": 0,
+      "resultados": 1
+    }
+  ],
+  "noEjecutado": [
+    "Casos adicionales a volumen fijo 1000 variando profundidad 3/8/15 y topologías lineal, ramificada, convergente e independiente",
+    "EXPLAIN ANALYZE y PROFILE separados de la latencia normal",
+    "Comparación API extremo a extremo (solo se midió driver→motor→materialización)"
+  ]
+}
