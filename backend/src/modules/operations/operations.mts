@@ -21,8 +21,8 @@ export interface OperationsDeps {
   };
   outbox: { enqueue(evento: EventoOutbox, tx: Tx): Promise<void> };
   idempotencia: {
-    reserve(solicitud: SolicitudIdempotente): { replay: false } | { replay: true; status: number; body: unknown };
-    confirm(solicitud: SolicitudIdempotente, status: number, body: unknown): Promise<void>;
+    reserve(solicitud: SolicitudIdempotente, tx: Tx): Promise<{ replay: false } | { replay: true; status: number; body: unknown }>;
+    confirm(solicitud: SolicitudIdempotente, status: number, body: unknown, tx: Tx): Promise<void>;
   };
   catalogo: {
     producto(id: string): Promise<{ id: string; name: string; active: boolean; type: string; unit: string } | null>;
@@ -107,16 +107,12 @@ export async function registrarRecepcion(
 ): Promise<OperacionResultado> {
   const code = validarCodigo(entrada.code);
   const quantity = validarCantidad(entrada.quantity);
-  const producto = await validarCatalogo(entrada, deps);
-
-  const reserva = deps.idempotencia.reserve(
-    solicitud(entrada.actorId, 'POST /lots/receipts', entrada.idempotencyKey, entrada),
-  );
-  if (reserva.replay) return reserva.body as OperacionResultado;
-
-  let loteId = '';
-  await deps.transaction.run(async (tx) => {
-    loteId = deps.nuevoId();
+  const request = solicitud(entrada.actorId, 'POST /lots/receipts', entrada.idempotencyKey, entrada);
+  const resultado = await deps.transaction.run(async (tx) => {
+    const reserva = await deps.idempotencia.reserve(request, tx);
+    if (reserva.replay) return reserva.body as OperacionResultado;
+    await validarCatalogo(entrada, deps);
+    const loteId = deps.nuevoId();
     await deps.inventory.changeStock({
       lotId: loteId,
       locationId: entrada.locationId,
@@ -138,15 +134,10 @@ export async function registrarRecepcion(
         supplierId: entrada.supplierId,
       },
     }, tx);
+    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: loteId };
+    await deps.idempotencia.confirm(request, 201, response, tx);
+    return response;
   });
-
-  const resultado: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: loteId };
-  await deps.idempotencia.confirm(
-    solicitud(entrada.actorId, 'POST /lots/receipts', entrada.idempotencyKey, entrada),
-    201,
-    resultado,
-  );
-  void producto;
   return resultado;
 }
 
@@ -172,10 +163,12 @@ export async function registrarProduccion(
   }
   for (const item of [...entrada.inputs, ...entrada.outputs]) validarCantidad(item.quantity);
 
-  const ordenId = deps.nuevoId();
-  await deps.inventory.lockLots([...entrada.inputs.map((item) => item.lotId)].sort(), undefined);
-
-  await deps.transaction.run(async (tx) => {
+  const request = solicitud(entrada.actorId, 'POST /production-orders', entrada.idempotencyKey, entrada);
+  return deps.transaction.run(async (tx) => {
+    const reserva = await deps.idempotencia.reserve(request, tx);
+    if (reserva.replay) return reserva.body as OperacionResultado;
+    const ordenId = deps.nuevoId();
+    await deps.inventory.lockLots([...entrada.inputs.map((item) => item.lotId)].sort(), tx);
     for (const item of entrada.inputs) {
       await deps.inventory.changeStock({
         lotId: item.lotId,
@@ -220,9 +213,10 @@ export async function registrarProduccion(
         outputs: salidas,
       },
     }, tx);
+    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: ordenId };
+    await deps.idempotencia.confirm(request, 201, response, tx);
+    return response;
   });
-
-  return { graphSyncStatus: 'PENDIENTE', id: ordenId };
 }
 
 export interface DistribucionEntrada {
@@ -245,8 +239,12 @@ export async function registrarDistribucion(
   }
   for (const item of entrada.items) validarCantidad(item.quantity);
 
-  const distribucionId = deps.nuevoId();
-  await deps.transaction.run(async (tx) => {
+  const request = solicitud(entrada.actorId, 'POST /distributions', entrada.idempotencyKey, entrada);
+  return deps.transaction.run(async (tx) => {
+    const reserva = await deps.idempotencia.reserve(request, tx);
+    if (reserva.replay) return reserva.body as OperacionResultado;
+    const distribucionId = deps.nuevoId();
+    await deps.inventory.lockLots(entrada.items.map((item) => item.lotId), tx);
     for (const item of entrada.items) {
       const comun = {
         lotId: item.lotId,
@@ -279,7 +277,8 @@ export async function registrarDistribucion(
         items: entrada.items.map((item) => ({ id: deps.nuevoId(), lotId: item.lotId, quantity: item.quantity, unit: 'KG' })),
       },
     }, tx);
+    const response: OperacionResultado = { graphSyncStatus: 'PENDIENTE', id: distribucionId };
+    await deps.idempotencia.confirm(request, 201, response, tx);
+    return response;
   });
-
-  return { graphSyncStatus: 'PENDIENTE', id: distribucionId };
 }

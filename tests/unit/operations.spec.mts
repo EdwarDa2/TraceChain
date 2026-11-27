@@ -40,7 +40,7 @@ function entorno(opciones: { proveedorActivo?: boolean } = {}): Entorno {
       enqueue: async (evento) => { eventos.push({ ...evento }); },
     },
     idempotencia: {
-      reserve: () => ({ replay: false }),
+      reserve: async () => ({ replay: false }),
       confirm: async () => {},
     },
     catalogo: {

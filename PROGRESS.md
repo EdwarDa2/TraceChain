@@ -38,12 +38,12 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | GRA-01 | F1 | I-3 | 6 etiquetas/7 relaciones constraints e índices | BASE-02, BASE-05 | MERGED | PR #9 → `develop` (`b0e6894`); Neo4j real 4/4 estáticas y 2/2 integración |
 | REL-04 | F2 | I-1 | Auth, roles y throttling; PS-01..12 aplicables | REL-01 | PENDING | — |
 | REL-05 | F2 | I-1 | Catálogos completos; reactivación y restricciones históricas | REL-02, REL-04 | PENDING | — |
-| REL-06 | F2 | I-1 | Outbox, idempotencia, locks y retry; pruebas recuperación | REL-01, BASE-05 | PENDING | — |
+| REL-06 | F2 | I-1 | Outbox, idempotencia, locks y retry; pruebas recuperación | REL-01, BASE-05 | IN_PROGRESS | PR #10 dispatcher; rama `feature/graph-outbox-integration`: SQL idempotencia y bootstrap de dos consumidores probados localmente; falta aceptación operativa/API |
 | REL-07 | F2 | I-1 | Recepciones, stock y movimientos; TP-03..05 | REL-05, REL-06 | PENDING | — |
 | REL-08 | F2 | I-1 | Producción atómica y concurrencia; TP-06..11/16/23 | REL-07 | PENDING | — |
 | DOC-03 | F2 | I-2 | Validación dinámica, inspecciones inmutables e idempotencia; PM-03..10/23 | DOC-02, REL-02, REL-04 | PENDING | — |
 | DOC-04 | F2 | I-2 | Consultas, agregaciones y QualityReader; PM-17/18 | DOC-03 | PENDING | — |
-| GRA-02 | F2 | I-3 | Handlers catálogo/recepción/producción idempotentes; PG-01..04 | GRA-01, REL-06 | PENDING | — |
+| GRA-02 | F2 | I-3 | Handlers catálogo/recepción/producción idempotentes; PG-01..04 | GRA-01, REL-06 | IN_PROGRESS | `feature/graph-outbox-integration`: PG-01..04 probadas con eventos controlados en Neo4j; falta extremo a extremo SQL/API y revisión |
 | GRA-03 | F2 | I-3 | BFS adelante/atrás/genealogía, niveles y advertencias; PG-05..07/13 | GRA-02, REL-08 | PENDING | — |
 | REL-09 | F3 | I-1 | Distribución transaccional y movimientos; TP-12/13 | REL-08 | PENDING | — |
 | REL-10 | F3 | I-1 | Dashboard API, actividad, estado sync; conteos fixture | REL-03, REL-09 | PENDING | — |
@@ -86,6 +86,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
+- Rama `feature/graph-outbox-integration` (desde checkpoint `f4312de`): GRA-02 IN_PROGRESS con handler Neo4j y pruebas de motor; coordinación con I-1/I-2 para idempotencia SQL, handler Mongo y arranque de ambos workers. Autorización de I-1/I-2 comunicada por el usuario; revisión humana de ambos aún pendiente. No iniciar frontend.
 - Checkpoint posterior a PR #10: `feature/graph-schema` quedó integrada en `develop` por PR #9 (`b0e6894`); dispatcher Outbox parcial integrado por PR #10 (`9d5f196`). GRA-01 MERGED; GRA-02 sigue PENDING por REL-06 incompleta. `main.ts` y `app.module.ts` vacíos, `createIdempotencyStore` usa `Map` y falta registrar adaptadores reales Neo4j/MongoDB; no afirmar arranque integrado. Build frontend bloqueado por BASE-04 pospuesta.
 - `feature/pg-outbox-dispatcher` (base `b0e6894`): dispatcher REL-06 implementado y probado con PostgreSQL. PR #9 integrado; faltan registro de handlers y arranque del consumidor desde la aplicación.
 - Rama actual: `feature/graph-schema`, actualizada con `origin/develop` (`87206c5`); commits locales `470e21d`, merge `55736f5` y corrección de infraestructura autorizada `ede63a8`; PR pendiente.
@@ -266,6 +267,7 @@ Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando e
 | B-005 | Resuelto localmente 2026-11-26, PR pendiente | Typecheck global pasó tras corregir imports `.mts` y dos errores de tipos con autorización de I-1/I-2 | Revisión humana de dueños y repetir CI en PR #9 |
 | B-006 | Abierto | Build global falla: Next.js no encuentra `app/` ni `pages/` porque BASE-04/front-end visual sigue pospuesto | Equipo acuerda secuencia de BASE-04; no desactivar build ni inventar pantalla |
 | B-007 | Resuelto localmente 2026-11-26, PR pendiente | `npm run test:integration` realiza smoke 3/3 y 3/3 pruebas Jest reales sobre motores aislados; CI configura motores antes de la ejecución | Revisar CI en GitHub con I-1; no sustituye PM/TP/PI/E2E completos |
+| B-008 | Abierto 2026-11-26 | Los casos de uso `operations.mts` aún no insertan lotes/órdenes/distribuciones en SQL ni todos los extremos/IDs de los eventos; carecen de controladores. Un evento de negocio generado por esos casos de uso no prueba integridad SQL↔Neo. | I-1 completar servicios/repositorios y comprobar caso extremo a extremo antes de marcar REL-06/GRA-02 verificadas |
 
 Registro de decisiones: D-001 línea base documental v1.0, 2026-11-25. Integra decisiones de conversaciones y cierra detalles operativos en los seis archivos de especificación. Validación de equipo y pruebas de implementación pendientes. Para nuevas decisiones: ID, fecha, propuesta, alternativas, impacto en RF/RN/API/datos, aprobación humana, PR; actualizar documentos normativos, no solo esta sección.
 
@@ -527,6 +529,13 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Estado: GRA-01 VERIFIED → MERGED por evidencia de PR. REL-06 conserva dispatcher con prueba real, pero el arranque de NestJS (`main.ts`, `app.module.ts`) está vacío, no existen adaptadores registrados de ambos destinos y `createIdempotencyStore` sigue usando memoria. GRA-02 permanece PENDING hasta acordar y verificar integración I-1/I-2; frontend sigue pospuesto.
 - Archivos modificados: `PROGRESS.md` únicamente. Pruebas de código en esta sesión: NOT_RUN (inspección Git/GitHub/código); no reinterpretar pruebas locales de sesiones anteriores como CI confirmado.
 - Próxima acción concreta: obtener acuerdo de I-1/I-2 para completar bootstrap, persistencia de idempotencia y handler Mongo, ejecutar CI e integración completa y entonces iniciar GRA-02 en rama nueva.
+
+### TC-SESSION-20261126-I3-008
+- Fecha: 2026-11-26. Responsable: I-3; rama `feature/graph-outbox-integration` desde `origin/develop` `9d5f196` más checkpoint documental `f4312de`. Autorización explícita de I-1/I-2 comunicada por el usuario para tocar bootstrap/SQL/Mongo; revisión humana sigue pendiente.
+- Objetivo: REL-06 parcial y GRA-02 parcial; RF-33/34, RN-101..104/116/119/120, PG-01..04, PM-12/15/16, PI-11/12. Sin ampliar tablas, etiquetas, contratos REST ni frontend.
+- Implementado: idempotencia SQL sin `Map`, reserva transaccional y respuesta 2xx en el mismo commit que el outbox de los casos de uso operativos; handlers de eventos Neo catálogo/recepción/producción con MERGE y rollback por extremo faltante; handler Mongo expediente con inserción única y CAS; dos bucles `runOutbox` conectados a los hooks NestJS con apagado y cancelación; arranque de backend. Pruebas de integración aisladas añadidas para concurrencia/rollback SQL, proyección Neo, CAS Mongo y arranque de ambos consumidores con ACK SQL. No hay API REST funcional añadida.
+- Verificaciones locales reales en Docker Node 22.22.0/npm 10.9.4 y motores de pruebas PostgreSQL 16/MongoDB 8/Neo4j 5.26: `npm run typecheck`, `npm run lint`, `npm run build --workspace backend` OK; `node --experimental-strip-types --test tests/unit/*.spec.mts backend/src/modules/**/*.spec.mts backend/src/database/mongodb/*.spec.mts` → 126/126 OK; lint explícito de archivos `.mts`/`.mjs` modificados OK (el primer intento detectó globals de Node no importados en test runtime, corregido). `npm run test:integration` tuvo un primer fallo por import nombrado CommonJS `pg`, corregido y repetido: exit 0; smoke 3/3, pruebas Node 2+2+1 OK, Jest 3/3, compilación backend OK. `npm run test` exit 0 pero Jest backend encuentra cero suites y Vitest informa cero tests propios; no sustituye la ejecución directa de las 126 pruebas. `npm run build` exit 1: Next.js sin `app/`/`pages/` (BASE-04 pospuesta expresamente). CI de esta rama NOT_RUN.
+- Límites conocidos: B-008 impide afirmar operación HTTP→SQL→outbox→Neo; handlers probados con eventos controlados. No se marcaron REL-06 ni GRA-02 VERIFIED/MERGED. Pendiente revisión de I-1/I-2, validación de idempotencia HTTP y suites completas; Mongo secundario caído no debe impedir operación SQL.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
