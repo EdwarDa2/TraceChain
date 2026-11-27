@@ -71,10 +71,11 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
-- Rama actual: por verificar. Último commit: por verificar.
-- Siguiente: BASE-01; coordinar inicialización y interfaces con equipo.
-- Estado: ningún trabajo de código verificado. Bloqueadores: verificar repositorio y herramientas locales.
-- Archivos recientes / pruebas / PR: ninguno registrado.
+- Rama actual: `feature/pg-bootstrap`, creada desde `develop` (`2746582`). Último commit de esta sesión: BASE-01/BASE-02.
+- Siguiente: BASE-05 (contratos compartidos, coordinado) y REL-01 (16 tablas + `schema_migrations`); después REL-02/03 y auth/outbox.
+- Estado: bootstrap y validación de entorno preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que BASE-01/02 no se marcan VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci` y arranque real.
+- Artefactos: `package.json` raíz con workspaces, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig*`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml` (5 servicios, volúmenes y DB en loopback) y `.github/workflows/ci.yml`.
+- Archivos recientes / pruebas / PR: `backend/src/config/env.validation.mts` y `tests/unit/bootstrap.spec.mts`. Prueba ejecutada: `node --experimental-strip-types --test tests/unit/bootstrap.spec.mts` → 9/9 OK (2026-11-26). `npm ci`, lint, typecheck, build, PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
 
 ### I-2 MongoDB / calidad / documentación
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
@@ -374,6 +375,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: `node --experimental-strip-types --test <8 suites>` → 84/84 OK (78 anteriores + 6 del adaptador), 2026-11-26. `static-check.mjs` → 309 verificaciones OK en la rama integrada. PM-01..23, lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias).
 - Bloqueadores/dependencias/decisiones: B-001 abierto; I-1 debe habilitar workspaces, Docker/Mongo y `packages/contracts`; I-3 debe proveer `verifyDescendant`; D-002 pendiente de ratificación. El adaptador usa una interfaz estructural para evitar importar el driver hasta que BASE-01 exista (AI-15 reportado).
 - Próxima acción concreta: que I-1 integre esta rama cuando corresponda y, tras BASE-02, ejecutar validadores/índices/plantillas y conectar `client.db(...)` a estos adaptadores para correr PM-01..23.
+
+### TC-SESSION-20261126-I1-001
+- Fecha: 2026-11-26. Responsable: I-1 (rama `feature/pg-bootstrap`).
+- Objetivo: BASE-01 y BASE-02 — bootstrap del monorepo, validación de entorno e infraestructura Docker.
+- RF/RN: RNF-07, RNF-19, PROJECT §5/§6; sin RF/RN nuevos.
+- Metodología TDD: se escribió `tests/unit/bootstrap.spec.mts` primero; fase roja por módulo ausente; después se implementaron los manifiestos y `env.validation.mts`; fase verde 9/9. Un fallo intermedio era un falso positivo de substring en la aserción (`0` dentro de `20`), corregido buscando el valor como token completo, sin debilitar la regla de no exposición de valores.
+- Archivos modificados: `package.json`, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig.base.json`, `backend/tsconfig.json`, `frontend/tsconfig.json`, `packages/contracts/tsconfig.json`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml`, `.github/workflows/ci.yml`, `backend/src/config/env.validation.mts`, `tests/unit/bootstrap.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/pg-bootstrap`; PR pendiente, sin integrar en `develop`. No se borró nada.
+- Pruebas reales: `node --experimental-strip-types --test tests/unit/bootstrap.spec.mts` → 9/9 OK. Las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build y pruebas de motores: NOT_RUN (sin dependencias instaladas ni contenedores).
+- Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 requiere coordinación del equipo; D-002 pendiente de ratificación. La validación falla explícitamente sin exponer secretos (AI-16).
+- Próxima acción concreta: BASE-05 (tipos compartidos mínimos) y REL-01 (esquema relacional con 16 tablas + `schema_migrations`), siempre con prueba previa.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
