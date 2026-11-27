@@ -618,6 +618,12 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - PR: `gh` no está instalado en este entorno. La URL manual es `https://github.com/EdwarDa2/TraceChain/pull/new/feature/pg-operational-integration`. CI remoto del PR y build global: NOT_RUN; B-006 (Next.js sin `app/`/`pages/`) sigue abierto por la decisión de posponer frontend. No marcar tareas VERIFIED/MERGED hasta verificar CI e integración en `develop`.
 - Siguiente: crear el PR manualmente o instalar `gh`, observar el CI y decidir B-006 con el equipo; después continuar con DA-08/QE-01..05 en entorno separado.
 
+### TC-SESSION-20261127-I3-021
+- Fecha: 2026-11-27 06:45Z, I-3 en `fix/ci-contracts-build-order` desde `develop` (`a3b3b51`). Corrección de infraestructura compartida (scripts raíz) con autorización de revisión comunicada; B-006 sigue requiriendo decisión del equipo.
+- CI real: check `verify` del PR #12 (run 45952689953, head `a701ee1`) terminó `status=completed`, `conclusion=failure`, `completed_at=2026-11-27T06:35:00Z`, 11 anotaciones. Causa observada: `Cannot find module '@tracechain/contracts'` y parámetros `any` implícitos derivados de esa resolución; **no** fue B-006, porque el fallo ocurrió en `typecheck`, antes del build de Next.js.
+- Fix: `package.json` raíz ejecuta `npm run build --workspace @tracechain/contracts` antes de `typecheck` y antes de `build`, para que los `.d.ts` del paquete compartido existan en un checkout limpio. Verificación local con `packages/contracts/dist` eliminado: `npm run lint`, `npm run typecheck`, `npm run build --workspace backend` y build de contratos → exit 0. No se desactivó ninguna verificación.
+- Pendiente: el `verify` del PR #12 ya es `failure`; el fix debe integrarse y ejecutarse un CI nuevo. Después de typecheck, el paso `Build` seguirá fallando por B-006 (Next.js sin `app/`/`pages/`) salvo decisión del equipo: autorizar esqueleto mínimo o aceptar excepción documentada. No afirmar CI verde. DA-08/QE-01..05 NOT_RUN.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:
