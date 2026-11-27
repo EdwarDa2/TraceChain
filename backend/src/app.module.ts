@@ -14,16 +14,19 @@ import { ImpactService } from './modules/impact/impact.service';
 import { ImpactController } from './modules/impact/impact.controller';
 import { TraceabilityService } from './modules/traceability/traceability.service';
 import { TraceabilityController } from './modules/traceability/traceability.controller';
+import { ReadController } from './modules/queries/read.controller';
+import { CatalogWriteController } from './modules/queries/catalog-write.controller';
+import { ReadService } from './modules/queries/read.service';
 import { APP_FILTER } from '@nestjs/core';
 import { ApiErrorFilter } from './common/api-error.filter';
 
 @Module({
   controllers: [AuthController, OperationsController, InspectionsController,
     IncidentsController, IncidentBlocksController, LotBlocksController, ImpactController,
-    TraceabilityController],
+    TraceabilityController, ReadController, CatalogWriteController],
   providers: [OutboxService, SqlService, MongoService, AuthGuard, OperatorGuard, AnalystGuard,
     OperationsService, InspectionsService, IncidentWriteService, BlockWriteService, ImpactService,
-    TraceabilityService,
+    TraceabilityService, ReadService,
     { provide: APP_FILTER, useClass: ApiErrorFilter }],
 })
 export class AppModule {}
