@@ -26,6 +26,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 |---|---|---|---|---|---|---|
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
+ docs/incorporar-reglas-i2
 | BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
 | BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | PENDING | — |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
@@ -77,11 +78,20 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Archivos recientes / pruebas / PR: ninguno registrado.
 
 ### I-2 MongoDB / calidad / documentación
+ docs/incorporar-reglas-i2
+- Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
+- Siguiente: **no queda trabajo de I-2 que no requiera integración**; BASE-03 sigue pendiente de revisión del equipo, ratificación D-002, Issues y decisión sobre el commit `130868b` de `develop`. Cuando BASE-01/02/04/05 estén verificadas: aplicar validadores e índices, cargar plantillas, ejecutar PM/TP/PI/E2E y migrar los `.mts` a `.ts`/`.tsx` conectando los puertos a adaptadores reales. Plan detallado en `docs/plan-ejecucion-i2.md`.
+- Estado: las nueve tareas específicas de I-2 (DOC-01..DOC-09) tienen artefactos con pruebas unitarias, pero ninguna está VERIFIED ni MERGED: faltan MongoDB real, NestJS, contratos e integración. El porcentaje formal sigue en 0 % (PROGRESS §1). No se cuenta código generado como verificado.
+- Artefactos de diseño (permitidos en paralelo según plan §5): tres esquemas `$jsonSchema`, diez índices, seis plantillas v1, aplicador, sembrador, `backend/src/modules/inspections/parameters.validator.mts` (18 pruebas), `backend/src/modules/quality/quality-aggregations.mts` (9 pruebas), `backend/src/modules/incidents/dossier.mts` (14 pruebas: CAS, replay, handlers y respuesta 202) , `backend/src/modules/incidents/incident-lifecycle.mts` (10 pruebas), `backend/src/modules/lot-blocks/block-service.mts` (14 pruebas: verificación de grafo, todo o nada, retiro individual), `frontend/src/features/inspections/inspection-form.mts` (6 pruebas) y `frontend/src/features/incidents/incident-view.mts` (7 pruebas). Se usa `.mts` para ejecutar con `node --experimental-strip-types` mientras `backend/package.json` y `frontend/package.json` están vacíos (I-1); se convertirá a `.ts`/`.tsx` cuando BASE-01 y BASE-04 lo habiliten.
+- Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
+- Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
+=======
 - Rama actual: por verificar. Último commit: por verificar.
 - Siguiente: BASE-03, luego DOC-01 cuando esté infraestructura/contratos. Puede preparar revisión documental y criterios de validadores sin inventar esquemas.
 - Estado: documentación inicial preparada fuera del repositorio; código no verificado.
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter; I-3 TraceabilityReader; coordinación BASE-05.
 - Archivos recientes / pruebas / PR: siete Markdown de planificación; ninguna prueba de software ejecutada, ningún PR conocido.
+ develop
 
 ### I-3 Neo4j / trazabilidad / UX
 - Rama actual: por verificar. Último commit: por verificar.
@@ -276,7 +286,97 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Archivos: PROJECT.md, DATA_MODEL.md, REQUIREMENTS.md, PROGRESS.md.
 - Rama/commit/PR: no disponible. Pruebas del software: NOT_RUN; revisión documental no equivale a prueba de implementación.
 - Próximo paso: BASE-03 y BASE-01, revisar v1.1 con equipo, preparar contratos y entorno; ejecutar DEMO-01/02 y BENCH-01 cuando se cumplan dependencias.
+ docs/incorporar-reglas-i2
+### TC-SESSION-20261126-I2-001
+- Fecha: 2026-11-26. Responsable: I-2 (rama `docs/incorporar-reglas-i2`).
+- Objetivo: BASE-03 parcial — incorporar la línea base v1.1 al repositorio, ignorar la carpeta de trabajo del agente y proponer un plan de ejecución para la parte documental.
+- RF/RN: no se modifica ningún RF/RN; se respeta D-002 (AGENTS/BUSINESS_RULES/API_CONTRACT v1.0 y resto v1.1).
+- Trabajo realizado: inspección real del repo (rama `feat/Implement`/`develop`, commit `11a1dbf`, remoto `EdwarDa2/TraceChain`, árbol con marcadores vacíos, sin `gh`, suites NOT_RUN); `.gitignore` con `/InformacionAgente/`; siete documentos copiados a raíz; prompt de rol en `docs/rol-i2.md`; plan `docs/plan-ejecucion-i2.md` con brechas, dependencias, secuencia DOC-01..09, TEST-02 e issues propuestas; `PROGRESS.md` actualizado en sección I-2, BASE-03 e historial.
+- Archivos modificados: `.gitignore`, `AGENTS.md`, `PROJECT.md`, `REQUIREMENTS.md`, `BUSINESS_RULES.md`, `DATA_MODEL.md`, `API_CONTRACT.md`, `PROGRESS.md`, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`.
+- Rama/commit/PR: `docs/incorporar-reglas-i2`; `e847c92` (chore), `8443f77` (docs, incorporación); este punto de control se confirma en el commit siguiente de la rama. PR pendiente (sin `gh`; enlace manual posible).
+- Pruebas reales: NOT_RUN. Sin bootstrap, `package.json` funcional ni scripts; no se ejecutaron lint, typecheck, tests ni build. No se inventaron resultados.
+- Bloqueadores/dependencias/decisiones: B-001 inspeccionado por I-2 pero no resuelto (falta BASE-01/02 de I-1); B-002 y B-003 pendientes; estructura `backend/src` no canónica requiere acuerdo (AI-11/AI-20); D-002 pendiente de ratificación; Issues no creadas.
+- Próxima acción concreta: equipo ratifica línea base y plan, confirma roles y revisores; I-1 ejecuta BASE-01/02; con acceso a GitHub crear las issues propuestas; I-2 inicia DOC-01 solo con BASE-02 y BASE-05 verificadas.
 
+### TC-SESSION-20261126-I2-002
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-document-schema`).
+- Objetivo: primer incremento de la parte documental — diseño de validadores, índices y plantillas v1 dentro de `database/document/**`, sin invadir módulos ajenos ni inventar contratos.
+- RF/RN: RNF-10, RF-16, RN-51..54/107/115/116; documentación v1.1 y eventos v1.0 sin cambios (D-002).
+- Trabajo realizado: tres esquemas `$jsonSchema` strict/error para las 3 colecciones oficiales; 10 índices según DATA_MODEL §3; seis plantillas v1 con UUID de fixture 801..806 y productos 301/302/304/306/307/General-null; aplicador de validadores y sembrador idempotente con `$setOnInsert` y conversión Decimal128/Int32; verificación estática sin dependencias. DOC-01/DOC-02 permanecen PENDING porque requieren BASE-02 y BASE-05.
+- Archivos modificados: `database/document/validators/*.schema.json`, `database/document/validators/apply-validators.mjs`, `database/document/indexes/create-indexes.mongosh.js`, `database/document/data/plantillas-inspeccion.json`, `database/document/data/seed-templates.mjs`, `database/document/tests/static-check.mjs`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/mongo-document-schema`; `aa0f405` (artefactos). PR pendiente; la rama deriva de la rama documental porque `develop` aún no contiene la línea base (AI-15: contradicción reportada).
+- Pruebas reales: `node database/document/tests/static-check.mjs` → OK, 309 verificaciones, 2026-11-26. PM-01..23, lint, typecheck, build e integración: NOT_RUN, sin Mongo ni dependencias instaladas; no se inventaron resultados.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (falta BASE-01/02 de I-1); BASE-05 sin contratos compartidos; D-002 pendiente de ratificación; Issues no creadas (sin `gh`). No se agregaron colecciones ni dependencias fuera del stack.
+- Próxima acción concreta: I-1 habilita BASE-01/02 y el equipo BASE-05; luego aplicar validadores e índices, cargar plantillas y ejecutar PM-01/02/07/11/12/23 sobre Mongo real.
+
+### TC-SESSION-20261126-I2-003
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: siguiente funcionalidad de I-2 con pruebas desde el primer día — validación dinámica de parámetros de inspección contra la plantilla.
+- RF/RN: RF-16/RF-17, RNF-06/RNF-10, RN-52/RN-55/RN-115; PM-05/PM-06; códigos de error oficiales mapeados a INVALID_INSPECTION_PARAMETERS (422).
+- Trabajo realizado: `parameters.validator.mts` con comparación decimal exacta (BigInt, sin float), validación de TEXTO/ENTERO/DECIMAL/BOOLEANO/SELECCION, límites inclusivos, claves desconocidas, requeridos ausentes, Int32, 34 dígitos y plantillas inválidas; 18 pruebas unitarias. DOC-03 sigue PENDING: falta el servicio NestJS y `packages/contracts`.
+- Archivos modificados: `backend/src/modules/inspections/parameters.validator.mts`, `backend/src/modules/inspections/parameters.validator.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: código en `feature/mongo-schema`, commit `09a7dec`; PR pendiente, sin integrar en `develop`. No se borró ninguna rama ni archivo.
+- Pruebas reales: `node --experimental-strip-types --test backend/src/modules/inspections/parameters.validator.spec.mts` → 18/18 OK, 143 ms, 2026-11-26. Tres fallos iniciales por códigos internos inconsistentes fueron corregidos y conservan su registro en el historial de la rama. PM-01..23, lint, typecheck y build: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-05 sin contratos; `.mts` elegido porque `backend/package.json` está vacío y Node rechaza módulos `.ts` bajo él — se convertirá a `.ts` tras BASE-01 (AI-15 reportado); D-002 pendiente de ratificación.
+- Próxima acción concreta: repetir el patrón «funcionalidad + pruebas» para `QualityReader` y agregaciones (DOC-04) como lógica pura; mantener sin merge hasta que el equipo lo autorice.
+
+### TC-SESSION-20261126-I2-004
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: continuar DOC-04 con el patrón funcionalidad + pruebas — agregaciones de calidad y puerto `QualityReader`.
+- RF/RN: RF-19, RNF-10, RN-127, QM-02..08, PM-17/18; contratos de `API_CONTRACT.md` §2/§4/§8.
+- Trabajo realizado: `quality-aggregations.mts` con resumen global, resumen por producto (productos sin inspecciones con 0 y porcentaje null; nombres desde PG), conteo de hallazgos por tipo/severidad con orden count desc y clave asc, resumen por lote con `latestInspectionId` determinista y `createQualityReader` con puertos inyectados que no convierten fallos en arreglos vacíos. Tipos estructurales temporales hasta BASE-05. DOC-04 sigue PENDING: faltan el adaptador Mongo y el controlador NestJS.
+- Archivos modificados: `backend/src/modules/quality/quality-aggregations.mts`, `backend/src/modules/quality/quality-aggregations.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: código en `feature/mongo-schema`, commit `6e1c172`; PR pendiente, sin integrar en `develop`. No se borró nada.
+- Pruebas reales: `node --experimental-strip-types --test backend/src/modules/quality/quality-aggregations.spec.mts` → 9/9 OK; suite conjunta de inspections + quality → 27/27 OK (2026-11-26). Cuatro fallos iniciales corregidos: fixture de 3/5 mal calculado, global que contaba productos fuera de catálogo y campo `total` en vez de `totalInspections` en `LotQuality`. PM-01..23, lint, typecheck y build: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-05 sin contratos; `.mts` por `backend/package.json` vacío (AI-15 reportado); D-002 pendiente de ratificación. Sin mocks en aplicación integrada: los dobles de datos existen solo en pruebas aisladas.
+- Próxima acción concreta: DOC-05 (repositorio de expediente y handlers Mongo) o DOC-06 (flujo de incidencias) siguiendo el mismo patrón, condicionado a BASE-05 y a que haya proyecto NestJS donde integrar los módulos.
+
+### TC-SESSION-20261126-I2-005
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: siguiente tarea del orden del plan, DOC-05 — repositorio de expediente y handlers Mongo.
+- RF/RN: RF-20/RF-22/RF-34, RN-63/RN-116, PM-12..16, eventos INCIDENCIA_REGISTRADA y EXPEDIENTE_ACTUALIZADO de API_CONTRACT §7.
+- Trabajo realizado: `dossier.mts` con creación v1, CAS por incidencia_id y versión esperada, replay por ultimoEventoId, reemplazo total de arreglos, fechas de evidencia asignadas por servidor, validación de límites 50/30/20 y referencias distintas, manejo de carrera de inserción y respuesta 202 con `nextVersion` como `expectedVersion`. Incluye `createDossierRepository` con puerto inyectado; el adaptador Mongo real y el controlador NestJS siguen pendientes, por lo que DOC-05 permanece PENDING.
+- Archivos modificados: `backend/src/modules/incidents/dossier.mts`, `backend/src/modules/incidents/dossier.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: código en `feature/mongo-schema`, commit `febdcfa`; PR pendiente, sin integrar en `develop`. No se borró nada.
+- Pruebas reales: `node --experimental-strip-types --test backend/src/modules/inspections/parameters.validator.spec.mts backend/src/modules/quality/quality-aggregations.spec.mts backend/src/modules/incidents/dossier.spec.mts` → 41/41 OK (2026-11-26). Un fallo inicial por escenario de carrera mal simulado se corrigió y se volvió a ejecutar. PM-12..16 requieren MongoDB real: NOT_RUN. Lint/typecheck/build: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-05 sin contratos; `.mts` por `backend/package.json` vacío (AI-15 reportado); D-002 pendiente de ratificación. Los dobles de almacén existen solo en pruebas aisladas.
+- Próxima acción concreta: DOC-06 (flujo funcional de incidencias ABIERTA→EN_ANALISIS→CERRADA) con el mismo patrón de lógica pura y pruebas, respetando el orden del plan.
+
+### TC-SESSION-20261126-I2-006
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: continuar el orden del plan con DOC-06 — flujo funcional de incidencias.
+- RF/RN: RF-20..23, RN-59..68/117, PM-19..22, API_CONTRACT.md §2/§3.
+- Trabajo realizado: `incident-lifecycle.mts` con creación en ABIERTA y expediente PENDIENTE, transición única ABIERTA→EN_ANALISIS→CERRADA, cierre que exige resolución no vacía y expediente SINCRONIZADO, bloqueo de reapertura y de edición de expediente cerrado. Sin evento Mongo de cierre y sin liberación de bloqueos (RN-96/117). DOC-06 sigue PENDING: faltan repositorio SQL, controlador NestJS e idempotencia HTTP de I-1.
+- Archivos modificados: `backend/src/modules/incidents/incident-lifecycle.mts`, `backend/src/modules/incidents/incident-lifecycle.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: código en `feature/mongo-schema`, commit `0f77a5f`; PR pendiente, sin integrar en `develop`. No se borró nada.
+- Pruebas reales: suite conjunta inspections + quality + dossier + lifecycle → 51/51 OK (2026-11-26). PM-19..22 y lint/typecheck/build: NOT_RUN (sin MongoDB ni dependencias).
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-05 sin contratos; `.mts` por `backend/package.json` vacío (AI-15 reportado); D-002 pendiente de ratificación.
+- Próxima acción concreta: DOC-07 (bloqueo y liberación con verificación de grafo) según el plan; requiere `verifyDescendant` de I-3, por lo que se preparará la lógica pura con puertos inyectados y sus pruebas sin invadir módulos ajenos.
+
+### TC-SESSION-20261126-I2-007
+- Fecha: 2026-11-26. Responsable: I-2 (rama `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: completar el orden del plan para las tareas propias de I-2 — DOC-07, DOC-08 y DOC-09.
+- RF/RN: DOC-07 RF-31/32, RN-87..96/118, TP-17, PI-08; DOC-08 RF-16/17, RN-51..54/115; DOC-09 RF-20..23/31/32, RN-11/87/96/117, RNF-15/16.
+- Trabajo realizado: `block-service.mts` con verificación `YES/NO/UNKNOWN` inyectada, raíz sin Neo, 1..100 lotes distintos, todo o nada, `BLOCK_ALREADY_ACTIVE`, retiro individual con motivo, cierre sin liberación y `ReleaseResult`; `inspection-form.mts` con descriptores derivados de la plantilla y conversión ENTERO/DECIMAL/BOOLEANO; `incident-view.mts` con acciones por rol y estado, etiquetas en español y confirmaciones. Ninguna suites usa mocks fuera de pruebas aisladas.
+- Archivos modificados: `backend/src/modules/lot-blocks/**`, `frontend/src/features/inspections/**`, `frontend/src/features/incidents/**`, `PROGRESS.md`.
+- Rama/commit/PR: `beb3e88`, `4830165`, `6772185`; PR pendiente, sin integrar en `develop`. No se borró nada.
+- Pruebas reales: 78/78 OK (suite conjunta de siete archivos, 2026-11-26). PM-13/PM-17..22/PM-19, TP-17, PI-08, E2E y lint/typecheck/build: NOT_RUN (sin MongoDB, NestJS ni dependencias instaladas).
+- Bloqueadores/dependencias/decisiones: B-001 abierto (BASE-01/02 de I-1); BASE-04/BASE-05 sin contratos ni componentes; `.mts` por `package.json` vacíos (AI-15 reportado); D-002 pendiente de ratificación.
+- Próxima acción concreta: TEST-02 (evidencia documental y matriz RF/RN) y el apoyo de I-2 en DEMO-01/02, condicionados a infraestructura real. No se inicia benchmark ni se afirma superioridad de Neo4j.
+
+### TC-SESSION-20261126-I2-008
+- Fecha: 2026-11-26. Responsable: I-2 (código en `feature/mongo-schema`; punto de control en `docs/incorporar-reglas-i2`).
+- Objetivo: cerrar todo el alcance de I-2 que no depende de otros roles — consolidación documental y matriz RF/RN de TEST-02.
+- RF/RN: RNF-18/20, AI-14, área `docs/ consolidación` de AGENTS §3; sin RF/RN nuevos.
+- Trabajo realizado: `docs/fuente-de-verdad.md`, `docs/arquitectura.md`, `docs/decisiones-tecnologicas.md`, `docs/modelos/document/modelo-documental.md` y `docs/pruebas/matriz-trazabilidad.md`. La matriz vincula RF/RN con los nueve artefactos de I-2 y sus pruebas, declara PM/TP/PI/E2E como NOT_RUN y registra comandos y resultados reales. No se modificaron contratos ni documentos base.
+- Archivos modificados: los cinco documentos derivados anteriores y `PROGRESS.md`.
+- Rama/commit/PR: documentación en `feature/mongo-schema`, commit `7f51147`; punto de control en rama docs. PR pendiente; sin merge a `develop`. No se borró nada.
+- Pruebas reales: sin cambios de código en esta sesión. Última ejecución vigente: 309 verificaciones estáticas y 78/78 pruebas unitarias (2026-11-26). PM-01..23, TP-17, PI-08, E2E, lint/typecheck/build: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-01/02/04/05 y D-002 pendientes; `develop` recibió el commit ajeno `130868b` con los siete documentos (seis byte-idénticos a los nuestros, `PROGRESS.md` distinto). Reportado según AI-15; sin merge, rebase ni borrado.
+- Cierre de alcance independiente: DOC-01..DOC-09 y la preparación de TEST-02 están listos en forma de lógica pura, artefactos y documentación; el avance formal permanece en 0 % hasta verificación e integración con evidencia.
+
+=======
+develop
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:
