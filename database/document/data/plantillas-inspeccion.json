@@ -1,0 +1,95 @@
+[
+  {
+    "_id": "00000000-0000-4000-8000-000000000801",
+    "codigo": "TPL-HARINA",
+    "nombre": "Inspección de harina",
+    "descripcion": "Plantilla específica para materia prima harina",
+    "producto_id": "00000000-0000-4000-8000-000000000301",
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "humedad", "label": "Humedad", "dataType": "DECIMAL", "unit": "%", "required": true, "options": [], "min": "0.000", "max": "100.000" },
+      { "key": "color", "label": "Color", "dataType": "SELECCION", "unit": null, "required": true, "options": ["BLANCO", "CREMA", "OTRO"], "min": null, "max": null },
+      { "key": "impurezas", "label": "Impurezas", "dataType": "BOOLEANO", "unit": null, "required": true, "options": [], "min": null, "max": null },
+      { "key": "empaque", "label": "Empaque", "dataType": "SELECCION", "unit": null, "required": true, "options": ["INTEGRO", "DANADO"], "min": null, "max": null }
+    ]
+  },
+  {
+    "_id": "00000000-0000-4000-8000-000000000802",
+    "codigo": "TPL-AZUCAR",
+    "nombre": "Inspección de azúcar",
+    "descripcion": "Plantilla específica para materia prima azúcar",
+    "producto_id": "00000000-0000-4000-8000-000000000302",
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "humedad", "label": "Humedad", "dataType": "DECIMAL", "unit": "%", "required": true, "options": [], "min": "0.000", "max": "100.000" },
+      { "key": "color", "label": "Color", "dataType": "SELECCION", "unit": null, "required": true, "options": ["BLANCO", "CREMA", "OTRO"], "min": null, "max": null },
+      { "key": "grumos", "label": "Grumos", "dataType": "BOOLEANO", "unit": null, "required": true, "options": [], "min": null, "max": null },
+      { "key": "impurezas", "label": "Impurezas", "dataType": "BOOLEANO", "unit": null, "required": true, "options": [], "min": null, "max": null }
+    ]
+  },
+  {
+    "_id": "00000000-0000-4000-8000-000000000803",
+    "codigo": "TPL-MASA",
+    "nombre": "Inspección de masa",
+    "descripcion": "Plantilla específica para producto intermedio masa",
+    "producto_id": "00000000-0000-4000-8000-000000000304",
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "temperatura", "label": "Temperatura", "dataType": "DECIMAL", "unit": "°C", "required": true, "options": [], "min": null, "max": null },
+      { "key": "textura", "label": "Textura", "dataType": "SELECCION", "unit": null, "required": true, "options": ["SUAVE", "FIRME", "IRREGULAR"], "min": null, "max": null },
+      { "key": "consistencia", "label": "Consistencia", "dataType": "SELECCION", "unit": null, "required": true, "options": ["HOMOGENEA", "HETEROGENEA"], "min": null, "max": null }
+    ]
+  },
+  {
+    "_id": "00000000-0000-4000-8000-000000000804",
+    "codigo": "TPL-PAN",
+    "nombre": "Inspección de pan",
+    "descripcion": "Plantilla específica para producto terminado pan",
+    "producto_id": "00000000-0000-4000-8000-000000000306",
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "peso", "label": "Peso", "dataType": "DECIMAL", "unit": "g", "required": true, "options": [], "min": "0.000", "max": null },
+      { "key": "textura", "label": "Textura", "dataType": "SELECCION", "unit": null, "required": true, "options": ["SUAVE", "FIRME", "IRREGULAR"], "min": null, "max": null },
+      { "key": "empaque", "label": "Empaque", "dataType": "SELECCION", "unit": null, "required": true, "options": ["INTEGRO", "DANADO"], "min": null, "max": null }
+    ]
+  },
+  {
+    "_id": "00000000-0000-4000-8000-000000000805",
+    "codigo": "TPL-GALLETAS",
+    "nombre": "Inspección de galletas",
+    "descripcion": "Plantilla específica para producto terminado galletas; peso corresponde al paquete",
+    "producto_id": "00000000-0000-4000-8000-000000000307",
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "peso", "label": "Peso del paquete", "dataType": "DECIMAL", "unit": "g", "required": true, "options": [], "min": "0.000", "max": null },
+      { "key": "piezas_danadas", "label": "Piezas dañadas", "dataType": "ENTERO", "unit": "unidades", "required": true, "options": [], "min": "0", "max": null },
+      { "key": "textura", "label": "Textura", "dataType": "SELECCION", "unit": null, "required": true, "options": ["CRUJIENTE", "BLANDA", "IRREGULAR"], "min": null, "max": null },
+      { "key": "empaque", "label": "Empaque", "dataType": "SELECCION", "unit": null, "required": true, "options": ["INTEGRO", "DANADO"], "min": null, "max": null }
+    ]
+  },
+  {
+    "_id": "00000000-0000-4000-8000-000000000806",
+    "codigo": "TPL-GENERAL",
+    "nombre": "Inspección general",
+    "descripcion": "Plantilla general activa para productos sin plantilla específica",
+    "producto_id": null,
+    "version": 1,
+    "activo": true,
+    "created_at": "2026-11-25T20:00:00Z",
+    "parametros": [
+      { "key": "apariencia", "label": "Apariencia", "dataType": "TEXTO", "unit": null, "required": true, "options": [], "min": null, "max": null },
+      { "key": "estado", "label": "Estado", "dataType": "SELECCION", "unit": null, "required": true, "options": ["NORMAL", "IRREGULAR"], "min": null, "max": null },
+      { "key": "anomalias", "label": "Anomalías", "dataType": "BOOLEANO", "unit": null, "required": true, "options": [], "min": null, "max": null }
+    ]
+  }
+]
