@@ -72,10 +72,10 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
 - Rama actual: `feature/pg-incident-auth`, creada desde `develop` (`e9c4daf`). El bootstrap quedó integrado en `develop` (`e9c4daf`); esta rama continúa REL-03/REL-04.
-- Siguiente: REL-10/11 (dashboard API y detalle integrado de lote) y las interfaces frontend de I-1. BASE-05 sigue pendiente de coordinación del equipo.
-- Estado: bootstrap, entorno, esquema, transacciones, repositorios, autenticación y casos de uso operativos preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
+- Siguiente: solo quedan pendientes de I-1 las interfaces frontend de sus módulos, pospuestas por decisión del equipo; BASE-05 sigue pendiente de coordinación. Dashboard API y detalle integrado ya están preparados en esta rama.
+- Estado: bootstrap, entorno, esquema, transacciones, repositorios, autenticación, casos de uso operativos, dashboard y detalle integrado preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que ninguna tarea se marca VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
 - Artefactos: `package.json` raíz con workspaces, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig*`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml` (5 servicios, volúmenes y DB en loopback) y `.github/workflows/ci.yml`.
-- Archivos recientes / pruebas / PR: `backend/src/modules/operations/operations.mts` y `tests/unit/operations.spec.mts`, además de los artefactos ya integrados. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7, incidencias/auth 10/10, operaciones 9/9; las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
+- Archivos recientes / pruebas / PR: `backend/src/modules/dashboard/dashboard.mts` y `tests/unit/dashboard.spec.mts`, además de los artefactos ya integrados. Pruebas ejecutadas (2026-11-26): bootstrap 9/9, esquema 7/7, transaccional 7/7, incidencias/auth 10/10, operaciones 9/9, dashboard/detalle 6/6; las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
 
 ### I-2 MongoDB / calidad / documentación
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
@@ -433,6 +433,18 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: 9/9 operaciones; 33/33 de I-1 previas y 84/84 de I-2 permanecen verdes en `develop`. PostgreSQL real: NOT_RUN.
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Los catálogos inactivos rechazan operación (INACTIVE_RESOURCE); sin mocks en aplicación integrada.
 - Próxima acción concreta: REL-10/11 (dashboard y detalle de lote) e interfaces frontend de I-1, con TDD.
+
+### TC-SESSION-20261126-I1-006
+- Fecha: 2026-11-26. Responsable: I-1 (rama `feature/pg-dashboard`).
+- Objetivo: REL-10/REL-11 únicamente — dashboard API y detalle integrado de lote. Por decisión del equipo no se tocan interfaces frontend en este avance.
+- RF/RN: RF-03/RF-09, RNF-13, RN-124, QP-15/QI-01, API_CONTRACT.md §3/§4.
+- Metodología TDD: `tests/unit/dashboard.spec.mts` primero (roja), después `dashboard.mts`; verde 6/6.
+- Trabajo realizado: `createDashboardService` con cuatro conteos paralelos, actividad reciente validada 1..50 y estado del sistema delegado; `createLotDetailsService` con composición de stocks/calidad/genealogía/incidencias/bloqueos, `maxDepth` 1..20, `RESOURCE_NOT_FOUND` para lote ausente y secciones `NO_DISPONIBLE`/estado global `PARCIAL` cuando falla una fuente secundaria, sin convertir errores en ceros.
+- Archivos modificados: `backend/src/modules/dashboard/dashboard.mts`, `tests/unit/dashboard.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/pg-dashboard`; PR pendiente, sin integrar. No se borró nada.
+- Pruebas reales: 6/6 dashboard/detalle; 42/42 de I-1 previas y 84/84 de I-2 permanecen verdes en `develop`. Motores reales: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Las interfaces frontend de I-1 quedan pospuestas por instrucción del equipo.
+- Próxima acción concreta: integración de esta rama por parte del equipo y, cuando exista infraestructura, conectar estos servicios a lectores reales y ejecutar PM/TP/PI/E2E.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
