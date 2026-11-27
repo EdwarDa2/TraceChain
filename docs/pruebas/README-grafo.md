@@ -7,6 +7,9 @@ Desde la raíz, definir `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD` y opcionalme
 ```sh
 node --experimental-strip-types --test tests/integration/canonical-graph.integration.mts
 node --experimental-strip-types --test tests/integration/graph-projection.integration.mts
+node --experimental-strip-types --test tests/integration/graph-verification.integration.mts
 ```
 
 El primer test imprime `GRAPH_PROJECTION_ACTUAL=...` y, si se indica la ruta, guarda el mismo objeto. El JSON muestra valores observados sin UUID efímeros y declara expresamente que no se ejercitaron SQL, Mongo ni HTTP. No usar las duraciones del runner como benchmark. Antes de afirmar resultados del escenario canónico integrado, generar entidades por los servicios SQL/Mongo oficiales y verificar los tres motores y la API. QE-01..05 exigen además oráculo de equivalencia y el protocolo completo de `PROJECT.md` §8.
+
+La tercera prueba **sí requiere** `DATABASE_URL` hacia PostgreSQL de pruebas además de Neo4j. Crea un esquema SQL propio a partir de la migración 006 y comprueba el criterio conservador de RN-118 (YES aun con outbox pendiente; UNKNOWN ante ausencia pendiente; NO solo tras ACK). No prueba los endpoints ni el stock.

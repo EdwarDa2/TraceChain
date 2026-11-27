@@ -34,6 +34,8 @@ Valores obtenidos de Neo4j, reproducibles con `tests/integration/canonical-graph
 
 Distribución por relación observada: `SUMINISTRA=4`, `CORRESPONDE_A=9`, `UTILIZADO_EN=8`, `GENERA=5`, `INCLUIDO_EN=3`, `SALE_DE=3`, `ENTREGADO_A=3`. En la prueba adicional de convergencia: **2 rutas dirigidas distintas** de longitud 2 hacia un mismo lote; `maxPaths=1` devolvió PARCIAL/PATH_LIMIT; la lista de alcance incluyó el lote convergente una sola vez.
 
+En una **prueba separada** PostgreSQL+Neo4j con esquema SQL propio y dos lotes ficticios independientes, `verifyDescendant` devolvió `YES` para el camino positivo pese a un evento Neo pendiente, `UNKNOWN` para ausencia con cola pendiente y `NO` para el lote independiente tras completar la cola. La implementación compara la secuencia Outbox antes y después; no se probó aún una inserción concurrente controlada durante la lectura. No representa una incidencia o bloqueo creado por la API.
+
 **No verificado en este escenario:** cuatro inspecciones, tres no conformes, incidencia, stock y existencias SQL, referencias UUID entre los tres motores ni una respuesta API integrada. Los conteos de calidad del documento de diseño no se reproducen aquí.
 
 ## 6. Resultados experimentales
@@ -53,6 +55,7 @@ El handler y las consultas Neo4j superaron la prueba aislada de topología produ
 - `docs/pruebas/graph-projection-actual.csv`: tabla derivada de esos mismos conteos (no tiempos de rendimiento).
 - `tests/integration/canonical-graph.integration.mts`: generador, consultas, aserciones y limpieza de UUID propios.
 - `tests/integration/graph-projection.integration.mts`: replay, distribución, rollback, convergencia y caminos.
+- `tests/integration/graph-verification.integration.mts`: verificación conservadora de descendencia con Outbox SQL real.
 - `backend/src/database/neo4j/traversal.mts`: Cypher ejecutado y algoritmo de recorrido.
 - `docs/pruebas/README-grafo.md`: reproducción y alcance.
 - `DATA_MODEL.md` §4/5, `REQUIREMENTS.md` PG-01..22: resultados esperados de referencia, **no mediciones**.
