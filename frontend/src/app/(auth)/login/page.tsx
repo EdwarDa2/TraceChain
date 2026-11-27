@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../../../providers/auth-provider';
 import { ApiError } from '../../../lib/api';
 import { Field, PageHeader } from '../../../components/ui';
@@ -14,10 +14,9 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  if (token) {
-    router.replace('/dashboard');
-    return null;
-  }
+  useEffect(() => {
+    if (token) router.replace('/dashboard');
+  }, [token, router]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
