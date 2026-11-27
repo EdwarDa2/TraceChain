@@ -72,10 +72,10 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
 - Rama actual: `feature/pg-bootstrap`, creada desde `develop` (`2746582`). Último commit de esta sesión: BASE-01/BASE-02.
-- Siguiente: BASE-05 (contratos compartidos, coordinado) y REL-01 (16 tablas + `schema_migrations`); después REL-02/03 y auth/outbox.
-- Estado: bootstrap y validación de entorno preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que BASE-01/02 no se marcan VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci` y arranque real.
+- Siguiente: REL-02/03 (lectores y repositorios SQL) y REL-06 (outbox/idempotencia/transacciones); auth/roles después. BASE-05 sigue pendiente de coordinación del equipo.
+- Estado: bootstrap, entorno y esquema relacional preparados con pruebas; **no hay dependencias instaladas ni motores corriendo**, por lo que BASE-01/02/REL-01 no se marcan VERIFIED. Bloqueadores: B-001 sigue abierto hasta `npm ci`, arranque real y ejecución de migraciones.
 - Artefactos: `package.json` raíz con workspaces, `backend/package.json`, `frontend/package.json`, `packages/contracts/package.json`, `tsconfig*`, `.nvmrc`, `.editorconfig`, `.prettierrc.json`, `eslint.config.mjs`, `.env.example`, `docker-compose.yml` (5 servicios, volúmenes y DB en loopback) y `.github/workflows/ci.yml`.
-- Archivos recientes / pruebas / PR: `backend/src/config/env.validation.mts` y `tests/unit/bootstrap.spec.mts`. Prueba ejecutada: `node --experimental-strip-types --test tests/unit/bootstrap.spec.mts` → 9/9 OK (2026-11-26). `npm ci`, lint, typecheck, build, PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
+- Archivos recientes / pruebas / PR: `backend/src/config/env.validation.mts`, `database/relational/schema/001..007_*.sql`, `database/relational/migrate.mjs`, `tests/unit/bootstrap.spec.mts` y `tests/unit/relational-schema.spec.mts`. Pruebas ejecutadas (2026-11-26): bootstrap 9/9 OK; esquema relacional 7/7 OK. `npm ci`, lint, typecheck, build, migraciones reales y PM/TP/PI/E2E: NOT_RUN. PR pendiente; sin merge a `develop`.
 
 ### I-2 MongoDB / calidad / documentación
 - Rama actual: documentación en `docs/incorporar-reglas-i2`; código en `feature/mongo-schema` (creada desde `develop`, sin integrar). Últimos commits verificados: `6772185` (vista de incidencias, 7 pruebas), `4830165` (formulario dinámico, 6 pruebas), `beb3e88` (bloqueo/liberación, 14 pruebas), `0f77a5f` (ciclo de incidencias, 10 pruebas), `febdcfa` (expediente CAS, 14 pruebas), `6e1c172` (agregaciones, 9 pruebas), `09a7dec` (validador, 18 pruebas), `2623222`/`290ce0b` (capa documental), checkpoints `943f37f`/`3ef30aa`/`4cb50dd`/`259ff73`/`524cd09`.
@@ -386,6 +386,17 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Pruebas reales: `node --experimental-strip-types --test tests/unit/bootstrap.spec.mts` → 9/9 OK. Las 84 pruebas de I-2 y las 309 verificaciones estáticas siguen pasando en `develop`. `npm ci`, lint, typecheck, build y pruebas de motores: NOT_RUN (sin dependencias instaladas ni contenedores).
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 requiere coordinación del equipo; D-002 pendiente de ratificación. La validación falla explícitamente sin exponer secretos (AI-16).
 - Próxima acción concreta: BASE-05 (tipos compartidos mínimos) y REL-01 (esquema relacional con 16 tablas + `schema_migrations`), siempre con prueba previa.
+
+### TC-SESSION-20261126-I1-002
+- Fecha: 2026-11-26. Responsable: I-1 (rama `feature/pg-bootstrap`).
+- Objetivo: REL-01 — esquema relacional versionado (16 tablas + `schema_migrations`).
+- RF/RN: RNF-08/RNF-09, DATA_MODEL.md §2, RN-25/28/40/48/92/101; AI-09.
+- Metodología TDD: `tests/unit/relational-schema.spec.mts` primero (fase roja por archivos ausentes); después siete migraciones y el ejecutor checksum; fase verde 7/7.
+- Archivos modificados: `database/relational/schema/001_catalogs.sql` … `007_views_indexes.sql`, `database/relational/migrate.mjs`, `tests/unit/relational-schema.spec.mts`, `PROGRESS.md`.
+- Rama/commit/PR: `feature/pg-bootstrap`; PR pendiente, sin integrar. No se borró nada.
+- Pruebas reales: 7/7 verificaciones estructurales del esquema; 9/9 del bootstrap; 84/84 y 309/309 de I-2 siguen pasando en `develop`. Migraciones contra PostgreSQL real: NOT_RUN (sin contenedor).
+- Bloqueadores/dependencias/decisiones: B-001 abierto; `npm ci` y Docker pendientes; BASE-05 sin contratos compartidos. FKs añadidas en orden para evitar ciclos (movimientos → orden/distribución); sin ON DELETE CASCADE.
+- Próxima acción concreta: REL-02/03 y REL-06 con estrategia TDD: lectores y repositorios SQL, `TransactionManager`, lock order, stock atómico, outbox e idempotencia.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
