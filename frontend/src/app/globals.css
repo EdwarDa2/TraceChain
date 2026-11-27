@@ -1,0 +1,172 @@
+:root {
+  color-scheme: light;
+
+  /* Superficies y tinta */
+  --canvas: #f6f8fb;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --surface-3: #e4eaf2;
+  --ink: #0b1220;
+  --ink-muted: #526071;
+  --border: #d8e0ea;
+  --border-strong: #b9c5d4;
+
+  /* Acciones y estados */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-active: #1e40af;
+  --primary-soft: #e8f0fe;
+  --success: #15803d;
+  --success-soft: #e7f6ed;
+  --warning: #b45309;
+  --warning-soft: #fdf1e3;
+  --danger: #dc2626;
+  --danger-soft: #fdecec;
+
+  /* Codificación semántica del grafo, no color decorativo de la interfaz */
+  --graph: #7c3aed;
+  --graph-soft: #f1eafd;
+
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 2px rgb(11 18 32 / 6%), 0 8px 24px rgb(11 18 32 / 8%);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --duration: 160ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.875rem;
+}
+
+h2 {
+  font-size: 1.375rem;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--primary);
+  text-underline-offset: 3px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: transform var(--duration) var(--ease-out),
+    background-color var(--duration) var(--ease-out),
+    border-color var(--duration) var(--ease-out);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary-soft);
+  color: var(--ink);
+}
+
+input,
+textarea {
+  caret-color: var(--primary);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border: 3px solid var(--surface);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
+}
+
+.home {
+  max-width: 720px;
+  margin: 12vh auto;
+  padding: 32px;
+  display: grid;
+  gap: 12px;
+}
+
+[data-surface] {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+[data-muted] {
+  color: var(--ink-muted);
+}
+
+[data-timestamp],
+[data-numeric] {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
