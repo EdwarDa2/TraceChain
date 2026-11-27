@@ -1,0 +1,27 @@
+CREATE CONSTRAINT suministro_id_unique IF NOT EXISTS
+FOR ()-[r:SUMINISTRA]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT corresponde_id_unique IF NOT EXISTS
+FOR ()-[r:CORRESPONDE_A]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT consumo_id_unique IF NOT EXISTS
+FOR ()-[r:UTILIZADO_EN]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT resultado_id_unique IF NOT EXISTS
+FOR ()-[r:GENERA]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT detalle_distribucion_id_unique IF NOT EXISTS
+FOR ()-[r:INCLUIDO_EN]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT salida_distribucion_id_unique IF NOT EXISTS
+FOR ()-[r:SALE_DE]-()
+REQUIRE r.id IS UNIQUE;
+
+CREATE CONSTRAINT entrega_distribucion_id_unique IF NOT EXISTS
+FOR ()-[r:ENTREGADO_A]-()
+REQUIRE r.id IS UNIQUE;

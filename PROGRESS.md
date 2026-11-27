@@ -35,7 +35,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | REL-03 | F1 | I-1 | Repositorios SQL incidencia/bloqueo + locks y versión confirmada | REL-02 | PENDING | — |
 | DOC-01 | F1 | I-2 | 3 colecciones strict/error e índices; PM-07/12 | BASE-02, BASE-05 | PENDING | — |
 | DOC-02 | F1 | I-2 | 6 plantillas v1 y selección/historial; PM-01/02/11 | DOC-01, BASE-06 | PENDING | — |
-| GRA-01 | F1 | I-3 | 6 etiquetas/7 relaciones constraints e índices | BASE-02, BASE-05 | PENDING | — |
+| GRA-01 | F1 | I-3 | 6 etiquetas/7 relaciones constraints e índices | BASE-02, BASE-05 | VERIFIED | Rama `feature/graph-schema`; esquema real Neo4j 5.26, 4/4 estáticas y 2/2 integración |
 | REL-04 | F2 | I-1 | Auth, roles y throttling; PS-01..12 aplicables | REL-01 | PENDING | — |
 | REL-05 | F2 | I-1 | Catálogos completos; reactivación y restricciones históricas | REL-02, REL-04 | PENDING | — |
 | REL-06 | F2 | I-1 | Outbox, idempotencia, locks y retry; pruebas recuperación | REL-01, BASE-05 | PENDING | — |
@@ -67,7 +67,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | PENDING | — |
 | RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | PENDING | — |
 
-Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 0/42 VERIFIED o MERGED, 0/42 MERGED según este checkpoint documental; estado real del repo por verificar. No son estimaciones de horas.
+Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 0/42 MERGED según evidencia local vigente; no son estimaciones de horas.
 
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
@@ -86,10 +86,10 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
-- Rama actual: `feature/graph-schema`, creada desde `develop` en `f82fd16`; checkpoint documental de esta sesión, PR pendiente.
-- Siguiente: resolver/coordinar `BASE-05` con el equipo y obtener la validación formal de `BASE-02` por I-1; solo entonces iniciar GRA-01. BASE-04, Cytoscape.js y todo frontend quedan pospuestos por decisión expresa durante esta fase.
-- Estado: GRA-01 **BLOCKED**, no `IN_PROGRESS`, únicamente porque `packages/contracts/src` no existe en `develop` ni en ramas remotas. El prerrequisito técnico de motores quedó comprobado en un proyecto Docker aislado: PostgreSQL 16, MongoDB 8.0 y Neo4j 5.26 healthy y con consultas mínimas reales exitosas; esto no marca unilateralmente BASE-02 como VERIFIED. Node local es v24.21.0/npm 11.19.0 frente a Node 22/npm 10 requeridos; no existe `package-lock.json` ni `node_modules`. No se modificaron contratos, esquema, código de otros integrantes ni frontend.
-- Archivos recientes / pruebas / PR: solo este checkpoint en `PROGRESS.md`. Inspección real 2026-11-26: repositorio limpio antes del checkpoint; `develop` y `origin/develop` en `f82fd16`; búsqueda de `packages/contracts/src` en todas las ramas remotas sin resultados. `node --experimental-strip-types --test <todas las suites .spec.mts de tests/unit y backend/src>` → 119/119 OK. Smoke real aislado: PostgreSQL `SELECT 1` → `1`; MongoDB `{ping:1}` → `{"ok":1}`; Neo4j `RETURN 1 AS ok` → `1`; los tres contenedores healthy. `npm ci`, lint, typecheck, build, migraciones de aplicación, PG/PI/E2E/QE/DA: NOT_RUN por los bloqueos indicados.
+- Rama actual: `feature/graph-schema`, actualizada con `origin/develop` (`87206c5`); commits locales `470e21d`, merge `55736f5` y corrección de infraestructura autorizada `ede63a8`; PR pendiente.
+- Siguiente: revisión/PR de GRA-01 y coordinación de REL-06 antes de iniciar GRA-02. BASE-04, Cytoscape.js y todo frontend continúan pospuestos por decisión expresa durante esta fase.
+- Estado: GRA-01 **VERIFIED** localmente, no `MERGED`: exactamente 6 constraints de nodo, 7 constraints de relación y 6 índices de código aplicados en Neo4j 5.26 Community mediante scripts idempotentes. BASE-02 pasó smoke 3/3 con el override corregido y BASE-05 pasó typecheck/build específico. B-004 resuelto.
+- Archivos recientes / pruebas / PR: `database/graph/schema/001_node_constraints.cypher`, `002_relationship_constraints.cypher`, `003_indexes.cypher`, `database/graph/apply-schema.mjs`, pruebas estática/integración en `database/graph/tests/**`; correcciones autorizadas en `docker-compose.test.yml`, `tests/unit/base02-validation.spec.mts` y `tests/integration/engines-smoke.mjs`. TDD rojo 0/4 por scripts ausentes → verde 4/4; integración real 2/2; segunda aplicación idempotente exit 0. `npm ci` con Node 22.22.0/npm 10.9.4 exit 0; contratos typecheck/build exit 0; typecheck global FALLÓ en archivos preexistentes de backend/frontend ajenos a I-3 y build global no se ejecutó por `&&`. PG/PI/E2E/QE/DA: NOT_RUN.
 
 ## 5. Estado RF (fuente REQUIREMENTS.md)
 | RF | Funcionalidad | Estado | Evidencia |
@@ -257,7 +257,8 @@ Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando e
 | B-001 | Por verificar | No se ha inspeccionado repositorio real ni ejecutado bootstrap | I-1: verificar estructura, rama, dependencias; equipo confirmar |
 | B-002 | Pendiente de coordinación | Nombres nominales de I-1 e I-3, accesos/revisores | Equipo confirmar; no bloquea diseño por rol |
 | B-003 | Pendiente de coordinación | Parches exactos y compilación de stack, identidad visual | I-1 fija parches, I-3 sistema de diseño |
-| B-004 | Bloqueado | GRA-01 no puede iniciar: BASE-05 carece de `packages/contracts/src` en `develop` y ramas remotas. Los tres motores ya pasaron smoke real aislado; falta validación formal de BASE-02 por su responsable | Equipo implementa/revisa BASE-05; I-1 valida BASE-02; I-3 revalida y comienza GRA-01 sin cambiar contratos |
+| B-004 | Resuelto 2026-11-26 | BASE-05 fue integrado en `origin/develop`; BASE-02 pasó smoke real 3/3 tras corregir el reemplazo del puerto PostgreSQL y la importación CommonJS de `pg` | Evidencia en sesión I3-002; GRA-01 ejecutada sin cambiar contratos |
+| B-005 | Abierto, no bloquea GRA-01 | Typecheck global falla en imports `.mts` y dos errores de tipos preexistentes de backend/frontend; contratos e I-3 sí verifican | Dueños I-1/I-2 coordinan correcciones; no ocultar ni modificar unilateralmente |
 
 Registro de decisiones: D-001 línea base documental v1.0, 2026-11-25. Integra decisiones de conversaciones y cierra detalles operativos en los seis archivos de especificación. Validación de equipo y pruebas de implementación pendientes. Para nuevas decisiones: ID, fecha, propuesta, alternativas, impacto en RF/RN/API/datos, aprobación humana, PR; actualizar documentos normativos, no solo esta sección.
 
@@ -470,6 +471,18 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Rama/commit/PR: `feature/pg-base05-contracts`; PR pendiente, sin integrar. No se borró nada.
 - Bloqueadores/dependencias/decisiones: B-001 abierto hasta ejecutar migraciones y motores; D-002 pendiente. El informe del equipo sobre "pruebas reales de los tres motores" no tiene evidencia versionada en el repo; el puerto 5432 estaba libre en esta máquina, pero el override evita cualquier conflicto. Advertencias de `npm audit` reportadas, sin aplicar `audit fix --force` por ser cambios rupturistas (AI-20).
 - Próxima acción concreta: confirmar `npm ci`, arrancar motores con el override y ejecutar el smoke; después integrar rama y actualizar estados formales solo con evidencia.
+
+### TC-SESSION-20261126-I3-002
+- Fecha: 2026-11-26. Responsable: I-3 (rama `feature/graph-schema`).
+- Objetivo: integrar BASE-05/02, corregir con autorización los defectos de infraestructura encontrados y ejecutar GRA-01 con TDD sobre Neo4j real.
+- RF/RN: RF-33, RNF-07/11/18/19; DATA_MODEL §4; AI-03/14/15/18/19. Sin cambios de contrato, etiquetas o relaciones fuera de las seis/siete oficiales.
+- Trabajo realizado y estado: merge de `origin/develop` (`87206c5`) conservando completas las sesiones I-1/I-3 de `PROGRESS.md`; se detectó que Compose combinaba 5432 y 55432. Con autorización del dueño se añadió `!override` y una regresión que exige reemplazo real. También se corrigió el import CommonJS de `pg` en el smoke. GRA-01 se implementó con tres scripts numerados, aplicador idempotente y pruebas estática/integración. Estado PENDING/BLOCKED → VERIFIED localmente; PR/merge pendientes.
+- Archivos modificados: `docker-compose.test.yml`, `tests/unit/base02-validation.spec.mts`, `tests/integration/engines-smoke.mjs`, `database/graph/apply-schema.mjs`, `database/graph/schema/001_node_constraints.cypher`, `002_relationship_constraints.cypher`, `003_indexes.cypher`, `database/graph/tests/schema.spec.mts`, `schema.integration.mjs`, `PROGRESS.md`.
+- Pruebas reales: configuración Compose combinada confirmó solo `127.0.0.1:55432→5432`; BASE-02/contratos 7/7; smoke oficial `node tests/integration/engines-smoke.mjs` con Node 22.22.0 → PostgreSQL/MongoDB/Neo4j OK, 3/3; `npm ci` con npm 10.9.4 → exit 0, 665 paquetes; contratos `typecheck` y `build` → exit 0. TDD GRA-01: `node --experimental-strip-types --test database/graph/tests/schema.spec.mts` rojo 0/4 por archivos ausentes, luego verde 4/4. Aplicador ejecutado dos veces → exit 0 en ambas. `node --test database/graph/tests/schema.integration.mjs` contra Neo4j 5.26 Community → 2/2: 13 constraints oficiales y 6 índices ONLINE.
+- Fallos conservados: el primer `npm ci` excedió 120 s y una ejecución concurrente produjo `ENOTEMPTY`; se retiró solo el contenedor/volumen temporal propio y la ejecución limpia terminó correctamente. `npm run typecheck` global FALLÓ en imports `.mts` y errores de tipos preexistentes en `dossier.mts`/`operations.mts`; frontend también falla por imports `.mts`. Build global NOT_RUN porque el comando usaba `&&`. Auditoría npm reportó 19 vulnerabilidades (2 low, 2 moderate, 12 high, 3 critical); no se ejecutó `audit fix --force`.
+- Bloqueadores/dependencias/decisiones: B-004 resuelto; B-005 abierto y asignado a dueños de módulos. GRA-02 depende además de REL-06 y no se inicia unilateralmente. Frontend sigue fuera de alcance.
+- Rama/commit/PR: merge local `55736f5`; corrección de puerto `ede63a8`; commit de GRA-01 pendiente al registrar esta entrada; PR pendiente.
+- Próxima acción concreta: commit de GRA-01 y solicitud de revisión; después coordinar evidencia/estado real de REL-06 para iniciar handlers GRA-02.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
