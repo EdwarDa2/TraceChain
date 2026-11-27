@@ -12,12 +12,12 @@
     "db:migrate": "node database/relational/migrate.mjs",
     "db:seed": "node database/relational/seed.mjs",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build --workspace @tracechain/contracts && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:integration": "npm run test:integration --workspace backend",
     "test:e2e": "npm run test:e2e --workspace frontend",
     "benchmark": "node tests/benchmark/run.mjs",
-    "build": "npm run build --workspaces --if-present"
+    "build": "npm run build --workspace @tracechain/contracts && npm run build --workspaces --if-present"
   },
   "devDependencies": {
     "typescript": "5.9.2",
