@@ -259,7 +259,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 | PI-01..14 | NOT_RUN | — |
 | PS-01..12 | NOT_RUN | — |
 | E2E-01..05 | NOT_RUN | — |
-| Lint / typecheck / build | TESTING | Backend typecheck, lint y build OK 2026-11-27 en Docker Node 22.22.0; build global NOT_RUN por B-006 |
+| Lint / typecheck / build | VERIFIED | `npm run lint`, `npm run typecheck` y `npm run build` globales OK en CI del PR #13 (`verify` success, 2026-11-27T06:47:24Z); backend 55/55 unitarias y 6/6 integración locales |
 | Accesibilidad / aceptación | NOT_RUN | — |
 | QE-01..05 benchmark | NOT_RUN | — |
 | DA-01..08 demo ampliada y evidencia analítica | TESTING | DA-01..07 por servicios/drivers 1/1 OK en `tests/integration/demo150-seed.integration.mjs` (2026-11-27); DA-08/QE-01..05 NOT_RUN; UI/E2E no ejecutados |
@@ -274,7 +274,7 @@ Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando e
 | B-003 | Pendiente de coordinación | Parches exactos y compilación de stack, identidad visual | I-1 fija parches, I-3 sistema de diseño |
 | B-004 | Resuelto 2026-11-26 | BASE-05 fue integrado en `origin/develop`; BASE-02 pasó smoke real 3/3 tras corregir el reemplazo del puerto PostgreSQL y la importación CommonJS de `pg` | Evidencia en sesión I3-002; GRA-01 ejecutada sin cambiar contratos |
 | B-005 | Resuelto localmente 2026-11-26, PR pendiente | Typecheck global pasó tras corregir imports `.mts` y dos errores de tipos con autorización de I-1/I-2 | Revisión humana de dueños y repetir CI en PR #9 |
-| B-006 | Abierto; CI PR #11 falló en Build | Build global falla: Next.js no encuentra `app/` ni `pages/` porque BASE-04/front-end visual sigue pospuesto | Equipo acuerda secuencia de BASE-04; no desactivar build ni inventar pantalla |
+| B-006 | Resuelto 2026-11-27 | El build global fallaba por ausencia de `app/` o `pages/` en Next.js. El usuario autorizó un esqueleto mínimo (`src/app/layout.tsx`, `src/app/page.tsx`) sin vistas funcionales; `next build` pasa en CI del PR #13 | Verificado: `verify` success en run 45953924797; BASE-04 sigue pospuesta, no se implementaron vistas de negocio |
 | B-007 | Resuelto localmente 2026-11-26, PR pendiente | `npm run test:integration` realiza smoke 3/3 y 3/3 pruebas Jest reales sobre motores aislados; CI configura motores antes de la ejecución | Revisar CI en GitHub con I-1; no sustituye PM/TP/PI/E2E completos |
 | B-008 | Resuelto 2026-11-27 | Operaciones SQL/API completas y eventos con extremos/IDs reales; flujo HTTP→SQL→Outbox→Neo verificado en pruebas reducida, canónica y DEMO-150, integrado por PR #12 (`a3b3b51`). | Evidencia en `tests/integration/operations-http.integration.mjs`, `canonical-operations.integration.mjs` y `demo150-seed.integration.mjs`; no equivale a aceptación completa ni CI verde |
 
@@ -638,6 +638,12 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - `npm run lint`, `npm run typecheck` y `npm run build` pasaron en contenedor Docker Node 22.22.0. Build de Next.js 16 con Turbopack: compilación correcta y tres páginas estáticas generadas. B-006 pasa a resuelto localmente; CI remoto del fix: NOT_RUN.
 - La rama `docs/record-pr12-merge` (PR #13) se actualizó con estos commits para que un solo PR contenga registro y corrección; el PR de `fix/ci-contracts-build-order` queda como alternativa y puede cerrarse si #13 se fusiona.
 - Siguiente: esperar el `verify` del PR #13 y verificar la conclusión real antes de marcar verde. Después, benchmark DA-08/QE-01..05.
+
+### TC-SESSION-20261127-I3-023
+- Fecha: 2026-11-27 06:50Z, I-3 desde `develop` (`f9c1030`). Registro final de CI e integración, sin código nuevo.
+- GitHub API confirma PR #13 `state=closed`, `merged=true`, `merged_at=2026-11-27T06:49:09Z`, `merge_commit_sha=f9c1030406abfa37c24cd26b0849d2ddd5b20a81`, base `develop`. El check `verify` del head `2d07f5f` terminó `conclusion=success` a las 06:47:24Z (run 45953924797). B-006 pasa a resuelto; B-008 ya estaba resuelto en I3-020.
+- Estado observable: `develop` contiene PR #12 y #13, lint/typecheck/build globales verdes en CI. No se afirma que todas las tareas estén VERIFIED: faltan DA-08/QE-01..05, UI funcional y E2E. No se hizo release `develop→main` ni tag.
+- Siguiente: benchmark SQL/Cypher equivalente QE-01..05 y DA-08 en entorno separado; después, si el equipo autoriza F4, implementar las 14 vistas.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
