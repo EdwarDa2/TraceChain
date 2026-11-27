@@ -622,7 +622,15 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Fecha: 2026-11-27 06:45Z, I-3 en `fix/ci-contracts-build-order` desde `develop` (`a3b3b51`). Corrección de infraestructura compartida (scripts raíz) con autorización de revisión comunicada; B-006 sigue requiriendo decisión del equipo.
 - CI real: check `verify` del PR #12 (run 45952689953, head `a701ee1`) terminó `status=completed`, `conclusion=failure`, `completed_at=2026-11-27T06:35:00Z`, 11 anotaciones. Causa observada: `Cannot find module '@tracechain/contracts'` y parámetros `any` implícitos derivados de esa resolución; **no** fue B-006, porque el fallo ocurrió en `typecheck`, antes del build de Next.js.
 - Fix: `package.json` raíz ejecuta `npm run build --workspace @tracechain/contracts` antes de `typecheck` y antes de `build`, para que los `.d.ts` del paquete compartido existan en un checkout limpio. Verificación local con `packages/contracts/dist` eliminado: `npm run lint`, `npm run typecheck`, `npm run build --workspace backend` y build de contratos → exit 0. No se desactivó ninguna verificación.
-- Pendiente: el `verify` del PR #12 ya es `failure`; el fix debe integrarse y ejecutarse un CI nuevo. Después de typecheck, el paso `Build` seguirá fallando por B-006 (Next.js sin `app/`/`pages/`) salvo decisión del equipo: autorizar esqueleto mínimo o aceptar excepción documentada. No afirmar CI verde. DA-08/QE-01..05 NOT_RUN.
+- Decisión autorizada por el usuario: esqueleto mínimo de Next.js. Se añadieron `frontend/src/app/layout.tsx`, `frontend/src/app/page.tsx` y `frontend/next-env.d.ts` generado por Next; no hay vistas, rutas funcionales, estilos ni lógica de frontend. B-006 queda resuelto para build.
+- Verificación local completa desde checkout limpio de contratos: `npm run lint`, `npm run typecheck` y `npm run build` → exit 0 en Node 22.22.0; `next build` compiló y generó las tres páginas estáticas (`/`, `/_not-found`). No se desactivó ningún paso del CI.
+- Pendiente: el `verify` del PR #12 ya es `failure`; este fix debe integrarse y ejecutarse un CI nuevo para comprobar green. No afirmar CI verde hasta ver el resultado real. DA-08/QE-01..05 NOT_RUN.
+
+### TC-SESSION-20261127-I3-022
+- Fecha: 2026-11-27 06:50Z, I-3 en `fix/ci-contracts-build-order`. Continuación de I3-021 con autorización expresa del usuario para esqueleto mínimo de Next.js. Sin desarrollo de frontend funcional.
+- Archivos nuevos: `frontend/src/app/layout.tsx`, `frontend/src/app/page.tsx`, `frontend/next-env.d.ts`. El texto de la página indica explícitamente que la interfaz está pendiente; no se crearon componentes, estilos, rutas de negocio ni llamadas API.
+- `npm run lint`, `npm run typecheck` y `npm run build` pasaron en contenedor Docker Node 22.22.0. Build de Next.js 16 con Turbopack: compilación correcta y tres páginas estáticas generadas. B-006 pasa a resuelto localmente; CI remoto del fix: NOT_RUN.
+- Siguiente: PR de esta rama a `develop`, ejecutar CI y verificar conclusión real antes de marcar verde. Después, benchmark DA-08/QE-01..05.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
