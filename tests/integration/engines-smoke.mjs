@@ -6,10 +6,11 @@
 //   node tests/integration/engines-smoke.mjs
 // Los valores vienen del entorno; nunca se escriben credenciales en el código.
 
-import { Client } from 'pg';
+import pg from 'pg';
 import { MongoClient } from 'mongodb';
 import neo4j from 'neo4j-driver';
 
+const { Client } = pg;
 const resultados = [];
 
 async function verificarPostgres() {
