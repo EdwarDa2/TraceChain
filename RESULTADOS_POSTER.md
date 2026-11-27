@@ -29,6 +29,8 @@ Valores obtenidos de Neo4j, reproducibles con `tests/integration/canonical-graph
 | Ruta MP-001→LP-003 | 2 transformaciones | 2 |
 | Ruta MP-001→LP-005 | Ninguna | 0, consulta completa |
 | Profundidad máxima 1 | Advertencia PARCIAL | PARCIAL/DEPTH_LIMIT |
+| Límite exacto de 5 lotes con raíz | COMPLETO | COMPLETO |
+| Límite de 4 lotes con raíz | PARCIAL | PARCIAL/RESULT_LIMIT |
 | Proveedores de antecedentes de LP-003 | PROV-001/002/003 | PROV-001/002/003 |
 | Procesos internos del alcance MP-001 | OP-000001..000004 | OP-000001..000004 |
 

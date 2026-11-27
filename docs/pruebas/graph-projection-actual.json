@@ -31,8 +31,8 @@
   "forwardDepths": {
     "LP-002": 1,
     "LP-001": 1,
-    "LP-004": 2,
-    "LP-003": 2
+    "LP-003": 2,
+    "LP-004": 2
   },
   "backward": [
     "LP-001",
@@ -52,6 +52,11 @@
   "shortStatus": "PARCIAL",
   "shortWarnings": [
     "DEPTH_LIMIT"
+  ],
+  "exactCapStatus": "COMPLETO",
+  "exceededCapStatus": "PARCIAL",
+  "exceededCapWarnings": [
+    "RESULT_LIMIT"
   ],
   "shortestDepth": 2,
   "shortestStatus": "COMPLETO",

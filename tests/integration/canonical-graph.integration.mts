@@ -86,6 +86,8 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
     }
     const forward = await traverseLots(driver, database, get('MP-001'), 'FORWARD', 10);
     const short = await traverseLots(driver, database, get('MP-001'), 'FORWARD', 1);
+    const exactCap = await traverseLots(driver, database, get('MP-001'), 'FORWARD', 10, 5);
+    const exceededCap = await traverseLots(driver, database, get('MP-001'), 'FORWARD', 10, 4);
     const backward = await traverseLots(driver, database, get('LP-003'), 'BACKWARD', 10);
     const common = await commonOrigins(driver, database, [get('LP-003'), get('LP-004')]);
     const destinations = await historicalDestinations(driver, database,
@@ -125,6 +127,8 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
       common: names(common.lots),
       destinationNames: [...new Set(destinations.map((destination) => destination.locationName))].sort(),
       forwardStatus: forward.status, shortStatus: short.status, shortWarnings: short.warnings,
+      exactCapStatus: exactCap.status, exceededCapStatus: exceededCap.status,
+      exceededCapWarnings: exceededCap.warnings,
       shortestDepth: shortest.paths[0]?.depth ?? null, shortestStatus: shortest.status,
       absentPaths: absent.paths.length, absentStatus: absent.status,
       suppliers: suppliers.map((item) => item.code).sort(),
@@ -147,6 +151,9 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
     assert.equal(actual.forwardStatus, 'COMPLETO');
     assert.equal(actual.shortStatus, 'PARCIAL');
     assert.deepEqual(actual.shortWarnings, ['DEPTH_LIMIT']);
+    assert.equal(actual.exactCapStatus, 'COMPLETO');
+    assert.equal(actual.exceededCapStatus, 'PARCIAL');
+    assert.deepEqual(actual.exceededCapWarnings, ['RESULT_LIMIT']);
     assert.equal(actual.shortestDepth, 2);
     assert.equal(actual.absentPaths, 0);
     assert.equal(actual.absentStatus, 'COMPLETO');
