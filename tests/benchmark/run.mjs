@@ -41,18 +41,31 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
   for (const name of ['DATABASE_URL', 'NEO4J_URI', 'NEO4J_USER', 'NEO4J_PASSWORD']) {
     assert.ok(process.env[name], `falta ${name}`);
   }
-  const depth = Number(args.depth ?? CASES[caseKey]);
-  if (depth !== CASES[caseKey]) throw new Error('VALIDATION_ERROR: profundidad del caso');
+  const profile = process.env.BENCH_PROFILE ?? 'base';
+  const topology = process.env.BENCH_TOPOLOGY ?? 'balanced';
+  const depth = Number(process.env.BENCH_DEPTH ?? args.depth ?? CASES[caseKey]);
+  if (profile === 'base' && depth !== CASES[caseKey]) {
+    throw new Error('VALIDATION_ERROR: profundidad del caso base');
+  }
+  if (!Number.isInteger(depth) || depth < 1 || depth > 20) throw new Error('VALIDATION_ERROR');
   const repetitions = Number(process.env.BENCH_REPS ?? args.reps ?? 30);
   const warmups = Number(process.env.BENCH_WARMUPS ?? args.warmups ?? 5);
   if (!Number.isInteger(repetitions) || repetitions < 1 ||
       !Number.isInteger(warmups) || warmups < 0) throw new Error('VALIDATION_ERROR');
   await mkdir(RESULTS, { recursive: true });
 
-  const schema = `benchmark_${caseKey}_${randomUUID().replaceAll('-', '')}`;
+  const suffix = profile === 'base' ? '' : `-${profile}-${topology}-d${depth}`;
+  const caseLabel = `${caseKey}${suffix}`;
+  const schema = `benchmark_${caseLabel}_${randomUUID().replaceAll('-', '')}`
+    .replace(/[^A-Za-z0-9_]/g, '_');
   const admin = new pg.Client({ connectionString: process.env.DATABASE_URL });
-  await admin.connect();
-  await admin.query(`CREATE SCHEMA ${schema}`);
+  try {
+    await admin.connect();
+    await admin.query(`CREATE SCHEMA ${schema}`);
+  } catch (error) {
+    await admin.end();
+    throw error;
+  }
   const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL,
     options: `-c search_path=${schema} -c statement_timeout=10000`, max: 10 });
   const graph = neo4j.driver(process.env.NEO4J_URI,
@@ -67,11 +80,11 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
       for (const statement of statements) await graph.executeQuery(statement, {}, { database });
     }
     const loaded = await loadCase({ pool, driver: graph, database,
-      lots: Number(caseKey), depth, label: caseKey });
+      lots: Number(caseKey), depth, label: caseLabel, topology });
     manifest = loaded.manifest;
-    await writeFile(new URL(`${caseKey}-manifest.json`, RESULTS),
+    await writeFile(new URL(`${caseLabel}-manifest.json`, RESULTS),
       JSON.stringify(manifest, null, 2));
-    t.diagnostic(`Caso ${caseKey}: ${JSON.stringify(manifest.stats)}`);
+    t.diagnostic(`Caso ${caseLabel}: ${JSON.stringify(manifest.stats)}`);
 
     const versions = {
       node: process.version,
@@ -96,7 +109,7 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
         t.diagnostic(`CYPHER ${query}: ${JSON.stringify(cypherRows.slice(0, 5))}`);
       }
       assert.equal(baseline[query].sql, baseline[query].cypher,
-        `Equivalencia fallida en ${query} (${caseKey})`);
+        `Equivalencia fallida en ${query} (${caseLabel})`);
     }
 
     const measurements = [];
@@ -115,7 +128,7 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
       } catch (error) {
         status = `ERROR:${String(error.message ?? error).slice(0, 120)}`;
       }
-      return { case: caseKey, query, motor, repetition: null,
+      return { case: caseLabel, query, motor, repetition: null,
         durationMs: performance.now() - started, status, rows, hash };
     };
     for (const query of QUERIES) {
@@ -138,10 +151,11 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
     const csv = ['case,query,motor,repetition,duration_ms,status,result_count,hash',
       ...measurements.map((row) => [row.case, row.query, row.motor, row.repetition,
         row.durationMs.toFixed(3), row.status, row.rows, row.hash].join(','))].join('\n');
-    await writeFile(new URL(`${caseKey}-raw.csv`, RESULTS), csv);
+    await writeFile(new URL(`${caseLabel}-raw.csv`, RESULTS), csv);
 
-    const summary = { case: caseKey, depth, seed: 42, repetitions, warmups,
-      topology: manifest.stats, versions, baseline,
+    const summary = { case: caseLabel, lots: Number(caseKey), depth, seed: 42,
+      profile, topology, repetitions, warmups,
+      topologyStats: manifest.stats, versions, baseline,
       measurements: {} };
     for (const query of QUERIES) {
       summary.measurements[query] = {};
@@ -154,9 +168,9 @@ test('benchmark SQL/Cypher real con semilla fija y resultados equivalentes', asy
         };
       }
     }
-    await writeFile(new URL(`${caseKey}-summary.json`, RESULTS),
+    await writeFile(new URL(`${caseLabel}-summary.json`, RESULTS),
       JSON.stringify(summary, null, 2));
-    t.diagnostic(`MEDIDAS=${JSON.stringify({ case: caseKey, depth, repetitions,
+    t.diagnostic(`MEDIDAS=${JSON.stringify({ case: caseLabel, depth, repetitions,
       warmups, measurements: measurements.length,
       errors: measurements.filter((row) => row.status !== 'OK').length })}`);
   } finally {

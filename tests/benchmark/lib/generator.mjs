@@ -38,12 +38,33 @@ function thousands(value) {
 }
 
 /** Topología determinista: grupos independientes, capas directed, reutilización de insumos. */
-function plan({ lots, depth, seed, label }) {
+function plan({ lots, depth, seed, label, topology = 'balanced' }) {
   const rng = mulberry32(seed);
   const tag = label ?? String(lots);
   const uid = (kind, index) => stableUuid(`${tag}:${kind}`, index);
-  const groups = Math.min(10, Math.max(1, Math.floor(lots / (depth + 1))));
+  const allowed = ['balanced', 'linear', 'branch', 'converge', 'independent'];
+  if (!allowed.includes(topology)) throw new Error('VALIDATION_ERROR');
+  const groups = topology === 'independent'
+    ? Math.min(100, Math.max(1, Math.floor(lots / (depth + 1))))
+    : Math.min(10, Math.max(1, Math.floor(lots / (depth + 1))));
   const layers = depth + 1;
+  const weights = Array.from({ length: layers }, (_, index) => {
+    if (topology === 'branch') return 2 ** index;
+    if (topology === 'converge') return 2 ** (layers - 1 - index);
+    return 1;
+  });
+  const weightSum = weights.reduce((sum, value) => sum + value, 0);
+  const layerSizesFor = (total) => {
+    const sizes = weights.map((weight) => Math.max(1, Math.floor(total * weight / weightSum)));
+    let extra = total - sizes.reduce((sum, value) => sum + value, 0);
+    let cursor = 0;
+    while (extra > 0) {
+      sizes[cursor % layers] += 1;
+      extra -= 1;
+      cursor += 1;
+    }
+    return sizes;
+  };
   const catalog = {
     suppliers: Array.from({ length: 8 }, (_, i) => ({
       id: uid('supplier', i), code: `PROV-${String(i + 1).padStart(3, '0')}`,
@@ -80,14 +101,7 @@ function plan({ lots, depth, seed, label }) {
 
   for (let group = 0; group < groups; group += 1) {
     const size = perGroup + (group < remainder ? 1 : 0);
-    const layerSizes = Array(layers).fill(1);
-    let extra = size - layers;
-    let cursor = 0;
-    while (extra > 0) {
-      layerSizes[cursor % layers] += 1;
-      extra -= 1;
-      cursor += 1;
-    }
+    const layerSizes = layerSizesFor(size);
     const byLayer = [];
     for (let layer = 0; layer < layers; layer += 1) {
       const ids = [];
@@ -114,10 +128,9 @@ function plan({ lots, depth, seed, label }) {
       const targets = byLayer[layer];
       for (let targetIndex = 0; targetIndex < targets.length; targetIndex += 1) {
         const processId = uid('process', processIndex);
-        const inputs = [...new Set([
-          sources[targetIndex % sources.length],
-          sources[(targetIndex + 1) % sources.length],
-        ])];
+        const inputCount = topology === 'balanced' || topology === 'converge' ? 2 : 1;
+        const inputs = [...new Set(Array.from({ length: inputCount }, (_, offset) =>
+          sources[(targetIndex + offset) % sources.length]))];
         const orderCode = `OP-${String(processIndex + 1).padStart(6, '0')}`;
         processRows.push({ id: processId, code: orderCode, name: `Proceso ${layer}`, at: at(), group });
         for (const [inputIndex, lotId] of inputs.entries()) {
@@ -156,15 +169,16 @@ function plan({ lots, depth, seed, label }) {
     byLayer: groupLayers[0],
     pairIds: (() => {
       const firstGroup = groupLayers[0];
-      const deep = firstGroup.slice(2).find((layer) => layer.length >= 2);
-      if (deep) return [deep[0], deep[1]];
-      return [firstGroup[1][0], firstGroup[1][1] ?? firstGroup[2][0]];
+      const parentLayer = firstGroup[depth - 1];
+      const childLayer = firstGroup[depth];
+      return [parentLayer[0], childLayer[0]];
     })(),
     stats: {
-      groups, layers, lots: lotRows.length, processes: processRows.length,
+      topology, groups, layers, lots: lotRows.length, processes: processRows.length,
       consumptions: consumptionRows.length, results: resultRows.length,
       distributions: distributionRows.length,
       maxDepthObserved: layers - 1,
+      firstGroupLayerCounts: groupLayers[0].map((layer) => layer.length),
     },
   };
 }
@@ -318,8 +332,9 @@ async function insertGraph(driver, database, planData) {
   planData.distributionRows);
 }
 
-export async function loadCase({ pool, driver, database, lots, depth, seed = 42, label }) {
-  const planData = plan({ lots, depth, seed, label });
+export async function loadCase({ pool, driver, database, lots, depth, seed = 42, label,
+  topology = 'balanced' }) {
+  const planData = plan({ lots, depth, seed, label, topology });
   await insertSql(pool, planData, label);
   await insertGraph(driver, database, planData);
   const ids = [...planData.catalog.suppliers, ...planData.catalog.products,
@@ -328,7 +343,7 @@ export async function loadCase({ pool, driver, database, lots, depth, seed = 42,
       planData.processRows.map((item) => item.id),
       planData.distributionRows.map((item) => item.id));
   const manifest = {
-    case: label, seed, lots, depth,
+    case: label, seed, lots, depth, topology,
     stats: planData.stats,
     rootIds: planData.roots,
     finalIds: planData.finals,

@@ -1,0 +1,159 @@
+{
+  "case": "1000-topology-independent-d8",
+  "lots": 1000,
+  "depth": 8,
+  "seed": 42,
+  "profile": "topology",
+  "topology": "independent",
+  "repetitions": 30,
+  "warmups": 5,
+  "topologyStats": {
+    "topology": "independent",
+    "groups": 100,
+    "layers": 9,
+    "lots": 1000,
+    "processes": 800,
+    "consumptions": 800,
+    "results": 800,
+    "distributions": 100,
+    "maxDepthObserved": 8,
+    "firstGroupLayerCounts": [
+      2,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "versions": {
+    "node": "v22.22.0",
+    "postgres": "PostgreSQL 16.16 (Debian 16.16-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "neo4j": "5.26.34",
+    "os": "linux x64",
+    "cpus": 12,
+    "totalMemoryGb": 3.69
+  },
+  "baseline": {
+    "QE01": {
+      "sql": "6ff9d0f427f51614d3f45ecd0013bff91c8f872c5866050788e5882ff46c9c0f",
+      "cypher": "6ff9d0f427f51614d3f45ecd0013bff91c8f872c5866050788e5882ff46c9c0f",
+      "rows": 8
+    },
+    "QE02": {
+      "sql": "7290b22d83117faa66b5840dc8db83f998e2328b3e8a878789f20f2b3d37f784",
+      "cypher": "7290b22d83117faa66b5840dc8db83f998e2328b3e8a878789f20f2b3d37f784",
+      "rows": 8
+    },
+    "QE03": {
+      "sql": "6fedcf184ead8f217293644f5a4e1624b9478ef7b0ff0f4c2c2f4e66bf7f2f50",
+      "cypher": "6fedcf184ead8f217293644f5a4e1624b9478ef7b0ff0f4c2c2f4e66bf7f2f50",
+      "rows": 7
+    },
+    "QE04": {
+      "sql": "953d1c8161d6c2eaf8834e68a39f73a45a03c5999959b43902164286f1ba8571",
+      "cypher": "953d1c8161d6c2eaf8834e68a39f73a45a03c5999959b43902164286f1ba8571",
+      "rows": 1
+    },
+    "QE05": {
+      "sql": "4b561724605d1056cbb8a60a1754613b2f94364ab4d025af7d83dd11a7dfa182",
+      "cypher": "4b561724605d1056cbb8a60a1754613b2f94364ab4d025af7d83dd11a7dfa182",
+      "rows": 1
+    }
+  },
+  "measurements": {
+    "QE01": {
+      "SQL": {
+        "mean": 3.0345529666667668,
+        "median": 2.976113500000338,
+        "p95": 4.434882000000471,
+        "stddev": 0.5332033290903831,
+        "errorRate": 0,
+        "resultCount": 8
+      },
+      "CYPHER": {
+        "mean": 6.418722300000021,
+        "median": 5.610607000000073,
+        "p95": 10.114321000000018,
+        "stddev": 2.044660433446296,
+        "errorRate": 0,
+        "resultCount": 8
+      }
+    },
+    "QE02": {
+      "SQL": {
+        "mean": 2.788898366666611,
+        "median": 2.7230200000001332,
+        "p95": 3.7228079999995316,
+        "stddev": 0.7129577815321381,
+        "errorRate": 0,
+        "resultCount": 8
+      },
+      "CYPHER": {
+        "mean": 6.118026733333303,
+        "median": 5.6290974999999435,
+        "p95": 9.099666999999954,
+        "stddev": 1.5786864359257273,
+        "errorRate": 0,
+        "resultCount": 8
+      }
+    },
+    "QE03": {
+      "SQL": {
+        "mean": 3.177110500000011,
+        "median": 3.0218225000000984,
+        "p95": 4.515540000000328,
+        "stddev": 0.6663358554519168,
+        "errorRate": 0,
+        "resultCount": 7
+      },
+      "CYPHER": {
+        "mean": 6.584168200000022,
+        "median": 6.267111999999997,
+        "p95": 8.930413000000044,
+        "stddev": 1.2923183279681063,
+        "errorRate": 0,
+        "resultCount": 7
+      }
+    },
+    "QE04": {
+      "SQL": {
+        "mean": 3.0730846333333224,
+        "median": 2.929779999999937,
+        "p95": 3.8558139999995547,
+        "stddev": 0.47538760864837976,
+        "errorRate": 0,
+        "resultCount": 1
+      },
+      "CYPHER": {
+        "mean": 6.865443033333259,
+        "median": 6.168135499999835,
+        "p95": 10.354314999999588,
+        "stddev": 2.5509175355949463,
+        "errorRate": 0,
+        "resultCount": 1
+      }
+    },
+    "QE05": {
+      "SQL": {
+        "mean": 2.8984426666666576,
+        "median": 2.8267015000001265,
+        "p95": 3.847396999999546,
+        "stddev": 0.47372005181652543,
+        "errorRate": 0,
+        "resultCount": 1
+      },
+      "CYPHER": {
+        "mean": 6.167191733333311,
+        "median": 5.9114280000001145,
+        "p95": 8.787227999999232,
+        "stddev": 1.303112368162916,
+        "errorRate": 0,
+        "resultCount": 1
+      }
+    }
+  }
+}
