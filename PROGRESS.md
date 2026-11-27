@@ -85,10 +85,10 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
-- Rama actual: por verificar. Último commit: por verificar.
-- Siguiente: coordinar BASE-04 tras BASE-01 y GRA-01 cuando esté entorno.
-- Estado: ningún trabajo de código verificado. Depende de contratos/eventos I-1, QualityReader I-2 para impacto.
-- Archivos recientes / pruebas / PR: ninguno registrado.
+- Rama actual: `feature/graph-schema`, creada desde `develop` en `f82fd16`; checkpoint documental de esta sesión, PR pendiente.
+- Siguiente: resolver/coordinar `BASE-05` con el equipo y obtener la validación formal de `BASE-02` por I-1; solo entonces iniciar GRA-01. BASE-04, Cytoscape.js y todo frontend quedan pospuestos por decisión expresa durante esta fase.
+- Estado: GRA-01 **BLOCKED**, no `IN_PROGRESS`, únicamente porque `packages/contracts/src` no existe en `develop` ni en ramas remotas. El prerrequisito técnico de motores quedó comprobado en un proyecto Docker aislado: PostgreSQL 16, MongoDB 8.0 y Neo4j 5.26 healthy y con consultas mínimas reales exitosas; esto no marca unilateralmente BASE-02 como VERIFIED. Node local es v24.21.0/npm 11.19.0 frente a Node 22/npm 10 requeridos; no existe `package-lock.json` ni `node_modules`. No se modificaron contratos, esquema, código de otros integrantes ni frontend.
+- Archivos recientes / pruebas / PR: solo este checkpoint en `PROGRESS.md`. Inspección real 2026-11-26: repositorio limpio antes del checkpoint; `develop` y `origin/develop` en `f82fd16`; búsqueda de `packages/contracts/src` en todas las ramas remotas sin resultados. `node --experimental-strip-types --test <todas las suites .spec.mts de tests/unit y backend/src>` → 119/119 OK. Smoke real aislado: PostgreSQL `SELECT 1` → `1`; MongoDB `{ping:1}` → `{"ok":1}`; Neo4j `RETURN 1 AS ok` → `1`; los tres contenedores healthy. `npm ci`, lint, typecheck, build, migraciones de aplicación, PG/PI/E2E/QE/DA: NOT_RUN por los bloqueos indicados.
 
 ## 5. Estado RF (fuente REQUIREMENTS.md)
 | RF | Funcionalidad | Estado | Evidencia |
@@ -256,6 +256,7 @@ Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando e
 | B-001 | Por verificar | No se ha inspeccionado repositorio real ni ejecutado bootstrap | I-1: verificar estructura, rama, dependencias; equipo confirmar |
 | B-002 | Pendiente de coordinación | Nombres nominales de I-1 e I-3, accesos/revisores | Equipo confirmar; no bloquea diseño por rol |
 | B-003 | Pendiente de coordinación | Parches exactos y compilación de stack, identidad visual | I-1 fija parches, I-3 sistema de diseño |
+| B-004 | Bloqueado | GRA-01 no puede iniciar: BASE-05 carece de `packages/contracts/src` en `develop` y ramas remotas. Los tres motores ya pasaron smoke real aislado; falta validación formal de BASE-02 por su responsable | Equipo implementa/revisa BASE-05; I-1 valida BASE-02; I-3 revalida y comienza GRA-01 sin cambiar contratos |
 
 Registro de decisiones: D-001 línea base documental v1.0, 2026-11-25. Integra decisiones de conversaciones y cierra detalles operativos en los seis archivos de especificación. Validación de equipo y pruebas de implementación pendientes. Para nuevas decisiones: ID, fecha, propuesta, alternativas, impacto en RF/RN/API/datos, aprobación humana, PR; actualizar documentos normativos, no solo esta sección.
 
@@ -446,6 +447,16 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Bloqueadores/dependencias/decisiones: B-001 abierto; BASE-05 sin contratos; D-002 pendiente. Las interfaces frontend de I-1 quedan pospuestas por instrucción del equipo.
 - Próxima acción concreta: integración de esta rama por parte del equipo y, cuando exista infraestructura, conectar estos servicios a lectores reales y ejecutar PM/TP/PI/E2E.
 
+### TC-SESSION-20261126-I3-001
+- Fecha: 2026-11-26. Responsable: I-3 (rama `feature/graph-schema`, base `f82fd16`).
+- Objetivo: punto de control previo a GRA-01 — verificar repositorio, dependencias, contratos, pruebas existentes y disponibilidad real de PostgreSQL/MongoDB/Neo4j, sin iniciar frontend.
+- RF/RN: preparación de RF-26..30/RF-33, RNF-07/10 y PG-01..21; ningún RF/RN ni contrato fue modificado.
+- Trabajo realizado y estado: se leyeron los siete documentos base; se inspeccionaron rama, historial, estado, código, pruebas, `database/graph/**`, configuración y ramas remotas. Se creó la rama desde `develop`; GRA-01 permanece PENDING/BLOCKED porque BASE-05 no existe y BASE-02 no está verificada. Se confirmó que `packages/contracts/` solo contiene configuración, sin `src`, y que ninguna rama remota aporta esos contratos. Frontend/BASE-04/Cytoscape.js/UX quedan fuera de esta fase.
+- Archivos modificados: `PROGRESS.md` únicamente. No se modificaron migraciones, contratos, esquema Neo4j, dependencias, backend ajeno ni frontend.
+- Pruebas reales: `node --experimental-strip-types --test <tests/unit/*.spec.mts + backend/src/**/*.spec.mts>` con Node v24.21.0 → 119/119 OK el 2026-11-26. `git status --short --branch` confirmó `develop...origin/develop` limpio antes de crear la rama. El primer arranque aislado `docker compose -p tracechain_i3_test up -d postgres mongodb neo4j` fue cancelado por reinicio del servidor y no produjo evidencia; Docker Desktop se inició después con su ejecutable principal y `docker info --format '{{.ServerVersion}}'` → `29.9.2`. El segundo arranque descargó Neo4j/MongoDB y dejó ambos healthy; PostgreSQL no pudo publicar `127.0.0.1:5432` porque un proceso PostgreSQL local ajeno (PID 9276) ya escucha ese puerto. Sin detenerlo ni editar Compose, se inició PostgreSQL con `docker compose ... run -d --no-deps` sin puerto de host. Resultado final: `pg_isready` accepting connections y `SELECT 1` → `1`; MongoDB `db.adminCommand({ping:1})` → `{"ok":1}`; Neo4j `RETURN 1 AS ok` → `1`; los tres contenedores healthy. Migraciones de aplicación, `npm ci`, lint, typecheck, build, PG/PI/E2E/QE/DA: NOT_RUN.
+- Bloqueadores/dependencias/decisiones: B-004 abierto solo por dependencias formales/contratos, no por disponibilidad de motores. Entorno adicional: no hay `package-lock.json` ni `node_modules`; `.nvmrc` exige Node 22, pero el host tiene Node 24.21.0/npm 11.19.0 y no dispone de `nvm`. No se detuvo el PostgreSQL local, no se instalaron herramientas ni se cambiaron archivos de I-1.
+- Próxima acción concreta: equipo implementa y revisa BASE-05; I-1 verifica BASE-02. I-3 vuelve a comprobar contratos y salud real (`SELECT 1`, Mongo `ping`, Neo4j `RETURN 1`), cambia GRA-01 a `IN_PROGRESS` solo si ambas dependencias quedan satisfechas e implementa las 6 etiquetas/7 relaciones con sus pruebas oficiales.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:
@@ -457,4 +468,4 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Próxima acción concreta y responsable:
 
 ## 11. Próximo punto de control
-F0: equipo revisa los siete documentos, confirma roles y repositorio, I-1 inicializa workspace/backend y entorno, I-3 frontend una vez disponible base, I-2 coordina documentación y contratos. Antes de implementar una tarea, comprobar dependencias y actualizar su estado. Al cierre de cada sesión, actualizar §3..9 y añadir registro §10. No modificar porcentajes sin evidencia.
+F0: equipo revisa los siete documentos, confirma roles y repositorio, I-1 verifica workspace/backend y entorno, el equipo completa BASE-05 e I-2 coordina documentación y contratos. I-3 mantiene frontend pospuesto y comienza GRA-01 únicamente tras verificar BASE-02/05. Antes de implementar una tarea, comprobar dependencias y actualizar su estado. Al cierre de cada sesión, actualizar §3..9 y añadir registro §10. No modificar porcentajes sin evidencia.
