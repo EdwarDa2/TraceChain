@@ -31,6 +31,8 @@ Valores obtenidos de Neo4j, reproducibles con `tests/integration/canonical-graph
 | Profundidad máxima 1 | Advertencia PARCIAL | PARCIAL/DEPTH_LIMIT |
 | Límite exacto de 5 lotes con raíz | COMPLETO | COMPLETO |
 | Límite de 4 lotes con raíz | PARCIAL | PARCIAL/RESULT_LIMIT |
+| Subgrafo productivo de MP-001 y descendientes | Aristas reales, sin extremos huérfanos | 9 nodos / 8 aristas; sin truncamiento |
+| Tope visual de 8 nodos | Truncamiento solo visual | Truncado; ninguna arista huérfana |
 | Proveedores de antecedentes de LP-003 | PROV-001/002/003 | PROV-001/002/003 |
 | Procesos internos del alcance MP-001 | OP-000001..000004 | OP-000001..000004 |
 
@@ -59,6 +61,7 @@ El handler y las consultas Neo4j superaron la prueba aislada de topología produ
 - `tests/integration/graph-projection.integration.mts`: replay, distribución, rollback, convergencia y caminos.
 - `tests/integration/graph-verification.integration.mts`: verificación conservadora de descendencia con Outbox SQL real.
 - `backend/src/database/neo4j/traversal.mts`: Cypher ejecutado y algoritmo de recorrido.
+- `backend/src/database/neo4j/subgraph.mts`: selección visual acotada de tramos productivos reales (no interfaz gráfica).
 - `docs/pruebas/README-grafo.md`: reproducción y alcance.
 - `DATA_MODEL.md` §4/5, `REQUIREMENTS.md` PG-01..22: resultados esperados de referencia, **no mediciones**.
 

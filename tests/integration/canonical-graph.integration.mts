@@ -8,6 +8,7 @@ import {
   traverseLots, commonOrigins, historicalDestinations, productionPaths,
   genealogy, originSuppliers, productiveProcesses,
 } from '../../backend/src/database/neo4j/traversal.mts';
+import { productiveSubgraph } from '../../backend/src/database/neo4j/subgraph.mts';
 import type { Delivery } from '../../backend/src/integration/outbox/dispatcher.mts';
 
 test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y destinos reales', async () => {
@@ -98,6 +99,9 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
     const suppliers = await originSuppliers(driver, database, [get('LP-001'), ...backward.lots.map((lot) => lot.lotId)]);
     const processes = await productiveProcesses(driver, database,
       [get('MP-001'), ...forward.lots.map((lot) => lot.lotId)]);
+    const graphLots = forward.lots.map((lot) => ({ lotId: lot.lotId, depth: lot.depth }));
+    const fullGraph = await productiveSubgraph(driver, database, [get('MP-001')], graphLots);
+    const smallGraph = await productiveSubgraph(driver, database, [get('MP-001')], graphLots, 8, 8);
     const edges = await driver.executeQuery(`MATCH (a)-[r]->(b)
       WHERE a.id IN $ids AND b.id IN $ids
       RETURN type(r) AS kind, count(r) AS n ORDER BY kind`,
@@ -134,6 +138,9 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
       suppliers: suppliers.map((item) => item.code).sort(),
       relevantProcesses: processes.map((item) => item.code).sort(),
       genealogyLp001Forward: names(combined.forward), genealogyLp001Backward: names(combined.backward),
+      visualNodes: fullGraph.graph.nodes.length, visualEdges: fullGraph.graph.edges.length,
+      visualTruncated: fullGraph.visualizationTruncated,
+      smallVisualTruncated: smallGraph.visualizationTruncated,
       unsupportedHere: ['PostgreSQL stock', 'MongoDB inspections', 'incidents', 'HTTP API', 'benchmark'],
     };
     assert.deepEqual(actual.forward, ['LP-001', 'LP-002', 'LP-003', 'LP-004']);
@@ -160,6 +167,15 @@ test('proyección aislada de topología canónica: 9 lotes, niveles, comunes y d
     assert.deepEqual(actual.suppliers, ['PROV-001', 'PROV-002', 'PROV-003']);
     assert.deepEqual(actual.relevantProcesses, ['OP-000001', 'OP-000002', 'OP-000003', 'OP-000004']);
     assert.deepEqual(actual.genealogyLp001Backward, ['MP-001', 'MP-002', 'MP-003']);
+    assert.equal(actual.visualNodes, 9);
+    assert.equal(actual.visualEdges, 8);
+    assert.equal(actual.visualTruncated, false);
+    assert.equal(actual.smallVisualTruncated, true);
+    const visible = new Set(smallGraph.graph.nodes.map((node) => node.id));
+    assert.ok(smallGraph.graph.edges.every((edge) =>
+      visible.has(edge.source) && visible.has(edge.target)));
+    assert.ok(fullGraph.graph.edges.every((edge) =>
+      edge.type === 'UTILIZADO_EN' || edge.type === 'GENERA'));
     assert.equal(forward.lots.some((lot) => lot.lotId === get('LP-005')), false);
     assert.equal(backward.lots.some((lot) => lot.lotId === get('LP-004')), false);
     console.log(`GRAPH_PROJECTION_ACTUAL=${JSON.stringify(actual)}`);

@@ -29,8 +29,8 @@
     "LP-004"
   ],
   "forwardDepths": {
-    "LP-002": 1,
     "LP-001": 1,
+    "LP-002": 1,
     "LP-003": 2,
     "LP-004": 2
   },
@@ -81,6 +81,10 @@
     "MP-002",
     "MP-003"
   ],
+  "visualNodes": 9,
+  "visualEdges": 8,
+  "visualTruncated": false,
+  "smallVisualTruncated": true,
   "unsupportedHere": [
     "PostgreSQL stock",
     "MongoDB inspections",
