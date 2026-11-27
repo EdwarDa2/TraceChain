@@ -23,7 +23,29 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm run test
-      - name: Build
-        run: npm run build
+      - name: Configure isolated test engines
+        shell: bash
+        run: |
+          postgres_password="$(openssl rand -hex 24)"
+          mongo_password="$(openssl rand -hex 24)"
+          neo4j_password="$(openssl rand -hex 24)"
+          {
+            echo "POSTGRES_PASSWORD=$postgres_password"
+            echo "MONGO_INITDB_ROOT_PASSWORD=$mongo_password"
+            echo "NEO4J_AUTH=neo4j/$neo4j_password"
+            echo "DATABASE_URL=postgresql://tracechain:$postgres_password@127.0.0.1:55432/tracechain"
+            echo "MONGODB_URI=mongodb://admin:$mongo_password@127.0.0.1:27017/?authSource=admin"
+            echo "NEO4J_URI=bolt://127.0.0.1:7687"
+            echo "NEO4J_USER=neo4j"
+            echo "NEO4J_PASSWORD=$neo4j_password"
+            echo "JWT_SECRET=$(openssl rand -hex 32)"
+          } >> "$GITHUB_ENV"
+      - name: Start isolated test engines
+        run: docker compose -p tracechain_ci -f docker-compose.yml -f docker-compose.test.yml up -d --wait postgres mongodb neo4j
       - name: Integration tests
         run: npm run test:integration
+      - name: Stop isolated test engines
+        if: always()
+        run: docker compose -p tracechain_ci -f docker-compose.yml -f docker-compose.test.yml down
+      - name: Build
+        run: npm run build
