@@ -87,8 +87,9 @@ export const CYPHER_QUERIES = {
   QE03: {
     cypher: (depth) => {
       const edges = bounds(depth);
-      return `MATCH (a:Lote {id:$lotA})<-[:UTILIZADO_EN|GENERA*2..${edges}]-(c:Lote),
-        (b:Lote {id:$lotB})<-[:UTILIZADO_EN|GENERA*2..${edges}]-(c:Lote)
+      return `MATCH (a:Lote {id:$lotA}), (b:Lote {id:$lotB})
+        MATCH p=(a)<-[:UTILIZADO_EN|GENERA*2..${edges}]-(c:Lote)
+        WHERE EXISTS { MATCH (b)<-[:UTILIZADO_EN|GENERA*2..${edges}]-(c) }
         RETURN DISTINCT c.id AS lotId ORDER BY lotId`;
     },
     params: (m) => ({ lotA: m.pairIds[0], lotB: m.pairIds[1] }),

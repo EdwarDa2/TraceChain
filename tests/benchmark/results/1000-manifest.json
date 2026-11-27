@@ -3,7 +3,9 @@
   "seed": 42,
   "lots": 1000,
   "depth": 8,
+  "topology": "balanced",
   "stats": {
+    "topology": "balanced",
     "groups": 10,
     "layers": 9,
     "lots": 1000,
@@ -11,7 +13,18 @@
     "consumptions": 1760,
     "results": 880,
     "distributions": 40,
-    "maxDepthObserved": 8
+    "maxDepthObserved": 8,
+    "firstGroupLayerCounts": [
+      12,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11,
+      11
+    ]
   },
   "rootIds": [
     "33fb072e-850a-4615-9a34-4b2e884d065a",
@@ -248,8 +261,8 @@
     "3d1195e4-5707-4676-bbfb-2191ce477c31"
   ],
   "pairIds": [
-    "717499df-7676-47ca-88ee-bdf222839c88",
-    "166075a2-731f-4167-bfb2-c054e3d7a0ed"
+    "652eb5d5-3b07-41f0-b2a7-1911d12963e4",
+    "c486692a-7f9c-4cb4-8193-e5b30889a376"
   ],
   "targetId": "c486692a-7f9c-4cb4-8193-e5b30889a376",
   "independentId": "60a7b932-849e-426e-a10b-206f9af37974",

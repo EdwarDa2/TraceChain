@@ -2,7 +2,10 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import process from 'node:process';
 import { URL } from 'node:url';
 
-const CASES = ['100', '1000', '10000'];
+const CASES = ['100', '1000', '10000',
+  '1000-depth-balanced-d3', '1000-depth-balanced-d15',
+  '1000-topology-linear-d8', '1000-topology-branch-d8',
+  '1000-topology-converge-d8', '1000-topology-independent-d8'];
 const QUERIES = ['QE01', 'QE02', 'QE03', 'QE04', 'QE05'];
 const RESULTS = new URL('./results/', import.meta.url);
 const DOCS = new URL('../../docs/pruebas/', import.meta.url);
@@ -17,7 +20,9 @@ for (const summary of summaries) {
     for (const motor of ['SQL', 'CYPHER']) {
       const values = summary.measurements[query][motor];
       rows.push({
-        caso: summary.case, profundidad: summary.depth, consulta: query, motor,
+        caso: summary.case, perfil: summary.profile ?? 'base',
+        topologia: summary.topology ?? 'balanced', lotes: summary.lots ?? Number(summary.case),
+        profundidad: summary.depth, consulta: query, motor,
         mediaMs: Number(values.mean.toFixed(3)),
         medianaMs: Number(values.median.toFixed(3)),
         p95Ms: Number(values.p95.toFixed(3)),
@@ -45,7 +50,9 @@ const document = {
   equivalenciaVerificada: equivalent,
   entorno: summaries[0].versions,
   casos: summaries.map((summary) => ({
-    caso: summary.case, profundidad: summary.depth, topologia: summary.topology,
+    caso: summary.case, perfil: summary.profile ?? 'base',
+    topologia: summary.topology ?? 'balanced', lotes: summary.lots ?? Number(summary.case),
+    profundidad: summary.depth, topologiaObservada: summary.topologyStats,
     hashesEquivalentes: Object.fromEntries(QUERIES.map((query) =>
       [query, summary.baseline[query].sql === summary.baseline[query].cypher])),
   })),
@@ -58,8 +65,9 @@ const document = {
 };
 await mkdir(DOCS, { recursive: true });
 await writeFile(new URL('benchmark-actual.json', DOCS), JSON.stringify(document, null, 2));
-const header = 'caso,profundidad,consulta,motor,media_ms,mediana_ms,p95_ms,desviacion_ms,tasa_errores,resultados';
-const csv = [header, ...rows.map((row) => [row.caso, row.profundidad, row.consulta, row.motor,
-  row.mediaMs, row.medianaMs, row.p95Ms, row.desviacionMs, row.tasaErrores, row.resultados].join(','))].join('\n');
+const header = 'caso,perfil,topologia,lotes,profundidad,consulta,motor,media_ms,mediana_ms,p95_ms,desviacion_ms,tasa_errores,resultados';
+const csv = [header, ...rows.map((row) => [row.caso, row.perfil, row.topologia, row.lotes,
+  row.profundidad, row.consulta, row.motor, row.mediaMs, row.medianaMs, row.p95Ms,
+  row.desviacionMs, row.tasaErrores, row.resultados].join(','))].join('\n');
 await writeFile(new URL('benchmark-actual.csv', DOCS), csv);
 process.stdout.write(`BENCHMARK_SUMMARY=${JSON.stringify({ totalMeasured, totalErrors, equivalent, rows: rows.length })}\n`);
