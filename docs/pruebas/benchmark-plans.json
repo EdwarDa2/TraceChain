@@ -1,5 +1,5 @@
 {
-  "fecha": "2026-11-27T14:09:39.354Z",
+  "fecha": "2026-11-27T14:24:24.641Z",
   "caso": "explain-1000-d8",
   "proposito": "Diagnóstico de planes, no medición de latencia; excluido del CSV de 2700 mediciones.",
   "entorno": {
@@ -10,19 +10,19 @@
   "planes": {
     "QE01": {
       "sql": {
-        "query": "WITH RECURSIVE alcanzados AS (\n  SELECT lote_hijo_id AS id, 1 AS depth, ARRAY[lote_padre_id, lote_hijo_id] AS seen\n  FROM v_dependencias_productivas WHERE lote_padre_id = $1\n  UNION ALL\n  SELECT d.lote_hijo_id, a.depth + 1, a.seen || d.lote_hijo_id\n  FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n  WHERE a.depth < 8 AND NOT d.lote_hijo_id = ANY(a.seen)\n) SELECT id AS lotId, min(depth)::int AS depth FROM alcanzados GROUP BY id ORDER BY id",
-        "executionTimeMs": 2.724,
-        "planningTimeMs": 1.585,
+        "query": "WITH RECURSIVE alcanzados AS (\n  SELECT lote_hijo_id AS id, 1 AS depth\n  FROM v_dependencias_productivas WHERE lote_padre_id = $1\n  UNION\n  SELECT d.lote_hijo_id, a.depth + 1\n  FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n  WHERE a.depth < 8\n) SELECT id AS lotId, min(depth)::int AS depth FROM alcanzados GROUP BY id ORDER BY id",
+        "executionTimeMs": 6.393,
+        "planningTimeMs": 3.8,
         "plan": {
           "Node Type": "Sort",
           "Parallel Aware": false,
           "Async Capable": false,
-          "Startup Cost": 4534.72,
-          "Total Cost": 4535.22,
+          "Startup Cost": 3971.32,
+          "Total Cost": 3971.82,
           "Plan Rows": 200,
           "Plan Width": 20,
-          "Actual Startup Time": 2.328,
-          "Actual Total Time": 2.334,
+          "Actual Startup Time": 2.539,
+          "Actual Total Time": 2.544,
           "Actual Rows": 36,
           "Actual Loops": 1,
           "Sort Key": [
@@ -49,12 +49,12 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 19.79,
-              "Total Cost": 3566.47,
-              "Plan Rows": 38344,
-              "Plan Width": 52,
-              "Actual Startup Time": 0.2,
-              "Actual Total Time": 2.076,
-              "Actual Rows": 255,
+              "Total Cost": 2991.82,
+              "Plan Rows": 38794,
+              "Plan Width": 20,
+              "Actual Startup Time": 0.691,
+              "Actual Total Time": 2.419,
+              "Actual Rows": 36,
               "Actual Loops": 1,
               "Shared Hit Blocks": 156,
               "Shared Read Blocks": 0,
@@ -76,9 +76,9 @@
                   "Startup Cost": 19.79,
                   "Total Cost": 40.57,
                   "Plan Rows": 34,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.199,
-                  "Actual Total Time": 0.31,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.476,
+                  "Actual Total Time": 0.585,
                   "Actual Rows": 1,
                   "Actual Loops": 1,
                   "Inner Unique": true,
@@ -105,8 +105,8 @@
                       "Total Cost": 18.5,
                       "Plan Rows": 850,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.015,
-                      "Actual Total Time": 0.081,
+                      "Actual Startup Time": 0.016,
+                      "Actual Total Time": 0.071,
                       "Actual Rows": 880,
                       "Actual Loops": 1,
                       "Shared Hit Blocks": 10,
@@ -128,9 +128,9 @@
                       "Startup Cost": 19.69,
                       "Total Cost": 19.69,
                       "Plan Rows": 8,
-                      "Plan Width": 32,
-                      "Actual Startup Time": 0.122,
-                      "Actual Total Time": 0.123,
+                      "Plan Width": 16,
+                      "Actual Startup Time": 0.234,
+                      "Actual Total Time": 0.235,
                       "Actual Rows": 1,
                       "Actual Loops": 1,
                       "Hash Buckets": 1024,
@@ -159,9 +159,9 @@
                           "Startup Cost": 4.34,
                           "Total Cost": 19.69,
                           "Plan Rows": 8,
-                          "Plan Width": 32,
-                          "Actual Startup Time": 0.094,
-                          "Actual Total Time": 0.096,
+                          "Plan Width": 16,
+                          "Actual Startup Time": 0.225,
+                          "Actual Total Time": 0.226,
                           "Actual Rows": 1,
                           "Actual Loops": 1,
                           "Recheck Cond": "(lote_id = '0a61c11c-b1d1-4b8a-ba33-f172bbe80482'::uuid)",
@@ -189,8 +189,8 @@
                               "Total Cost": 4.34,
                               "Plan Rows": 8,
                               "Plan Width": 0,
-                              "Actual Startup Time": 0.065,
-                              "Actual Total Time": 0.065,
+                              "Actual Startup Time": 0.197,
+                              "Actual Total Time": 0.197,
                               "Actual Rows": 1,
                               "Actual Loops": 1,
                               "Index Cond": "(lote_id = '0a61c11c-b1d1-4b8a-ba33-f172bbe80482'::uuid)",
@@ -218,17 +218,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 38.19,
-                  "Total Cost": 314.25,
-                  "Plan Rows": 3831,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.052,
-                  "Actual Total Time": 0.214,
-                  "Actual Rows": 32,
+                  "Total Cost": 256.33,
+                  "Plan Rows": 3876,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.035,
+                  "Actual Total Time": 0.199,
+                  "Actual Rows": 7,
                   "Actual Loops": 8,
                   "Inner Unique": false,
                   "Hash Cond": "(c_1.orden_produccion_id = r_1.orden_produccion_id)",
-                  "Join Filter": "(r_1.lote_id <> ALL (a.seen))",
-                  "Rows Removed by Join Filter": 0,
                   "Shared Hit Blocks": 143,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
@@ -249,10 +247,10 @@
                       "Startup Cost": 9.06,
                       "Total Cost": 79.58,
                       "Plan Rows": 912,
-                      "Plan Width": 52,
+                      "Plan Width": 20,
                       "Actual Startup Time": 0.015,
-                      "Actual Total Time": 0.167,
-                      "Actual Rows": 32,
+                      "Actual Total Time": 0.177,
+                      "Actual Rows": 7,
                       "Actual Loops": 8,
                       "Inner Unique": false,
                       "Hash Cond": "(c_1.lote_id = a.id)",
@@ -278,8 +276,8 @@
                           "Total Cost": 35.15,
                           "Plan Rows": 1615,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.001,
-                          "Actual Total Time": 0.087,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.091,
                           "Actual Rows": 1760,
                           "Actual Loops": 7,
                           "Shared Hit Blocks": 133,
@@ -301,16 +299,16 @@
                           "Startup Cost": 7.65,
                           "Total Cost": 7.65,
                           "Plan Rows": 113,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.004,
-                          "Actual Total Time": 0.004,
-                          "Actual Rows": 16,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.003,
+                          "Actual Total Time": 0.003,
+                          "Actual Rows": 4,
                           "Actual Loops": 8,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 21,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -332,13 +330,13 @@
                               "Startup Cost": 0,
                               "Total Cost": 7.65,
                               "Plan Rows": 113,
-                              "Plan Width": 52,
-                              "Actual Startup Time": 0.001,
+                              "Plan Width": 20,
+                              "Actual Startup Time": 0.002,
                               "Actual Total Time": 0.002,
-                              "Actual Rows": 16,
+                              "Actual Rows": 4,
                               "Actual Loops": 8,
                               "Filter": "(depth < 8)",
-                              "Rows Removed by Filter": 16,
+                              "Rows Removed by Filter": 1,
                               "Shared Hit Blocks": 0,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
@@ -363,8 +361,8 @@
                       "Total Cost": 18.5,
                       "Plan Rows": 850,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.149,
-                      "Actual Total Time": 0.15,
+                      "Actual Startup Time": 0.136,
+                      "Actual Total Time": 0.136,
                       "Actual Rows": 880,
                       "Actual Loops": 1,
                       "Hash Buckets": 1024,
@@ -394,8 +392,8 @@
                           "Total Cost": 18.5,
                           "Plan Rows": 850,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.003,
-                          "Actual Total Time": 0.06,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.052,
                           "Actual Rows": 880,
                           "Actual Loops": 1,
                           "Shared Hit Blocks": 10,
@@ -422,12 +420,12 @@
               "Parent Relationship": "Outer",
               "Parallel Aware": false,
               "Async Capable": false,
-              "Startup Cost": 958.6,
-              "Total Cost": 960.6,
+              "Startup Cost": 969.85,
+              "Total Cost": 971.85,
               "Plan Rows": 200,
               "Plan Width": 20,
-              "Actual Startup Time": 2.218,
-              "Actual Total Time": 2.223,
+              "Actual Startup Time": 2.439,
+              "Actual Total Time": 2.444,
               "Actual Rows": 36,
               "Actual Loops": 1,
               "Group Key": [
@@ -456,12 +454,12 @@
                   "CTE Name": "alcanzados",
                   "Alias": "alcanzados",
                   "Startup Cost": 0,
-                  "Total Cost": 766.88,
-                  "Plan Rows": 38344,
+                  "Total Cost": 775.88,
+                  "Plan Rows": 38794,
                   "Plan Width": 20,
-                  "Actual Startup Time": 0.201,
-                  "Actual Total Time": 2.153,
-                  "Actual Rows": 255,
+                  "Actual Startup Time": 0.692,
+                  "Actual Total Time": 2.424,
+                  "Actual Rows": 36,
                   "Actual Loops": 1,
                   "Shared Hit Blocks": 156,
                   "Shared Read Blocks": 0,
@@ -491,7 +489,7 @@
           "arguments": {
             "Order": "lotId ASC",
             "GlobalMemory": {
-              "low": 13944,
+              "low": 13672,
               "high": 0
             },
             "planner-impl": "IDP",
@@ -499,7 +497,7 @@
               "low": 0,
               "high": 0
             },
-            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator              | Id | Details                                                                         | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults       |  0 | lotId, depth                                                                    |              9 |   36 |       0 |              0 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                 |  1 | lotId ASC                                                                       |              9 |   36 |       0 |           7416 |                    0/0 | lotId ASC  |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +EagerAggregation     |  2 | d.id AS lotId, min(toInteger(length((o)-[anon_0*]->(d)) / $autoint_0)) AS depth |              9 |   36 |     255 |           6328 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter               |  3 | NOT o = d AND d:Lote                                                            |             85 |  255 |     509 |                |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +VarLengthExpand(All) |  4 | (o)-[anon_0:UTILIZADO_EN|GENERA*2..16]->(d)                                     |            282 |  509 |     893 |           7984 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeUniqueIndexSeek  |  5 | UNIQUE o:Lote(id) WHERE id = $lotId                                             |              1 |    1 |       2 |                |                    0/0 |            |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 1659, total allocated memory: 13944\n",
+            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator              | Id | Details                                                                         | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults       |  0 | lotId, depth                                                                    |              0 |   36 |       0 |              0 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                 |  1 | lotId ASC                                                                       |              0 |   36 |       0 |           7416 |                    0/0 | lotId ASC  |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +EagerAggregation     |  2 | d.id AS lotId, min(toInteger(length((o)-[anon_0*]->(d)) / $autoint_0)) AS depth |              0 |   36 |     255 |           6328 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter               |  3 | NOT o = d AND d:Lote                                                            |              0 |  255 |     509 |                |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +VarLengthExpand(All) |  4 | (o)-[anon_0:UTILIZADO_EN|GENERA*2..16]->(d)                                     |              0 |  509 |     893 |           7984 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeUniqueIndexSeek  |  5 | UNIQUE o:Lote(id) WHERE id = $lotId                                             |              0 |    1 |       2 |                |                    0/0 |            |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 1659, total allocated memory: 13672\n",
             "runtime": "SLOTTED",
             "runtime-impl": "SLOTTED",
             "version": "5",
@@ -514,7 +512,7 @@
               "low": 0,
               "high": 0
             },
-            "EstimatedRows": 9.205446717349982,
+            "EstimatedRows": 0,
             "planner": "COST",
             "PageCacheMisses": {
               "low": 0,
@@ -547,7 +545,7 @@
                   "low": 1,
                   "high": 0
                 },
-                "EstimatedRows": 9.205446717349982,
+                "EstimatedRows": 0,
                 "PageCacheMisses": {
                   "low": 0,
                   "high": 0
@@ -582,7 +580,7 @@
                       "low": 2,
                       "high": 0
                     },
-                    "EstimatedRows": 9.205446717349982,
+                    "EstimatedRows": 0,
                     "PageCacheMisses": {
                       "low": 0,
                       "high": 0
@@ -618,7 +616,7 @@
                           "low": 0,
                           "high": 0
                         },
-                        "EstimatedRows": 84.74024926596957,
+                        "EstimatedRows": 0,
                         "DbHits": {
                           "low": 509,
                           "high": 0
@@ -650,7 +648,7 @@
                               "low": 4,
                               "high": 0
                             },
-                            "EstimatedRows": 281.5078118310804,
+                            "EstimatedRows": 0,
                             "PageCacheMisses": {
                               "low": 0,
                               "high": 0
@@ -684,7 +682,7 @@
                                   "low": 0,
                                   "high": 0
                                 },
-                                "EstimatedRows": 1,
+                                "EstimatedRows": 0,
                                 "DbHits": {
                                   "low": 2,
                                   "high": 0
@@ -714,19 +712,19 @@
     },
     "QE02": {
       "sql": {
-        "query": "WITH RECURSIVE alcanzados AS (\n  SELECT lote_padre_id AS id, 1 AS depth, ARRAY[lote_hijo_id, lote_padre_id] AS seen\n  FROM v_dependencias_productivas WHERE lote_hijo_id = $1\n  UNION ALL\n  SELECT d.lote_padre_id, a.depth + 1, a.seen || d.lote_padre_id\n  FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_hijo_id = a.id\n  WHERE a.depth < 8 AND NOT d.lote_padre_id = ANY(a.seen)\n) SELECT id AS lotId, min(depth)::int AS depth FROM alcanzados GROUP BY id ORDER BY id",
-        "executionTimeMs": 1.854,
-        "planningTimeMs": 0.425,
+        "query": "WITH RECURSIVE alcanzados AS (\n  SELECT lote_padre_id AS id, 1 AS depth\n  FROM v_dependencias_productivas WHERE lote_hijo_id = $1\n  UNION\n  SELECT d.lote_padre_id, a.depth + 1\n  FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_hijo_id = a.id\n  WHERE a.depth < 8\n) SELECT id AS lotId, min(depth)::int AS depth FROM alcanzados GROUP BY id ORDER BY id",
+        "executionTimeMs": 0.949,
+        "planningTimeMs": 0.471,
         "plan": {
           "Node Type": "Sort",
           "Parallel Aware": false,
           "Async Capable": false,
-          "Startup Cost": 568.81,
-          "Total Cost": 569.31,
+          "Startup Cost": 540.76,
+          "Total Cost": 541.26,
           "Plan Rows": 200,
           "Plan Width": 20,
-          "Actual Startup Time": 1.741,
-          "Actual Total Time": 1.746,
+          "Actual Startup Time": 0.856,
+          "Actual Total Time": 0.859,
           "Actual Rows": 44,
           "Actual Loops": 1,
           "Sort Key": [
@@ -735,7 +733,7 @@
           "Sort Method": "quicksort",
           "Sort Space Used": 27,
           "Sort Space Type": "Memory",
-          "Shared Hit Blocks": 838,
+          "Shared Hit Blocks": 181,
           "Shared Read Blocks": 0,
           "Shared Dirtied Blocks": 0,
           "Shared Written Blocks": 0,
@@ -753,14 +751,14 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 4.61,
-              "Total Cost": 507.21,
-              "Plan Rows": 2078,
-              "Plan Width": 52,
-              "Actual Startup Time": 0.061,
-              "Actual Total Time": 1.468,
-              "Actual Rows": 510,
+              "Total Cost": 476.41,
+              "Plan Rows": 2188,
+              "Plan Width": 20,
+              "Actual Startup Time": 0.035,
+              "Actual Total Time": 0.821,
+              "Actual Rows": 44,
               "Actual Loops": 1,
-              "Shared Hit Blocks": 838,
+              "Shared Hit Blocks": 181,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -780,9 +778,9 @@
                   "Startup Cost": 4.61,
                   "Total Cost": 28.07,
                   "Plan Rows": 8,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.059,
-                  "Actual Total Time": 0.062,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.033,
+                  "Actual Total Time": 0.035,
                   "Actual Rows": 2,
                   "Actual Loops": 1,
                   "Inner Unique": false,
@@ -809,9 +807,9 @@
                       "Startup Cost": 0.28,
                       "Total Cost": 8.29,
                       "Plan Rows": 1,
-                      "Plan Width": 32,
-                      "Actual Startup Time": 0.031,
-                      "Actual Total Time": 0.032,
+                      "Plan Width": 16,
+                      "Actual Startup Time": 0.019,
+                      "Actual Total Time": 0.02,
                       "Actual Rows": 1,
                       "Actual Loops": 1,
                       "Index Cond": "(lote_id = '2f5c317e-0602-46f9-abd3-b8bbbcad49ca'::uuid)",
@@ -838,8 +836,8 @@
                       "Total Cost": 19.69,
                       "Plan Rows": 8,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.018,
-                      "Actual Total Time": 0.019,
+                      "Actual Startup Time": 0.011,
+                      "Actual Total Time": 0.011,
                       "Actual Rows": 2,
                       "Actual Loops": 1,
                       "Recheck Cond": "(orden_produccion_id = r.orden_produccion_id)",
@@ -867,8 +865,8 @@
                           "Total Cost": 4.34,
                           "Plan Rows": 8,
                           "Plan Width": 0,
-                          "Actual Startup Time": 0.01,
-                          "Actual Total Time": 0.011,
+                          "Actual Startup Time": 0.006,
+                          "Actual Total Time": 0.006,
                           "Actual Rows": 2,
                           "Actual Loops": 1,
                           "Index Cond": "(orden_produccion_id = r.orden_produccion_id)",
@@ -894,17 +892,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 2.41,
-                  "Total Cost": 45.84,
-                  "Plan Rows": 207,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.039,
-                  "Actual Total Time": 0.164,
-                  "Actual Rows": 64,
+                  "Total Cost": 42.65,
+                  "Plan Rows": 218,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.019,
+                  "Actual Total Time": 0.096,
+                  "Actual Rows": 9,
                   "Actual Loops": 8,
                   "Inner Unique": false,
-                  "Join Filter": "(c_1.lote_id <> ALL (a.seen))",
-                  "Rows Removed by Join Filter": 0,
-                  "Shared Hit Blocks": 832,
+                  "Shared Hit Blocks": 175,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -924,10 +920,10 @@
                       "Startup Cost": 2.14,
                       "Total Cost": 24.09,
                       "Plan Rows": 27,
-                      "Plan Width": 52,
-                      "Actual Startup Time": 0.012,
-                      "Actual Total Time": 0.089,
-                      "Actual Rows": 32,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 0.006,
+                      "Actual Total Time": 0.077,
+                      "Actual Rows": 4,
                       "Actual Loops": 8,
                       "Inner Unique": false,
                       "Hash Cond": "(r_1.lote_id = a.id)",
@@ -953,8 +949,8 @@
                           "Total Cost": 18.5,
                           "Plan Rows": 850,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.002,
-                          "Actual Total Time": 0.045,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.04,
                           "Actual Rows": 880,
                           "Actual Loops": 7,
                           "Shared Hit Blocks": 70,
@@ -976,16 +972,16 @@
                           "Startup Cost": 1.8,
                           "Total Cost": 1.8,
                           "Plan Rows": 27,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.006,
-                          "Actual Total Time": 0.006,
-                          "Actual Rows": 32,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.001,
+                          "Actual Rows": 4,
                           "Actual Loops": 8,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 34,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -1007,13 +1003,13 @@
                               "Startup Cost": 0,
                               "Total Cost": 1.8,
                               "Plan Rows": 27,
-                              "Plan Width": 52,
-                              "Actual Startup Time": 0.001,
-                              "Actual Total Time": 0.003,
-                              "Actual Rows": 32,
+                              "Plan Width": 20,
+                              "Actual Startup Time": 0,
+                              "Actual Total Time": 0.001,
+                              "Actual Rows": 4,
                               "Actual Loops": 8,
                               "Filter": "(depth < 8)",
-                              "Rows Removed by Filter": 32,
+                              "Rows Removed by Filter": 1,
                               "Shared Hit Blocks": 0,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
@@ -1042,14 +1038,14 @@
                       "Total Cost": 0.59,
                       "Plan Rows": 8,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.001,
-                      "Actual Total Time": 0.002,
+                      "Actual Startup Time": 0.004,
+                      "Actual Total Time": 0.004,
                       "Actual Rows": 2,
-                      "Actual Loops": 254,
+                      "Actual Loops": 35,
                       "Index Cond": "(orden_produccion_id = r_1.orden_produccion_id)",
                       "Rows Removed by Index Recheck": 0,
-                      "Heap Fetches": 508,
-                      "Shared Hit Blocks": 762,
+                      "Heap Fetches": 70,
+                      "Shared Hit Blocks": 105,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -1071,12 +1067,12 @@
               "Parent Relationship": "Outer",
               "Parallel Aware": false,
               "Async Capable": false,
-              "Startup Cost": 51.95,
-              "Total Cost": 53.95,
+              "Startup Cost": 54.7,
+              "Total Cost": 56.7,
               "Plan Rows": 200,
               "Plan Width": 20,
-              "Actual Startup Time": 1.72,
-              "Actual Total Time": 1.725,
+              "Actual Startup Time": 0.839,
+              "Actual Total Time": 0.843,
               "Actual Rows": 44,
               "Actual Loops": 1,
               "Group Key": [
@@ -1086,7 +1082,7 @@
               "HashAgg Batches": 1,
               "Peak Memory Usage": 40,
               "Disk Usage": 0,
-              "Shared Hit Blocks": 838,
+              "Shared Hit Blocks": 181,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -1105,14 +1101,14 @@
                   "CTE Name": "alcanzados",
                   "Alias": "alcanzados",
                   "Startup Cost": 0,
-                  "Total Cost": 41.56,
-                  "Plan Rows": 2078,
+                  "Total Cost": 43.76,
+                  "Plan Rows": 2188,
                   "Plan Width": 20,
-                  "Actual Startup Time": 0.063,
-                  "Actual Total Time": 1.651,
-                  "Actual Rows": 510,
+                  "Actual Startup Time": 0.036,
+                  "Actual Total Time": 0.827,
+                  "Actual Rows": 44,
                   "Actual Loops": 1,
-                  "Shared Hit Blocks": 838,
+                  "Shared Hit Blocks": 181,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -1140,7 +1136,7 @@
           "arguments": {
             "Order": "lotId ASC",
             "GlobalMemory": {
-              "low": 15432,
+              "low": 15520,
               "high": 0
             },
             "planner-impl": "IDP",
@@ -1148,7 +1144,7 @@
               "low": 0,
               "high": 0
             },
-            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator              | Id | Details                                                                         | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults       |  0 | lotId, depth                                                                    |              9 |   44 |       0 |              0 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                 |  1 | lotId ASC                                                                       |              9 |   44 |       0 |           8824 |                    0/0 | lotId ASC  |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +EagerAggregation     |  2 | d.id AS lotId, min(toInteger(length((o)<-[anon_0*]-(d)) / $autoint_0)) AS depth |              9 |   44 |     510 |           7416 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter               |  3 | NOT o = d AND d:Lote                                                            |             85 |  510 |     764 |                |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +VarLengthExpand(All) |  4 | (o)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(d)                                     |            141 |  764 |    1275 |           8024 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeUniqueIndexSeek  |  5 | UNIQUE o:Lote(id) WHERE id = $lotId                                             |              1 |    1 |       2 |                |                    0/0 |            |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 2551, total allocated memory: 15432\n",
+            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator              | Id | Details                                                                         | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults       |  0 | lotId, depth                                                                    |              0 |   44 |       0 |              0 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                 |  1 | lotId ASC                                                                       |              0 |   44 |       0 |           8824 |                    0/0 | lotId ASC  |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +EagerAggregation     |  2 | d.id AS lotId, min(toInteger(length((o)<-[anon_0*]-(d)) / $autoint_0)) AS depth |              0 |   44 |     510 |           7496 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter               |  3 | NOT o = d AND d:Lote                                                            |              0 |  510 |     764 |                |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +VarLengthExpand(All) |  4 | (o)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(d)                                     |              0 |  764 |    1275 |           8024 |                    0/0 |            |\n| |                     +----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeUniqueIndexSeek  |  5 | UNIQUE o:Lote(id) WHERE id = $lotId                                             |              0 |    1 |       2 |                |                    0/0 |            |\n+-----------------------+----+---------------------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 2551, total allocated memory: 15520\n",
             "runtime": "SLOTTED",
             "runtime-impl": "SLOTTED",
             "version": "5",
@@ -1163,7 +1159,7 @@
               "low": 0,
               "high": 0
             },
-            "EstimatedRows": 9.205446717349982,
+            "EstimatedRows": 0,
             "planner": "COST",
             "PageCacheMisses": {
               "low": 0,
@@ -1196,7 +1192,7 @@
                   "low": 1,
                   "high": 0
                 },
-                "EstimatedRows": 9.205446717349982,
+                "EstimatedRows": 0,
                 "PageCacheMisses": {
                   "low": 0,
                   "high": 0
@@ -1224,14 +1220,14 @@
                   "arguments": {
                     "Details": "d.id AS lotId, min(toInteger(length((o)<-[anon_0*]-(d)) / $autoint_0)) AS depth",
                     "Memory": {
-                      "low": 7416,
+                      "low": 7496,
                       "high": 0
                     },
                     "Id": {
                       "low": 2,
                       "high": 0
                     },
-                    "EstimatedRows": 9.205446717349982,
+                    "EstimatedRows": 0,
                     "PageCacheMisses": {
                       "low": 0,
                       "high": 0
@@ -1267,7 +1263,7 @@
                           "low": 0,
                           "high": 0
                         },
-                        "EstimatedRows": 84.74024926596957,
+                        "EstimatedRows": 0,
                         "DbHits": {
                           "low": 764,
                           "high": 0
@@ -1299,7 +1295,7 @@
                               "low": 4,
                               "high": 0
                             },
-                            "EstimatedRows": 140.99341908499377,
+                            "EstimatedRows": 0,
                             "PageCacheMisses": {
                               "low": 0,
                               "high": 0
@@ -1333,7 +1329,7 @@
                                   "low": 0,
                                   "high": 0
                                 },
-                                "EstimatedRows": 1,
+                                "EstimatedRows": 0,
                                 "DbHits": {
                                   "low": 2,
                                   "high": 0
@@ -1363,22 +1359,22 @@
     },
     "QE03": {
       "sql": {
-        "query": "WITH RECURSIVE a AS (\n      SELECT lote_padre_id AS id, 1 AS depth, ARRAY[lote_hijo_id, lote_padre_id] AS seen\n      FROM v_dependencias_productivas WHERE lote_hijo_id = $1\n      UNION ALL\n      SELECT d.lote_padre_id, a.depth + 1, a.seen || d.lote_padre_id\n      FROM a JOIN v_dependencias_productivas d ON d.lote_hijo_id = a.id\n      WHERE a.depth < 8 AND NOT d.lote_padre_id = ANY(a.seen)\n    ), b AS (\n      SELECT lote_padre_id AS id, 1 AS depth, ARRAY[lote_hijo_id, lote_padre_id] AS seen\n      FROM v_dependencias_productivas WHERE lote_hijo_id = $2\n      UNION ALL\n      SELECT d.lote_padre_id, b.depth + 1, b.seen || d.lote_padre_id\n      FROM b JOIN v_dependencias_productivas d ON d.lote_hijo_id = b.id\n      WHERE b.depth < 8 AND NOT d.lote_padre_id = ANY(b.seen)\n    ) SELECT DISTINCT a.id AS lotId FROM a JOIN b USING (id) ORDER BY a.id",
-        "executionTimeMs": 5.012,
-        "planningTimeMs": 0.377,
+        "query": "WITH RECURSIVE a AS (\n  SELECT lote_padre_id AS id, 1 AS depth\n  FROM v_dependencias_productivas WHERE lote_hijo_id = $1\n  UNION\n  SELECT d.lote_padre_id, a.depth + 1\n  FROM a JOIN v_dependencias_productivas d ON d.lote_hijo_id = a.id\n  WHERE a.depth < 8\n),\n      b AS (\n  SELECT lote_padre_id AS id, 1 AS depth\n  FROM v_dependencias_productivas WHERE lote_hijo_id = $2\n  UNION\n  SELECT d.lote_padre_id, b.depth + 1\n  FROM b JOIN v_dependencias_productivas d ON d.lote_hijo_id = b.id\n  WHERE b.depth < 8\n)\n      SELECT DISTINCT a.id AS lotId FROM a JOIN b USING (id) ORDER BY a.id",
+        "executionTimeMs": 1.806,
+        "planningTimeMs": 0.282,
         "plan": {
           "Node Type": "Unique",
           "Parallel Aware": false,
           "Async Capable": false,
-          "Startup Cost": 1326.56,
-          "Total Cost": 1714.77,
+          "Startup Cost": 1283.11,
+          "Total Cost": 1712.95,
           "Plan Rows": 200,
           "Plan Width": 16,
-          "Actual Startup Time": 3.104,
-          "Actual Total Time": 4.751,
+          "Actual Startup Time": 1.59,
+          "Actual Total Time": 1.609,
           "Actual Rows": 35,
           "Actual Loops": 1,
-          "Shared Hit Blocks": 1292,
+          "Shared Hit Blocks": 338,
           "Shared Read Blocks": 0,
           "Shared Dirtied Blocks": 0,
           "Shared Written Blocks": 0,
@@ -1396,14 +1392,14 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 4.61,
-              "Total Cost": 507.21,
-              "Plan Rows": 2078,
-              "Plan Width": 52,
-              "Actual Startup Time": 0.049,
-              "Actual Total Time": 1.1,
-              "Actual Rows": 254,
+              "Total Cost": 476.41,
+              "Plan Rows": 2188,
+              "Plan Width": 20,
+              "Actual Startup Time": 0.035,
+              "Actual Total Time": 0.799,
+              "Actual Rows": 35,
               "Actual Loops": 1,
-              "Shared Hit Blocks": 454,
+              "Shared Hit Blocks": 157,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -1423,9 +1419,9 @@
                   "Startup Cost": 4.61,
                   "Total Cost": 28.07,
                   "Plan Rows": 8,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.046,
-                  "Actual Total Time": 0.05,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.033,
+                  "Actual Total Time": 0.036,
                   "Actual Rows": 2,
                   "Actual Loops": 1,
                   "Inner Unique": false,
@@ -1452,9 +1448,9 @@
                       "Startup Cost": 0.28,
                       "Total Cost": 8.29,
                       "Plan Rows": 1,
-                      "Plan Width": 32,
-                      "Actual Startup Time": 0.022,
-                      "Actual Total Time": 0.023,
+                      "Plan Width": 16,
+                      "Actual Startup Time": 0.018,
+                      "Actual Total Time": 0.019,
                       "Actual Rows": 1,
                       "Actual Loops": 1,
                       "Index Cond": "(lote_id = '4fd9fefe-f8b4-4a27-aea8-59c8c7f27380'::uuid)",
@@ -1481,8 +1477,8 @@
                       "Total Cost": 19.69,
                       "Plan Rows": 8,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.015,
-                      "Actual Total Time": 0.017,
+                      "Actual Startup Time": 0.01,
+                      "Actual Total Time": 0.011,
                       "Actual Rows": 2,
                       "Actual Loops": 1,
                       "Recheck Cond": "(orden_produccion_id = r.orden_produccion_id)",
@@ -1510,8 +1506,8 @@
                           "Total Cost": 4.34,
                           "Plan Rows": 8,
                           "Plan Width": 0,
-                          "Actual Startup Time": 0.008,
-                          "Actual Total Time": 0.009,
+                          "Actual Startup Time": 0.006,
+                          "Actual Total Time": 0.006,
                           "Actual Rows": 2,
                           "Actual Loops": 1,
                           "Index Cond": "(orden_produccion_id = r.orden_produccion_id)",
@@ -1537,17 +1533,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 2.41,
-                  "Total Cost": 45.84,
-                  "Plan Rows": 207,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.041,
-                  "Actual Total Time": 0.143,
-                  "Actual Rows": 36,
+                  "Total Cost": 42.65,
+                  "Plan Rows": 218,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.023,
+                  "Actual Total Time": 0.107,
+                  "Actual Rows": 8,
                   "Actual Loops": 7,
                   "Inner Unique": false,
-                  "Join Filter": "(c_1.lote_id <> ALL (a_1.seen))",
-                  "Rows Removed by Join Filter": 0,
-                  "Shared Hit Blocks": 448,
+                  "Shared Hit Blocks": 151,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -1567,10 +1561,10 @@
                       "Startup Cost": 2.14,
                       "Total Cost": 24.09,
                       "Plan Rows": 27,
-                      "Plan Width": 52,
-                      "Actual Startup Time": 0.026,
-                      "Actual Total Time": 0.1,
-                      "Actual Rows": 18,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 0.019,
+                      "Actual Total Time": 0.097,
+                      "Actual Rows": 4,
                       "Actual Loops": 7,
                       "Inner Unique": false,
                       "Hash Cond": "(r_1.lote_id = a_1.id)",
@@ -1596,8 +1590,8 @@
                           "Total Cost": 18.5,
                           "Plan Rows": 850,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.002,
-                          "Actual Total Time": 0.042,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.049,
                           "Actual Rows": 880,
                           "Actual Loops": 7,
                           "Shared Hit Blocks": 70,
@@ -1619,16 +1613,16 @@
                           "Startup Cost": 1.8,
                           "Total Cost": 1.8,
                           "Plan Rows": 27,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.008,
-                          "Actual Total Time": 0.008,
-                          "Actual Rows": 36,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.002,
+                          "Actual Rows": 5,
                           "Actual Loops": 7,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 34,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -1650,10 +1644,10 @@
                               "Startup Cost": 0,
                               "Total Cost": 1.8,
                               "Plan Rows": 27,
-                              "Plan Width": 52,
-                              "Actual Startup Time": 0.001,
-                              "Actual Total Time": 0.003,
-                              "Actual Rows": 36,
+                              "Plan Width": 20,
+                              "Actual Startup Time": 0,
+                              "Actual Total Time": 0.001,
+                              "Actual Rows": 5,
                               "Actual Loops": 7,
                               "Filter": "(depth < 8)",
                               "Rows Removed by Filter": 0,
@@ -1685,14 +1679,14 @@
                       "Total Cost": 0.59,
                       "Plan Rows": 8,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.001,
-                      "Actual Total Time": 0.001,
+                      "Actual Startup Time": 0.002,
+                      "Actual Total Time": 0.002,
                       "Actual Rows": 2,
-                      "Actual Loops": 126,
+                      "Actual Loops": 27,
                       "Index Cond": "(orden_produccion_id = r_1.orden_produccion_id)",
                       "Rows Removed by Index Recheck": 0,
-                      "Heap Fetches": 252,
-                      "Shared Hit Blocks": 378,
+                      "Heap Fetches": 54,
+                      "Shared Hit Blocks": 81,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -1714,14 +1708,14 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 4.61,
-              "Total Cost": 507.21,
-              "Plan Rows": 2078,
-              "Plan Width": 52,
-              "Actual Startup Time": 0.014,
-              "Actual Total Time": 1.404,
-              "Actual Rows": 510,
+              "Total Cost": 476.41,
+              "Plan Rows": 2188,
+              "Plan Width": 20,
+              "Actual Startup Time": 0.015,
+              "Actual Total Time": 0.708,
+              "Actual Rows": 44,
               "Actual Loops": 1,
-              "Shared Hit Blocks": 838,
+              "Shared Hit Blocks": 181,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -1741,9 +1735,9 @@
                   "Startup Cost": 4.61,
                   "Total Cost": 28.07,
                   "Plan Rows": 8,
-                  "Plan Width": 52,
+                  "Plan Width": 20,
                   "Actual Startup Time": 0.013,
-                  "Actual Total Time": 0.016,
+                  "Actual Total Time": 0.015,
                   "Actual Rows": 2,
                   "Actual Loops": 1,
                   "Inner Unique": false,
@@ -1770,7 +1764,7 @@
                       "Startup Cost": 0.28,
                       "Total Cost": 8.29,
                       "Plan Rows": 1,
-                      "Plan Width": 32,
+                      "Plan Width": 16,
                       "Actual Startup Time": 0.007,
                       "Actual Total Time": 0.007,
                       "Actual Rows": 1,
@@ -1799,8 +1793,8 @@
                       "Total Cost": 19.69,
                       "Plan Rows": 8,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.004,
-                      "Actual Total Time": 0.005,
+                      "Actual Startup Time": 0.003,
+                      "Actual Total Time": 0.003,
                       "Actual Rows": 2,
                       "Actual Loops": 1,
                       "Recheck Cond": "(orden_produccion_id = r_2.orden_produccion_id)",
@@ -1828,8 +1822,8 @@
                           "Total Cost": 4.34,
                           "Plan Rows": 8,
                           "Plan Width": 0,
-                          "Actual Startup Time": 0.002,
-                          "Actual Total Time": 0.002,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.001,
                           "Actual Rows": 2,
                           "Actual Loops": 1,
                           "Index Cond": "(orden_produccion_id = r_2.orden_produccion_id)",
@@ -1855,17 +1849,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 2.41,
-                  "Total Cost": 45.84,
-                  "Plan Rows": 207,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.025,
-                  "Actual Total Time": 0.16,
-                  "Actual Rows": 64,
+                  "Total Cost": 42.65,
+                  "Plan Rows": 218,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.009,
+                  "Actual Total Time": 0.084,
+                  "Actual Rows": 9,
                   "Actual Loops": 8,
                   "Inner Unique": false,
-                  "Join Filter": "(c_3.lote_id <> ALL (b_1.seen))",
-                  "Rows Removed by Join Filter": 0,
-                  "Shared Hit Blocks": 832,
+                  "Shared Hit Blocks": 175,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -1885,10 +1877,10 @@
                       "Startup Cost": 2.14,
                       "Total Cost": 24.09,
                       "Plan Rows": 27,
-                      "Plan Width": 52,
-                      "Actual Startup Time": 0.021,
-                      "Actual Total Time": 0.102,
-                      "Actual Rows": 32,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 0.007,
+                      "Actual Total Time": 0.077,
+                      "Actual Rows": 4,
                       "Actual Loops": 8,
                       "Inner Unique": false,
                       "Hash Cond": "(r_3.lote_id = b_1.id)",
@@ -1915,7 +1907,7 @@
                           "Plan Rows": 850,
                           "Plan Width": 32,
                           "Actual Startup Time": 0.001,
-                          "Actual Total Time": 0.045,
+                          "Actual Total Time": 0.038,
                           "Actual Rows": 880,
                           "Actual Loops": 7,
                           "Shared Hit Blocks": 70,
@@ -1937,16 +1929,16 @@
                           "Startup Cost": 1.8,
                           "Total Cost": 1.8,
                           "Plan Rows": 27,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.013,
-                          "Actual Total Time": 0.013,
-                          "Actual Rows": 32,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.002,
+                          "Actual Rows": 4,
                           "Actual Loops": 8,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 34,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -1968,13 +1960,13 @@
                               "Startup Cost": 0,
                               "Total Cost": 1.8,
                               "Plan Rows": 27,
-                              "Plan Width": 52,
-                              "Actual Startup Time": 0.003,
-                              "Actual Total Time": 0.006,
-                              "Actual Rows": 32,
+                              "Plan Width": 20,
+                              "Actual Startup Time": 0,
+                              "Actual Total Time": 0.001,
+                              "Actual Rows": 4,
                               "Actual Loops": 8,
                               "Filter": "(depth < 8)",
-                              "Rows Removed by Filter": 32,
+                              "Rows Removed by Filter": 1,
                               "Shared Hit Blocks": 0,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
@@ -2006,11 +1998,11 @@
                       "Actual Startup Time": 0.001,
                       "Actual Total Time": 0.001,
                       "Actual Rows": 2,
-                      "Actual Loops": 254,
+                      "Actual Loops": 35,
                       "Index Cond": "(orden_produccion_id = r_3.orden_produccion_id)",
                       "Rows Removed by Index Recheck": 0,
-                      "Heap Fetches": 508,
-                      "Shared Hit Blocks": 762,
+                      "Heap Fetches": 70,
+                      "Shared Hit Blocks": 105,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -2031,17 +2023,17 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Join Type": "Inner",
-              "Startup Cost": 312.14,
-              "Total Cost": 646.38,
-              "Plan Rows": 21590,
+              "Startup Cost": 330.29,
+              "Total Cost": 700.28,
+              "Plan Rows": 23937,
               "Plan Width": 16,
-              "Actual Startup Time": 3.077,
-              "Actual Total Time": 4.314,
-              "Actual Rows": 8787,
+              "Actual Startup Time": 1.569,
+              "Actual Total Time": 1.579,
+              "Actual Rows": 35,
               "Actual Loops": 1,
               "Inner Unique": false,
               "Merge Cond": "(a.id = b.id)",
-              "Shared Hit Blocks": 1292,
+              "Shared Hit Blocks": 338,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -2057,21 +2049,21 @@
                   "Parent Relationship": "Outer",
                   "Parallel Aware": false,
                   "Async Capable": false,
-                  "Startup Cost": 156.07,
-                  "Total Cost": 161.26,
-                  "Plan Rows": 2078,
+                  "Startup Cost": 165.14,
+                  "Total Cost": 170.61,
+                  "Plan Rows": 2188,
                   "Plan Width": 16,
-                  "Actual Startup Time": 1.233,
-                  "Actual Total Time": 1.246,
-                  "Actual Rows": 254,
+                  "Actual Startup Time": 0.823,
+                  "Actual Total Time": 0.824,
+                  "Actual Rows": 35,
                   "Actual Loops": 1,
                   "Sort Key": [
                     "a.id"
                   ],
                   "Sort Method": "quicksort",
-                  "Sort Space Used": 30,
+                  "Sort Space Used": 25,
                   "Sort Space Type": "Memory",
-                  "Shared Hit Blocks": 454,
+                  "Shared Hit Blocks": 157,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -2090,14 +2082,14 @@
                       "CTE Name": "a",
                       "Alias": "a",
                       "Startup Cost": 0,
-                      "Total Cost": 41.56,
-                      "Plan Rows": 2078,
+                      "Total Cost": 43.76,
+                      "Plan Rows": 2188,
                       "Plan Width": 16,
-                      "Actual Startup Time": 0.05,
-                      "Actual Total Time": 1.199,
-                      "Actual Rows": 254,
+                      "Actual Startup Time": 0.036,
+                      "Actual Total Time": 0.807,
+                      "Actual Rows": 35,
                       "Actual Loops": 1,
-                      "Shared Hit Blocks": 454,
+                      "Shared Hit Blocks": 157,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -2115,21 +2107,21 @@
                   "Parent Relationship": "Inner",
                   "Parallel Aware": false,
                   "Async Capable": false,
-                  "Startup Cost": 156.07,
-                  "Total Cost": 161.26,
-                  "Plan Rows": 2078,
+                  "Startup Cost": 165.14,
+                  "Total Cost": 170.61,
+                  "Plan Rows": 2188,
                   "Plan Width": 16,
-                  "Actual Startup Time": 1.835,
-                  "Actual Total Time": 2.189,
-                  "Actual Rows": 8796,
+                  "Actual Startup Time": 0.743,
+                  "Actual Total Time": 0.745,
+                  "Actual Rows": 44,
                   "Actual Loops": 1,
                   "Sort Key": [
                     "b.id"
                   ],
                   "Sort Method": "quicksort",
-                  "Sort Space Used": 36,
+                  "Sort Space Used": 26,
                   "Sort Space Type": "Memory",
-                  "Shared Hit Blocks": 838,
+                  "Shared Hit Blocks": 181,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -2148,14 +2140,14 @@
                       "CTE Name": "b",
                       "Alias": "b",
                       "Startup Cost": 0,
-                      "Total Cost": 41.56,
-                      "Plan Rows": 2078,
+                      "Total Cost": 43.76,
+                      "Plan Rows": 2188,
                       "Plan Width": 16,
-                      "Actual Startup Time": 0.015,
-                      "Actual Total Time": 1.755,
-                      "Actual Rows": 510,
+                      "Actual Startup Time": 0.016,
+                      "Actual Total Time": 0.717,
+                      "Actual Rows": 44,
                       "Actual Loops": 1,
-                      "Shared Hit Blocks": 838,
+                      "Shared Hit Blocks": 181,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -2184,7 +2176,7 @@
           "arguments": {
             "Order": "lotId ASC",
             "GlobalMemory": {
-              "low": 1116536,
+              "low": 1213224,
               "high": 0
             },
             "planner-impl": "IDP",
@@ -2192,7 +2184,7 @@
               "low": 0,
               "high": 0
             },
-            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+--------------------------+----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator                 | Id | Details                                     | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+--------------------------+----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults          |  0 | lotId                                       |             11 |   35 |       0 |              0 |                    0/0 |            |\n| |                        +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                    |  1 | lotId ASC                                   |             11 |   35 |       0 |          38488 |                    0/0 | lotId ASC  |\n| |                        +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Distinct                |  2 | c.id AS lotId                               |             11 |   35 |     254 |           3464 |                    0/0 |            |\n| |                        +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +SemiApply               |  3 |                                             |             11 |  254 |       0 |                |                    0/0 |            |\n| |\\                       +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +VarLengthExpand(Into) |  4 | (b)<-[anon_1:UTILIZADO_EN|GENERA*2..16]-(c) |              9 |    0 |   25877 |        1075704 |                    0/0 |            |\n| | |                      +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +Argument              |  5 | b, c                                        |             94 |  254 |       0 |                |                    0/0 |            |\n| |                        +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +CartesianProduct        |  6 |                                             |             94 |  254 |       0 |                |                    0/0 |            |\n| |\\                       +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +Filter                |  7 | c:Lote                                      |             94 |  254 |     380 |                |                    0/0 |            |\n| | |                      +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +VarLengthExpand(All)  |  8 | (a)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(c) |            141 |  380 |     763 |           6928 |                    0/0 |            |\n| | |                      +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +NodeUniqueIndexSeek   |  9 | UNIQUE a:Lote(id) WHERE id = $lotA          |              1 |    1 |       2 |                |                    0/0 |            |\n| |                        +----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeUniqueIndexSeek     | 10 | UNIQUE b:Lote(id) WHERE id = $lotB          |              1 |    1 |       2 |                |                    0/0 |            |\n+--------------------------+----+---------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 27278, total allocated memory: 1116536\n",
+            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+--------------------------+----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| Operator                 | Id | Details                                                  | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by |\n+--------------------------+----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +ProduceResults          |  0 | lotId                                                    |              0 |   35 |       0 |              0 |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+            |\n| +Sort                    |  1 | lotId ASC                                                |              0 |   35 |       0 |          38872 |                    0/0 | lotId ASC  |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Distinct                |  2 | c.id AS lotId                                            |              0 |   35 |     254 |           3464 |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +SemiApply               |  3 |                                                          |              0 |  254 |       0 |                |                    0/0 |            |\n| |\\                       +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +VarLengthExpand(Into) |  4 | (b)<-[anon_1:UTILIZADO_EN|GENERA*2..16]-(c)              |              0 |    0 |   33607 |        1172016 |                    0/0 |            |\n| | |                      +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +Argument              |  5 | b, c                                                     |              0 |  254 |       0 |                |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +CartesianProduct        |  6 |                                                          |              0 |  254 |       0 |                |                    0/0 |            |\n| |\\                       +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| | +NodeUniqueIndexSeek   |  7 | UNIQUE b:Lote(id) WHERE id = $lotB                       |              0 |  254 |     508 |                |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter                  |  8 | c:Lote                                                   |              0 |  254 |     380 |                |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +VarLengthExpand(All)    |  9 | (a)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(c)              |              0 |  380 |     763 |           6928 |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +Filter                  | 10 | cache[a.id] = $lotA                                      |              0 |    1 |       0 |                |                    0/0 |            |\n| |                        +----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n| +NodeIndexScan           | 11 | RANGE INDEX a:Lote(id) WHERE id IS NOT NULL, cache[a.id] |              0 | 1000 |    1001 |                |                    0/0 |            |\n+--------------------------+----+----------------------------------------------------------+----------------+------+---------+----------------+------------------------+------------+\n\nTotal database accesses: 36513, total allocated memory: 1213224\n",
             "runtime": "SLOTTED",
             "runtime-impl": "SLOTTED",
             "version": "5",
@@ -2207,7 +2199,7 @@
               "low": 0,
               "high": 0
             },
-            "EstimatedRows": 10.619407764417824,
+            "EstimatedRows": 0,
             "planner": "COST",
             "PageCacheMisses": {
               "low": 0,
@@ -2232,14 +2224,14 @@
                 "Order": "lotId ASC",
                 "Details": "lotId ASC",
                 "Memory": {
-                  "low": 38488,
+                  "low": 38872,
                   "high": 0
                 },
                 "Id": {
                   "low": 1,
                   "high": 0
                 },
-                "EstimatedRows": 10.619407764417824,
+                "EstimatedRows": 0,
                 "PageCacheMisses": {
                   "low": 0,
                   "high": 0
@@ -2273,7 +2265,7 @@
                       "low": 2,
                       "high": 0
                     },
-                    "EstimatedRows": 10.619407764417824,
+                    "EstimatedRows": 0,
                     "PageCacheMisses": {
                       "low": 0,
                       "high": 0
@@ -2295,10 +2287,10 @@
                     {
                       "operatorType": "SemiApply@neo4j",
                       "identifiers": [
-                        "b",
                         "a",
                         "anon_0",
-                        "c"
+                        "c",
+                        "b"
                       ],
                       "arguments": {
                         "Id": {
@@ -2309,7 +2301,7 @@
                           "low": 0,
                           "high": 0
                         },
-                        "EstimatedRows": 11.178323962545079,
+                        "EstimatedRows": 0,
                         "DbHits": {
                           "low": 0,
                           "high": 0
@@ -2327,10 +2319,10 @@
                         {
                           "operatorType": "CartesianProduct@neo4j",
                           "identifiers": [
-                            "b",
                             "a",
                             "anon_0",
-                            "c"
+                            "c",
+                            "b"
                           ],
                           "arguments": {
                             "Id": {
@@ -2341,7 +2333,7 @@
                               "low": 0,
                               "high": 0
                             },
-                            "EstimatedRows": 94.15583251774396,
+                            "EstimatedRows": 0,
                             "DbHits": {
                               "low": 0,
                               "high": 0
@@ -2357,37 +2349,6 @@
                           },
                           "children": [
                             {
-                              "operatorType": "NodeUniqueIndexSeek@neo4j",
-                              "identifiers": [
-                                "b"
-                              ],
-                              "arguments": {
-                                "Details": "UNIQUE b:Lote(id) WHERE id = $lotB",
-                                "Id": {
-                                  "low": 10,
-                                  "high": 0
-                                },
-                                "PageCacheMisses": {
-                                  "low": 0,
-                                  "high": 0
-                                },
-                                "EstimatedRows": 1,
-                                "DbHits": {
-                                  "low": 2,
-                                  "high": 0
-                                },
-                                "Rows": {
-                                  "low": 1,
-                                  "high": 0
-                                },
-                                "PageCacheHits": {
-                                  "low": 0,
-                                  "high": 0
-                                }
-                              },
-                              "children": []
-                            },
-                            {
                               "operatorType": "Filter@neo4j",
                               "identifiers": [
                                 "a",
@@ -2397,14 +2358,14 @@
                               "arguments": {
                                 "Details": "c:Lote",
                                 "Id": {
-                                  "low": 7,
+                                  "low": 8,
                                   "high": 0
                                 },
                                 "PageCacheMisses": {
                                   "low": 0,
                                   "high": 0
                                 },
-                                "EstimatedRows": 94.15583251774396,
+                                "EstimatedRows": 0,
                                 "DbHits": {
                                   "low": 380,
                                   "high": 0
@@ -2433,10 +2394,10 @@
                                       "high": 0
                                     },
                                     "Id": {
-                                      "low": 8,
+                                      "low": 9,
                                       "high": 0
                                     },
-                                    "EstimatedRows": 140.99341908499377,
+                                    "EstimatedRows": 0,
                                     "PageCacheMisses": {
                                       "low": 0,
                                       "high": 0
@@ -2456,23 +2417,23 @@
                                   },
                                   "children": [
                                     {
-                                      "operatorType": "NodeUniqueIndexSeek@neo4j",
+                                      "operatorType": "Filter@neo4j",
                                       "identifiers": [
                                         "a"
                                       ],
                                       "arguments": {
-                                        "Details": "UNIQUE a:Lote(id) WHERE id = $lotA",
+                                        "Details": "cache[a.id] = $lotA",
                                         "Id": {
-                                          "low": 9,
+                                          "low": 10,
                                           "high": 0
                                         },
                                         "PageCacheMisses": {
                                           "low": 0,
                                           "high": 0
                                         },
-                                        "EstimatedRows": 1,
+                                        "EstimatedRows": 0,
                                         "DbHits": {
-                                          "low": 2,
+                                          "low": 0,
                                           "high": 0
                                         },
                                         "Rows": {
@@ -2484,11 +2445,74 @@
                                           "high": 0
                                         }
                                       },
-                                      "children": []
+                                      "children": [
+                                        {
+                                          "operatorType": "NodeIndexScan@neo4j",
+                                          "identifiers": [
+                                            "a"
+                                          ],
+                                          "arguments": {
+                                            "Details": "RANGE INDEX a:Lote(id) WHERE id IS NOT NULL, cache[a.id]",
+                                            "Id": {
+                                              "low": 11,
+                                              "high": 0
+                                            },
+                                            "PageCacheMisses": {
+                                              "low": 0,
+                                              "high": 0
+                                            },
+                                            "EstimatedRows": 0,
+                                            "DbHits": {
+                                              "low": 1001,
+                                              "high": 0
+                                            },
+                                            "Rows": {
+                                              "low": 1000,
+                                              "high": 0
+                                            },
+                                            "PageCacheHits": {
+                                              "low": 0,
+                                              "high": 0
+                                            }
+                                          },
+                                          "children": []
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
                               ]
+                            },
+                            {
+                              "operatorType": "NodeUniqueIndexSeek@neo4j",
+                              "identifiers": [
+                                "b"
+                              ],
+                              "arguments": {
+                                "Details": "UNIQUE b:Lote(id) WHERE id = $lotB",
+                                "Id": {
+                                  "low": 7,
+                                  "high": 0
+                                },
+                                "PageCacheMisses": {
+                                  "low": 0,
+                                  "high": 0
+                                },
+                                "EstimatedRows": 0,
+                                "DbHits": {
+                                  "low": 508,
+                                  "high": 0
+                                },
+                                "Rows": {
+                                  "low": 254,
+                                  "high": 0
+                                },
+                                "PageCacheHits": {
+                                  "low": 0,
+                                  "high": 0
+                                }
+                              },
+                              "children": []
                             }
                           ]
                         },
@@ -2502,20 +2526,20 @@
                           "arguments": {
                             "Details": "(b)<-[anon_1:UTILIZADO_EN|GENERA*2..16]-(c)",
                             "Memory": {
-                              "low": 1075704,
+                              "low": 1172016,
                               "high": 0
                             },
                             "Id": {
                               "low": 4,
                               "high": 0
                             },
-                            "EstimatedRows": 8.865320797109451,
+                            "EstimatedRows": 0,
                             "PageCacheMisses": {
                               "low": 0,
                               "high": 0
                             },
                             "DbHits": {
-                              "low": 25877,
+                              "low": 33607,
                               "high": 0
                             },
                             "Rows": {
@@ -2544,7 +2568,7 @@
                                   "low": 0,
                                   "high": 0
                                 },
-                                "EstimatedRows": 94.15583251774396,
+                                "EstimatedRows": 0,
                                 "DbHits": {
                                   "low": 0,
                                   "high": 0
@@ -2574,21 +2598,21 @@
     },
     "QE04": {
       "sql": {
-        "query": "WITH RECURSIVE alcanzados AS (\n      SELECT lote_hijo_id AS id, 1 AS depth, ARRAY[lote_padre_id, lote_hijo_id] AS seen\n      FROM v_dependencias_productivas WHERE lote_padre_id = $1\n      UNION ALL\n      SELECT d.lote_hijo_id, a.depth + 1, a.seen || d.lote_hijo_id\n      FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n      WHERE a.depth < 8 AND NOT d.lote_hijo_id = ANY(a.seen)\n    ) SELECT min(depth)::int AS depth FROM alcanzados WHERE id = $2",
-        "executionTimeMs": 2.168,
-        "planningTimeMs": 0.463,
+        "query": "WITH RECURSIVE alcanzados AS (\n      SELECT lote_hijo_id AS id, 1 AS depth\n      FROM v_dependencias_productivas WHERE lote_padre_id = $1\n      UNION\n      SELECT d.lote_hijo_id, a.depth + 1\n      FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n      WHERE a.depth < 8\n    ) SELECT min(depth)::int AS depth FROM alcanzados WHERE id = $2",
+        "executionTimeMs": 2.299,
+        "planningTimeMs": 0.228,
         "plan": {
           "Node Type": "Aggregate",
           "Strategy": "Plain",
           "Partial Mode": "Simple",
           "Parallel Aware": false,
           "Async Capable": false,
-          "Startup Cost": 4429.69,
-          "Total Cost": 4429.7,
+          "Startup Cost": 3865.17,
+          "Total Cost": 3865.18,
           "Plan Rows": 1,
           "Plan Width": 4,
-          "Actual Startup Time": 2.094,
-          "Actual Total Time": 2.097,
+          "Actual Startup Time": 1.612,
+          "Actual Total Time": 1.616,
           "Actual Rows": 1,
           "Actual Loops": 1,
           "Shared Hit Blocks": 156,
@@ -2609,12 +2633,12 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 19.79,
-              "Total Cost": 3566.47,
-              "Plan Rows": 38344,
-              "Plan Width": 52,
-              "Actual Startup Time": 0.042,
-              "Actual Total Time": 2.023,
-              "Actual Rows": 255,
+              "Total Cost": 2991.82,
+              "Plan Rows": 38794,
+              "Plan Width": 20,
+              "Actual Startup Time": 0.047,
+              "Actual Total Time": 1.604,
+              "Actual Rows": 36,
               "Actual Loops": 1,
               "Shared Hit Blocks": 156,
               "Shared Read Blocks": 0,
@@ -2636,9 +2660,9 @@
                   "Startup Cost": 19.79,
                   "Total Cost": 40.57,
                   "Plan Rows": 34,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.041,
-                  "Actual Total Time": 0.191,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.045,
+                  "Actual Total Time": 0.134,
                   "Actual Rows": 1,
                   "Actual Loops": 1,
                   "Inner Unique": true,
@@ -2665,8 +2689,8 @@
                       "Total Cost": 18.5,
                       "Plan Rows": 850,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.01,
-                      "Actual Total Time": 0.088,
+                      "Actual Startup Time": 0.014,
+                      "Actual Total Time": 0.061,
                       "Actual Rows": 880,
                       "Actual Loops": 1,
                       "Shared Hit Blocks": 10,
@@ -2688,7 +2712,7 @@
                       "Startup Cost": 19.69,
                       "Total Cost": 19.69,
                       "Plan Rows": 8,
-                      "Plan Width": 32,
+                      "Plan Width": 16,
                       "Actual Startup Time": 0.021,
                       "Actual Total Time": 0.022,
                       "Actual Rows": 1,
@@ -2719,9 +2743,9 @@
                           "Startup Cost": 4.34,
                           "Total Cost": 19.69,
                           "Plan Rows": 8,
-                          "Plan Width": 32,
-                          "Actual Startup Time": 0.018,
-                          "Actual Total Time": 0.019,
+                          "Plan Width": 16,
+                          "Actual Startup Time": 0.017,
+                          "Actual Total Time": 0.017,
                           "Actual Rows": 1,
                           "Actual Loops": 1,
                           "Recheck Cond": "(lote_id = '0a61c11c-b1d1-4b8a-ba33-f172bbe80482'::uuid)",
@@ -2749,8 +2773,8 @@
                               "Total Cost": 4.34,
                               "Plan Rows": 8,
                               "Plan Width": 0,
-                              "Actual Startup Time": 0.012,
-                              "Actual Total Time": 0.012,
+                              "Actual Startup Time": 0.011,
+                              "Actual Total Time": 0.011,
                               "Actual Rows": 1,
                               "Actual Loops": 1,
                               "Index Cond": "(lote_id = '0a61c11c-b1d1-4b8a-ba33-f172bbe80482'::uuid)",
@@ -2778,17 +2802,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 38.19,
-                  "Total Cost": 314.25,
-                  "Plan Rows": 3831,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.045,
-                  "Actual Total Time": 0.222,
-                  "Actual Rows": 32,
+                  "Total Cost": 256.33,
+                  "Plan Rows": 3876,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.028,
+                  "Actual Total Time": 0.181,
+                  "Actual Rows": 7,
                   "Actual Loops": 8,
                   "Inner Unique": false,
                   "Hash Cond": "(c_1.orden_produccion_id = r_1.orden_produccion_id)",
-                  "Join Filter": "(r_1.lote_id <> ALL (a.seen))",
-                  "Rows Removed by Join Filter": 0,
                   "Shared Hit Blocks": 143,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
@@ -2809,10 +2831,10 @@
                       "Startup Cost": 9.06,
                       "Total Cost": 79.58,
                       "Plan Rows": 912,
-                      "Plan Width": 52,
-                      "Actual Startup Time": 0.016,
-                      "Actual Total Time": 0.184,
-                      "Actual Rows": 32,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 0.012,
+                      "Actual Total Time": 0.162,
+                      "Actual Rows": 7,
                       "Actual Loops": 8,
                       "Inner Unique": false,
                       "Hash Cond": "(c_1.lote_id = a.id)",
@@ -2839,7 +2861,7 @@
                           "Plan Rows": 1615,
                           "Plan Width": 32,
                           "Actual Startup Time": 0.001,
-                          "Actual Total Time": 0.099,
+                          "Actual Total Time": 0.096,
                           "Actual Rows": 1760,
                           "Actual Loops": 7,
                           "Shared Hit Blocks": 133,
@@ -2861,16 +2883,16 @@
                           "Startup Cost": 7.65,
                           "Total Cost": 7.65,
                           "Plan Rows": 113,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.004,
-                          "Actual Total Time": 0.004,
-                          "Actual Rows": 16,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.002,
+                          "Actual Total Time": 0.002,
+                          "Actual Rows": 4,
                           "Actual Loops": 8,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 21,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -2892,13 +2914,13 @@
                               "Startup Cost": 0,
                               "Total Cost": 7.65,
                               "Plan Rows": 113,
-                              "Plan Width": 52,
+                              "Plan Width": 20,
                               "Actual Startup Time": 0.001,
-                              "Actual Total Time": 0.002,
-                              "Actual Rows": 16,
+                              "Actual Total Time": 0.001,
+                              "Actual Rows": 4,
                               "Actual Loops": 8,
                               "Filter": "(depth < 8)",
-                              "Rows Removed by Filter": 16,
+                              "Rows Removed by Filter": 1,
                               "Shared Hit Blocks": 0,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
@@ -2923,8 +2945,8 @@
                       "Total Cost": 18.5,
                       "Plan Rows": 850,
                       "Plan Width": 32,
-                      "Actual Startup Time": 0.199,
-                      "Actual Total Time": 0.199,
+                      "Actual Startup Time": 0.122,
+                      "Actual Total Time": 0.122,
                       "Actual Rows": 880,
                       "Actual Loops": 1,
                       "Hash Buckets": 1024,
@@ -2954,8 +2976,8 @@
                           "Total Cost": 18.5,
                           "Plan Rows": 850,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.003,
-                          "Actual Total Time": 0.086,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.048,
                           "Actual Rows": 880,
                           "Actual Loops": 1,
                           "Shared Hit Blocks": 10,
@@ -2983,15 +3005,15 @@
               "CTE Name": "alcanzados",
               "Alias": "alcanzados",
               "Startup Cost": 0,
-              "Total Cost": 862.74,
-              "Plan Rows": 192,
+              "Total Cost": 872.87,
+              "Plan Rows": 194,
               "Plan Width": 4,
-              "Actual Startup Time": 1.831,
-              "Actual Total Time": 2.089,
+              "Actual Startup Time": 1.456,
+              "Actual Total Time": 1.609,
               "Actual Rows": 1,
               "Actual Loops": 1,
               "Filter": "(id = '2f5c317e-0602-46f9-abd3-b8bbbcad49ca'::uuid)",
-              "Rows Removed by Filter": 254,
+              "Rows Removed by Filter": 35,
               "Shared Hit Blocks": 156,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
@@ -3016,7 +3038,7 @@
           ],
           "arguments": {
             "GlobalMemory": {
-              "low": 8072,
+              "low": 8112,
               "high": 0
             },
             "planner-impl": "IDP",
@@ -3024,7 +3046,7 @@
               "low": 0,
               "high": 0
             },
-            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+------------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| Operator               | Id | Details                                                          | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses |\n+------------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +ProduceResults        |  0 | depth                                                            |              1 |    1 |       0 |              0 |                    0/0 |\n| |                      +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +EagerAggregation      |  1 | min(toInteger(length((o)-[anon_0*]->(t)) / $autoint_0)) AS depth |              1 |    1 |       0 |             24 |                    0/0 |\n| |                      +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +VarLengthExpand(Into) |  2 | (o)-[anon_0:UTILIZADO_EN|GENERA*2..16]->(t)                      |              0 |    1 |     893 |           7984 |                    0/0 |\n| |                      +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +CartesianProduct      |  3 |                                                                  |              1 |    1 |       0 |                |                    0/0 |\n| |\\                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| | +NodeUniqueIndexSeek |  4 | UNIQUE t:Lote(id) WHERE id = $target                             |              1 |    1 |       2 |                |                    0/0 |\n| |                      +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +NodeUniqueIndexSeek   |  5 | UNIQUE o:Lote(id) WHERE id = $src                                |              1 |    1 |       2 |                |                    0/0 |\n+------------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n\nTotal database accesses: 897, total allocated memory: 8072\n",
+            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| Operator              | Id | Details                                                          | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses |\n+-----------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +ProduceResults       |  0 | depth                                                            |              1 |    1 |       0 |              0 |                    0/0 |\n| |                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +EagerAggregation     |  1 | min(toInteger(length((o)-[anon_0*]->(t)) / $autoint_0)) AS depth |              1 |    1 |       0 |             24 |                    0/0 |\n| |                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +Filter               |  2 | (o.id = $src AND o:Lote)                                         |              0 |    1 |     765 |                |                    0/0 |\n| |                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +VarLengthExpand(All) |  3 | (t)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(o)                      |              0 |  764 |    1275 |           8024 |                    0/0 |\n| |                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +Filter               |  4 | cache[t.id] = $target                                            |              0 |    1 |       0 |                |                    0/0 |\n| |                     +----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n| +NodeIndexScan        |  5 | RANGE INDEX t:Lote(id) WHERE id IS NOT NULL, cache[t.id]         |              0 | 1000 |    1001 |                |                    0/0 |\n+-----------------------+----+------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+\n\nTotal database accesses: 3041, total allocated memory: 8112\n",
             "runtime": "SLOTTED",
             "runtime-impl": "SLOTTED",
             "version": "5",
@@ -3090,29 +3112,25 @@
               },
               "children": [
                 {
-                  "operatorType": "VarLengthExpand(Into)@neo4j",
+                  "operatorType": "Filter@neo4j",
                   "identifiers": [
-                    "o",
                     "t",
-                    "anon_0"
+                    "anon_0",
+                    "o"
                   ],
                   "arguments": {
-                    "Details": "(o)-[anon_0:UTILIZADO_EN|GENERA*2..16]->(t)",
-                    "Memory": {
-                      "low": 7984,
-                      "high": 0
-                    },
+                    "Details": "(o.id = $src AND o:Lote)",
                     "Id": {
                       "low": 2,
                       "high": 0
                     },
-                    "EstimatedRows": 0.09415583251774395,
                     "PageCacheMisses": {
                       "low": 0,
                       "high": 0
                     },
+                    "EstimatedRows": 0,
                     "DbHits": {
-                      "low": 893,
+                      "low": 765,
                       "high": 0
                     },
                     "Rows": {
@@ -3126,27 +3144,33 @@
                   },
                   "children": [
                     {
-                      "operatorType": "CartesianProduct@neo4j",
+                      "operatorType": "VarLengthExpand(All)@neo4j",
                       "identifiers": [
-                        "o",
-                        "t"
+                        "t",
+                        "anon_0",
+                        "o"
                       ],
                       "arguments": {
+                        "Details": "(t)<-[anon_0:UTILIZADO_EN|GENERA*2..16]-(o)",
+                        "Memory": {
+                          "low": 8024,
+                          "high": 0
+                        },
                         "Id": {
                           "low": 3,
                           "high": 0
                         },
+                        "EstimatedRows": 0,
                         "PageCacheMisses": {
                           "low": 0,
                           "high": 0
                         },
-                        "EstimatedRows": 1,
                         "DbHits": {
-                          "low": 0,
+                          "low": 1275,
                           "high": 0
                         },
                         "Rows": {
-                          "low": 1,
+                          "low": 764,
                           "high": 0
                         },
                         "PageCacheHits": {
@@ -3156,43 +3180,12 @@
                       },
                       "children": [
                         {
-                          "operatorType": "NodeUniqueIndexSeek@neo4j",
-                          "identifiers": [
-                            "o"
-                          ],
-                          "arguments": {
-                            "Details": "UNIQUE o:Lote(id) WHERE id = $src",
-                            "Id": {
-                              "low": 5,
-                              "high": 0
-                            },
-                            "PageCacheMisses": {
-                              "low": 0,
-                              "high": 0
-                            },
-                            "EstimatedRows": 1,
-                            "DbHits": {
-                              "low": 2,
-                              "high": 0
-                            },
-                            "Rows": {
-                              "low": 1,
-                              "high": 0
-                            },
-                            "PageCacheHits": {
-                              "low": 0,
-                              "high": 0
-                            }
-                          },
-                          "children": []
-                        },
-                        {
-                          "operatorType": "NodeUniqueIndexSeek@neo4j",
+                          "operatorType": "Filter@neo4j",
                           "identifiers": [
                             "t"
                           ],
                           "arguments": {
-                            "Details": "UNIQUE t:Lote(id) WHERE id = $target",
+                            "Details": "cache[t.id] = $target",
                             "Id": {
                               "low": 4,
                               "high": 0
@@ -3201,9 +3194,9 @@
                               "low": 0,
                               "high": 0
                             },
-                            "EstimatedRows": 1,
+                            "EstimatedRows": 0,
                             "DbHits": {
-                              "low": 2,
+                              "low": 0,
                               "high": 0
                             },
                             "Rows": {
@@ -3215,7 +3208,39 @@
                               "high": 0
                             }
                           },
-                          "children": []
+                          "children": [
+                            {
+                              "operatorType": "NodeIndexScan@neo4j",
+                              "identifiers": [
+                                "t"
+                              ],
+                              "arguments": {
+                                "Details": "RANGE INDEX t:Lote(id) WHERE id IS NOT NULL, cache[t.id]",
+                                "Id": {
+                                  "low": 5,
+                                  "high": 0
+                                },
+                                "PageCacheMisses": {
+                                  "low": 0,
+                                  "high": 0
+                                },
+                                "EstimatedRows": 0,
+                                "DbHits": {
+                                  "low": 1001,
+                                  "high": 0
+                                },
+                                "Rows": {
+                                  "low": 1000,
+                                  "high": 0
+                                },
+                                "PageCacheHits": {
+                                  "low": 0,
+                                  "high": 0
+                                }
+                              },
+                              "children": []
+                            }
+                          ]
                         }
                       ]
                     }
@@ -3229,22 +3254,22 @@
     },
     "QE05": {
       "sql": {
-        "query": "WITH RECURSIVE alcanzados AS (\n      SELECT $1::uuid AS id, 0 AS depth, ARRAY[$1::uuid] AS seen\n      UNION ALL\n      SELECT d.lote_hijo_id, a.depth + 1, a.seen || d.lote_hijo_id\n      FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n      WHERE a.depth < 8 AND NOT d.lote_hijo_id = ANY(a.seen)\n    ) SELECT DISTINCT 'DEST' AS kind, r.id AS lotId, r.depth,\n        d.ubicacion_destino_id AS locationId\n      FROM alcanzados r JOIN detalle_distribuciones dd ON dd.lote_id = r.id\n      JOIN distribuciones d ON d.id = dd.distribucion_id\n      ORDER BY kind, lotId, locationId LIMIT 10001",
-        "executionTimeMs": 2.112,
-        "planningTimeMs": 0.637,
+        "query": "WITH RECURSIVE alcanzados AS (\n      SELECT $1::uuid AS id, 0 AS depth\n      UNION\n      SELECT d.lote_hijo_id, a.depth + 1\n      FROM alcanzados a JOIN v_dependencias_productivas d ON d.lote_padre_id = a.id\n      WHERE a.depth < 8\n    ) SELECT DISTINCT 'DEST' AS kind, r.id AS lotId, r.depth,\n        d.ubicacion_destino_id AS locationId\n      FROM alcanzados r JOIN detalle_distribuciones dd ON dd.lote_id = r.id\n      JOIN distribuciones d ON d.id = dd.distribucion_id\n      ORDER BY kind, lotId, locationId LIMIT 10001",
+        "executionTimeMs": 1.468,
+        "planningTimeMs": 1.474,
         "plan": {
           "Node Type": "Limit",
           "Parallel Aware": false,
           "Async Capable": false,
-          "Startup Cost": 697.36,
-          "Total Cost": 950.26,
-          "Plan Rows": 4297,
+          "Startup Cost": 683.74,
+          "Total Cost": 939.33,
+          "Plan Rows": 4339,
           "Plan Width": 68,
-          "Actual Startup Time": 2.036,
-          "Actual Total Time": 2.042,
+          "Actual Startup Time": 1.415,
+          "Actual Total Time": 1.418,
           "Actual Rows": 1,
           "Actual Loops": 1,
-          "Shared Hit Blocks": 919,
+          "Shared Hit Blocks": 325,
           "Shared Read Blocks": 0,
           "Shared Dirtied Blocks": 0,
           "Shared Written Blocks": 0,
@@ -3262,14 +3287,14 @@
               "Parallel Aware": false,
               "Async Capable": false,
               "Startup Cost": 0,
-              "Total Cost": 546.76,
-              "Plan Rows": 1011,
-              "Plan Width": 52,
+              "Total Cost": 532.36,
+              "Plan Rows": 1021,
+              "Plan Width": 20,
               "Actual Startup Time": 0.001,
-              "Actual Total Time": 1.811,
-              "Actual Rows": 256,
+              "Actual Total Time": 1.354,
+              "Actual Rows": 37,
               "Actual Loops": 1,
-              "Shared Hit Blocks": 917,
+              "Shared Hit Blocks": 323,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -3288,8 +3313,8 @@
                   "Startup Cost": 0,
                   "Total Cost": 0.01,
                   "Plan Rows": 1,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.001,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0,
                   "Actual Total Time": 0.001,
                   "Actual Rows": 1,
                   "Actual Loops": 1,
@@ -3311,17 +3336,15 @@
                   "Async Capable": false,
                   "Join Type": "Inner",
                   "Startup Cost": 0.54,
-                  "Total Cost": 53.66,
-                  "Plan Rows": 101,
-                  "Plan Width": 52,
-                  "Actual Startup Time": 0.016,
-                  "Actual Total Time": 0.196,
-                  "Actual Rows": 28,
+                  "Total Cost": 52.21,
+                  "Plan Rows": 102,
+                  "Plan Width": 20,
+                  "Actual Startup Time": 0.011,
+                  "Actual Total Time": 0.149,
+                  "Actual Rows": 6,
                   "Actual Loops": 9,
                   "Inner Unique": false,
-                  "Join Filter": "(r_1.lote_id <> ALL (a.seen))",
-                  "Rows Removed by Join Filter": 0,
-                  "Shared Hit Blocks": 917,
+                  "Shared Hit Blocks": 323,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -3341,10 +3364,10 @@
                       "Startup Cost": 0.26,
                       "Total Cost": 41.71,
                       "Plan Rows": 24,
-                      "Plan Width": 52,
-                      "Actual Startup Time": 0.012,
-                      "Actual Total Time": 0.165,
-                      "Actual Rows": 28,
+                      "Plan Width": 20,
+                      "Actual Startup Time": 0.009,
+                      "Actual Total Time": 0.142,
+                      "Actual Rows": 6,
                       "Actual Loops": 9,
                       "Inner Unique": false,
                       "Hash Cond": "(c.lote_id = a.id)",
@@ -3371,7 +3394,7 @@
                           "Plan Rows": 1615,
                           "Plan Width": 32,
                           "Actual Startup Time": 0.001,
-                          "Actual Total Time": 0.086,
+                          "Actual Total Time": 0.074,
                           "Actual Rows": 1760,
                           "Actual Loops": 8,
                           "Shared Hit Blocks": 152,
@@ -3393,16 +3416,16 @@
                           "Startup Cost": 0.22,
                           "Total Cost": 0.22,
                           "Plan Rows": 3,
-                          "Plan Width": 52,
-                          "Actual Startup Time": 0.003,
-                          "Actual Total Time": 0.003,
-                          "Actual Rows": 14,
+                          "Plan Width": 20,
+                          "Actual Startup Time": 0.001,
+                          "Actual Total Time": 0.001,
+                          "Actual Rows": 3,
                           "Actual Loops": 9,
                           "Hash Buckets": 1024,
                           "Original Hash Buckets": 1024,
                           "Hash Batches": 1,
                           "Original Hash Batches": 1,
-                          "Peak Memory Usage": 21,
+                          "Peak Memory Usage": 9,
                           "Shared Hit Blocks": 0,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
@@ -3424,13 +3447,13 @@
                               "Startup Cost": 0,
                               "Total Cost": 0.22,
                               "Plan Rows": 3,
-                              "Plan Width": 52,
-                              "Actual Startup Time": 0.001,
-                              "Actual Total Time": 0.002,
-                              "Actual Rows": 14,
+                              "Plan Width": 20,
+                              "Actual Startup Time": 0,
+                              "Actual Total Time": 0.001,
+                              "Actual Rows": 3,
                               "Actual Loops": 9,
                               "Filter": "(depth < 8)",
-                              "Rows Removed by Filter": 14,
+                              "Rows Removed by Filter": 1,
                               "Shared Hit Blocks": 0,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
@@ -3462,10 +3485,10 @@
                       "Actual Startup Time": 0.001,
                       "Actual Total Time": 0.001,
                       "Actual Rows": 1,
-                      "Actual Loops": 255,
+                      "Actual Loops": 57,
                       "Index Cond": "(orden_produccion_id = c.orden_produccion_id)",
                       "Rows Removed by Index Recheck": 0,
-                      "Shared Hit Blocks": 765,
+                      "Shared Hit Blocks": 171,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -3485,15 +3508,15 @@
               "Parent Relationship": "Outer",
               "Parallel Aware": false,
               "Async Capable": false,
-              "Startup Cost": 150.59,
-              "Total Cost": 403.5,
-              "Plan Rows": 4297,
+              "Startup Cost": 151.37,
+              "Total Cost": 406.97,
+              "Plan Rows": 4339,
               "Plan Width": 68,
-              "Actual Startup Time": 2.035,
-              "Actual Total Time": 2.037,
+              "Actual Startup Time": 1.414,
+              "Actual Total Time": 1.415,
               "Actual Rows": 1,
               "Actual Loops": 1,
-              "Shared Hit Blocks": 919,
+              "Shared Hit Blocks": 325,
               "Shared Read Blocks": 0,
               "Shared Dirtied Blocks": 0,
               "Shared Written Blocks": 0,
@@ -3509,12 +3532,12 @@
                   "Parent Relationship": "Outer",
                   "Parallel Aware": false,
                   "Async Capable": false,
-                  "Startup Cost": 150.59,
-                  "Total Cost": 371.27,
-                  "Plan Rows": 4297,
+                  "Startup Cost": 151.37,
+                  "Total Cost": 374.43,
+                  "Plan Rows": 4339,
                   "Plan Width": 68,
-                  "Actual Startup Time": 2.034,
-                  "Actual Total Time": 2.036,
+                  "Actual Startup Time": 1.413,
+                  "Actual Total Time": 1.414,
                   "Actual Rows": 1,
                   "Actual Loops": 1,
                   "Sort Key": [
@@ -3535,7 +3558,7 @@
                       "Peak Sort Space Used": 25
                     }
                   },
-                  "Shared Hit Blocks": 919,
+                  "Shared Hit Blocks": 325,
                   "Shared Read Blocks": 0,
                   "Shared Dirtied Blocks": 0,
                   "Shared Written Blocks": 0,
@@ -3552,17 +3575,17 @@
                       "Parallel Aware": false,
                       "Async Capable": false,
                       "Join Type": "Inner",
-                      "Startup Cost": 149.77,
-                      "Total Cost": 218.48,
-                      "Plan Rows": 4297,
+                      "Startup Cost": 150.55,
+                      "Total Cost": 219.88,
+                      "Plan Rows": 4339,
                       "Plan Width": 68,
-                      "Actual Startup Time": 2.012,
-                      "Actual Total Time": 2.029,
+                      "Actual Startup Time": 1.404,
+                      "Actual Total Time": 1.41,
                       "Actual Rows": 1,
                       "Actual Loops": 1,
                       "Inner Unique": false,
                       "Merge Cond": "(dd.lote_id = r.id)",
-                      "Shared Hit Blocks": 919,
+                      "Shared Hit Blocks": 325,
                       "Shared Read Blocks": 0,
                       "Shared Dirtied Blocks": 0,
                       "Shared Written Blocks": 0,
@@ -3582,8 +3605,8 @@
                           "Total Cost": 81.22,
                           "Plan Rows": 850,
                           "Plan Width": 32,
-                          "Actual Startup Time": 0.045,
-                          "Actual Total Time": 0.048,
+                          "Actual Startup Time": 0.037,
+                          "Actual Total Time": 0.039,
                           "Actual Rows": 40,
                           "Actual Loops": 1,
                           "Sort Key": [
@@ -3613,8 +3636,8 @@
                               "Total Cost": 37.74,
                               "Plan Rows": 850,
                               "Plan Width": 32,
-                              "Actual Startup Time": 0.03,
-                              "Actual Total Time": 0.038,
+                              "Actual Startup Time": 0.024,
+                              "Actual Total Time": 0.03,
                               "Actual Rows": 40,
                               "Actual Loops": 1,
                               "Inner Unique": true,
@@ -3641,8 +3664,8 @@
                                   "Total Cost": 18.5,
                                   "Plan Rows": 850,
                                   "Plan Width": 32,
-                                  "Actual Startup Time": 0.012,
-                                  "Actual Total Time": 0.014,
+                                  "Actual Startup Time": 0.009,
+                                  "Actual Total Time": 0.01,
                                   "Actual Rows": 40,
                                   "Actual Loops": 1,
                                   "Shared Hit Blocks": 1,
@@ -3665,8 +3688,8 @@
                                   "Total Cost": 13.1,
                                   "Plan Rows": 310,
                                   "Plan Width": 32,
-                                  "Actual Startup Time": 0.013,
-                                  "Actual Total Time": 0.013,
+                                  "Actual Startup Time": 0.011,
+                                  "Actual Total Time": 0.011,
                                   "Actual Rows": 40,
                                   "Actual Loops": 1,
                                   "Hash Buckets": 1024,
@@ -3696,8 +3719,8 @@
                                       "Total Cost": 13.1,
                                       "Plan Rows": 310,
                                       "Plan Width": 32,
-                                      "Actual Startup Time": 0.005,
-                                      "Actual Total Time": 0.007,
+                                      "Actual Startup Time": 0.003,
+                                      "Actual Total Time": 0.006,
                                       "Actual Rows": 40,
                                       "Actual Loops": 1,
                                       "Shared Hit Blocks": 1,
@@ -3722,21 +3745,21 @@
                           "Parent Relationship": "Inner",
                           "Parallel Aware": false,
                           "Async Capable": false,
-                          "Startup Cost": 70.68,
-                          "Total Cost": 73.2,
-                          "Plan Rows": 1011,
+                          "Startup Cost": 71.45,
+                          "Total Cost": 74,
+                          "Plan Rows": 1021,
                           "Plan Width": 20,
-                          "Actual Startup Time": 1.955,
-                          "Actual Total Time": 1.962,
-                          "Actual Rows": 256,
+                          "Actual Startup Time": 1.364,
+                          "Actual Total Time": 1.365,
+                          "Actual Rows": 37,
                           "Actual Loops": 1,
                           "Sort Key": [
                             "r.id"
                           ],
                           "Sort Method": "quicksort",
-                          "Sort Space Used": 37,
+                          "Sort Space Used": 26,
                           "Sort Space Type": "Memory",
-                          "Shared Hit Blocks": 917,
+                          "Shared Hit Blocks": 323,
                           "Shared Read Blocks": 0,
                           "Shared Dirtied Blocks": 0,
                           "Shared Written Blocks": 0,
@@ -3755,14 +3778,14 @@
                               "CTE Name": "alcanzados",
                               "Alias": "r",
                               "Startup Cost": 0,
-                              "Total Cost": 20.22,
-                              "Plan Rows": 1011,
+                              "Total Cost": 20.42,
+                              "Plan Rows": 1021,
                               "Plan Width": 20,
-                              "Actual Startup Time": 0.003,
-                              "Actual Total Time": 1.881,
-                              "Actual Rows": 256,
+                              "Actual Startup Time": 0.002,
+                              "Actual Total Time": 1.359,
+                              "Actual Rows": 37,
                               "Actual Loops": 1,
-                              "Shared Hit Blocks": 917,
+                              "Shared Hit Blocks": 323,
                               "Shared Read Blocks": 0,
                               "Shared Dirtied Blocks": 0,
                               "Shared Written Blocks": 0,
@@ -3802,7 +3825,7 @@
           "arguments": {
             "Order": "lotId ASC, locationId ASC",
             "GlobalMemory": {
-              "low": 12432,
+              "low": 12320,
               "high": 0
             },
             "planner-impl": "IDP",
@@ -3810,7 +3833,7 @@
               "low": 0,
               "high": 0
             },
-            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| Operator              | Id | Details                                                             | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by                |\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +ProduceResults       |  0 | lotId, depth, locationId                                            |              0 |    1 |       0 |              0 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+                           |\n| +Sort                 |  1 | lotId ASC, locationId ASC                                           |              0 |    1 |       0 |           1392 |                    0/0 | lotId ASC, locationId ASC |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Projection           |  2 | d.id AS lotId, u.id AS locationId                                   |              0 |    1 |       2 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  3 | u:Ubicacion                                                         |              0 |    1 |       1 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Expand(All)          |  4 | (anon_2)-[anon_3:ENTREGADO_A]->(u)                                  |              0 |    1 |       4 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  5 | anon_2:Distribucion                                                 |              0 |    1 |       1 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Expand(All)          |  6 | (d)-[anon_1:INCLUIDO_EN]->(anon_2)                                  |              0 |    1 |     169 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +EagerAggregation     |  7 | d, min(toInteger(length((o)-[anon_0*]->(d)) / $autoint_0)) AS depth |             10 |   37 |       0 |           4664 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  8 | d:Lote                                                              |             95 |  256 |     511 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +VarLengthExpand(All) |  9 | (o)-[anon_0:UTILIZADO_EN|GENERA*0..16]->(d)                         |            284 |  511 |     893 |           7984 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +NodeUniqueIndexSeek  | 10 | UNIQUE o:Lote(id) WHERE id = $root                                  |              1 |    1 |       2 |                |                    0/0 |                           |\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n\nTotal database accesses: 1583, total allocated memory: 12432\n",
+            "string-representation": "Cypher 5\n\nPlanner COST\n\nRuntime SLOTTED\n\nRuntime version 5.26.34\n\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| Operator              | Id | Details                                                             | Estimated Rows | Rows | DB Hits | Memory (Bytes) | Page Cache Hits/Misses | Ordered by                |\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +ProduceResults       |  0 | lotId, depth, locationId                                            |              0 |    1 |       0 |              0 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+                           |\n| +Sort                 |  1 | lotId ASC, locationId ASC                                           |              0 |    1 |       0 |           1392 |                    0/0 | lotId ASC, locationId ASC |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Projection           |  2 | d.id AS lotId, u.id AS locationId                                   |              0 |    1 |       2 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  3 | u:Ubicacion                                                         |              0 |    1 |       1 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Expand(All)          |  4 | (anon_2)-[anon_3:ENTREGADO_A]->(u)                                  |              0 |    1 |       4 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  5 | anon_2:Distribucion                                                 |              0 |    1 |       1 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Expand(All)          |  6 | (d)-[anon_1:INCLUIDO_EN]->(anon_2)                                  |              0 |    1 |     169 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +EagerAggregation     |  7 | d, min(toInteger(length((o)-[anon_0*]->(d)) / $autoint_0)) AS depth |              0 |   37 |       0 |           4744 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               |  8 | d:Lote                                                              |              0 |  256 |     511 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +VarLengthExpand(All) |  9 | (o)-[anon_0:UTILIZADO_EN|GENERA*0..16]->(d)                         |              0 |  511 |     893 |           7984 |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +Filter               | 10 | cache[o.id] = $root                                                 |              0 |    1 |       0 |                |                    0/0 |                           |\n| |                     +----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n| +NodeIndexScan        | 11 | RANGE INDEX o:Lote(id) WHERE id IS NOT NULL, cache[o.id]            |              0 | 1000 |    1001 |                |                    0/0 |                           |\n+-----------------------+----+---------------------------------------------------------------------+----------------+------+---------+----------------+------------------------+---------------------------+\n\nTotal database accesses: 2582, total allocated memory: 12320\n",
             "runtime": "SLOTTED",
             "runtime-impl": "SLOTTED",
             "version": "5",
@@ -3825,7 +3848,7 @@
               "low": 0,
               "high": 0
             },
-            "EstimatedRows": 0.38920468556343196,
+            "EstimatedRows": 0,
             "planner": "COST",
             "PageCacheMisses": {
               "low": 0,
@@ -3864,7 +3887,7 @@
                   "low": 1,
                   "high": 0
                 },
-                "EstimatedRows": 0.38920468556343196,
+                "EstimatedRows": 0,
                 "PageCacheMisses": {
                   "low": 0,
                   "high": 0
@@ -3905,7 +3928,7 @@
                       "low": 0,
                       "high": 0
                     },
-                    "EstimatedRows": 0.38920468556343196,
+                    "EstimatedRows": 0,
                     "DbHits": {
                       "low": 2,
                       "high": 0
@@ -3940,7 +3963,7 @@
                           "low": 0,
                           "high": 0
                         },
-                        "EstimatedRows": 0.38920468556343196,
+                        "EstimatedRows": 0,
                         "DbHits": {
                           "low": 1,
                           "high": 0
@@ -3975,7 +3998,7 @@
                               "low": 0,
                               "high": 0
                             },
-                            "EstimatedRows": 0.38920468556343196,
+                            "EstimatedRows": 0,
                             "DbHits": {
                               "low": 4,
                               "high": 0
@@ -4008,7 +4031,7 @@
                                   "low": 0,
                                   "high": 0
                                 },
-                                "EstimatedRows": 0.38920468556343196,
+                                "EstimatedRows": 0,
                                 "DbHits": {
                                   "low": 1,
                                   "high": 0
@@ -4041,7 +4064,7 @@
                                       "low": 0,
                                       "high": 0
                                     },
-                                    "EstimatedRows": 0.38920468556343196,
+                                    "EstimatedRows": 0,
                                     "DbHits": {
                                       "low": 169,
                                       "high": 0
@@ -4065,14 +4088,14 @@
                                       "arguments": {
                                         "Details": "d, min(toInteger(length((o)-[anon_0*]->(d)) / $autoint_0)) AS depth",
                                         "Memory": {
-                                          "low": 4664,
+                                          "low": 4744,
                                           "high": 0
                                         },
                                         "Id": {
                                           "low": 7,
                                           "high": 0
                                         },
-                                        "EstimatedRows": 9.730117139085799,
+                                        "EstimatedRows": 0,
                                         "PageCacheMisses": {
                                           "low": 0,
                                           "high": 0
@@ -4108,7 +4131,7 @@
                                               "low": 0,
                                               "high": 0
                                             },
-                                            "EstimatedRows": 94.67517954033121,
+                                            "EstimatedRows": 0,
                                             "DbHits": {
                                               "low": 511,
                                               "high": 0
@@ -4140,7 +4163,7 @@
                                                   "low": 9,
                                                   "high": 0
                                                 },
-                                                "EstimatedRows": 284.27081183108044,
+                                                "EstimatedRows": 0,
                                                 "PageCacheMisses": {
                                                   "low": 0,
                                                   "high": 0
@@ -4160,12 +4183,12 @@
                                               },
                                               "children": [
                                                 {
-                                                  "operatorType": "NodeUniqueIndexSeek@neo4j",
+                                                  "operatorType": "Filter@neo4j",
                                                   "identifiers": [
                                                     "o"
                                                   ],
                                                   "arguments": {
-                                                    "Details": "UNIQUE o:Lote(id) WHERE id = $root",
+                                                    "Details": "cache[o.id] = $root",
                                                     "Id": {
                                                       "low": 10,
                                                       "high": 0
@@ -4174,9 +4197,9 @@
                                                       "low": 0,
                                                       "high": 0
                                                     },
-                                                    "EstimatedRows": 1,
+                                                    "EstimatedRows": 0,
                                                     "DbHits": {
-                                                      "low": 2,
+                                                      "low": 0,
                                                       "high": 0
                                                     },
                                                     "Rows": {
@@ -4188,7 +4211,39 @@
                                                       "high": 0
                                                     }
                                                   },
-                                                  "children": []
+                                                  "children": [
+                                                    {
+                                                      "operatorType": "NodeIndexScan@neo4j",
+                                                      "identifiers": [
+                                                        "o"
+                                                      ],
+                                                      "arguments": {
+                                                        "Details": "RANGE INDEX o:Lote(id) WHERE id IS NOT NULL, cache[o.id]",
+                                                        "Id": {
+                                                          "low": 11,
+                                                          "high": 0
+                                                        },
+                                                        "PageCacheMisses": {
+                                                          "low": 0,
+                                                          "high": 0
+                                                        },
+                                                        "EstimatedRows": 0,
+                                                        "DbHits": {
+                                                          "low": 1001,
+                                                          "high": 0
+                                                        },
+                                                        "Rows": {
+                                                          "low": 1000,
+                                                          "high": 0
+                                                        },
+                                                        "PageCacheHits": {
+                                                          "low": 0,
+                                                          "high": 0
+                                                        }
+                                                      },
+                                                      "children": []
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }

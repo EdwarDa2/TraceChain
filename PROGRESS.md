@@ -64,7 +64,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | DEMO-01 | F5 | Equipo | Generar DEMO-150 por servicios/outbox, manifiesto y oráculo, validar conteos DA-01; I-1 datos/stock, I-2 calidad, I-3 grafo | REL-09, DOC-06, GRA-04, BASE-06 | TESTING | Conteos 150/60/40/80/10 y 279 nodos/540 relaciones observados por servicios — TC-SESSION-20261127-I3-018; faltan manifiesto/archivo de oráculo y UUID oficiales |
 | DEMO-02 | F5 | Equipo | Ejecutar DA-02..07 y documentar evidencia; I-3 recorridos/UI, I-2 investigación, I-1 inventario/recuperación | DEMO-01, GRA-07, DOC-09, REL-12 | TESTING | DA-01..07 por servicios/drivers 1/1 OK, sin UI/E2E — TC-SESSION-20261127-I3-018 |
 | TEST-04 | F5 | Equipo | PI, E2E, fallos/recuperación, accesibilidad, CI y aceptación | TEST-01, TEST-02, TEST-03, DEMO-02 | PENDING | — |
-| BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | TESTING | Nueve perfiles, 2 700 mediciones, 45/45 equivalencias, 60 timeouts registrados, EXPLAIN/PROFILE y 180 peticiones API medidas por separado — TC-SESSION-20261127-I3-026/027/028; sigue abierto el timeout QE-03 SQL |
+| BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | TESTING | Nueve perfiles repetidos sin errores: 2 700 mediciones, 45/45 equivalencias, EXPLAIN/PROFILE y 180 peticiones API — TC-SESSION-20261127-I3-026/027/028/029; BFS deduplicado resolvió el timeout QE-03 |
 | RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | PENDING | — |
 
 Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 1/42 MERGED según evidencia de integración de GRA-01; no son estimaciones de horas.
@@ -86,6 +86,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
+- 2026-11-27: timeout de QE-03 SQL resuelto con BFS deduplicado (`UNION` sin arreglo `seen`); nueve perfiles repetidos con 2 700 mediciones, 45/45 equivalencias y 0 errores. TC-SESSION-20261127-I3-029.
 - 2026-11-27: latencia API extremo a extremo ejecutada en seis endpoints con 180 peticiones y 0 errores; evidencia en `docs/pruebas/api-latency-actual.{json,csv}` y TC-SESSION-20261127-I3-028. No comparable con las mediciones de motores.
 - 2026-11-27: EXPLAIN ANALYZE y PROFILE ejecutados por separado en 1 000 lotes/profundidad 8; planes en `docs/pruebas/benchmark-plans.json` y TC-SESSION-20261127-I3-027. No se mezclan con la latencia.
 - 2026-11-27: DA-08 ampliado con nueve perfiles (base, profundidad y topologías): 2 700 mediciones, 45/45 equivalencias y 60 timeouts de QE-03 SQL registrados a profundidad 15. Resumen en `docs/pruebas/benchmark-actual.{json,csv}` y TC-SESSION-20261127-I3-026. Sin EXPLAIN ni medición API.
@@ -265,8 +266,8 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 | E2E-01..05 | NOT_RUN | — |
 | Lint / typecheck / build | VERIFIED | `npm run lint`, `npm run typecheck` y `npm run build` globales OK en CI del PR #13 (`verify` success, 2026-11-27T06:47:24Z); backend 55/55 unitarias y 6/6 integración locales |
 | Accesibilidad / aceptación | NOT_RUN | — |
-| QE-01..05 benchmark | TESTING | Nueve perfiles: 2 700 mediciones, 450 calentamientos, 45/45 equivalencias, 60 errores por timeout de QE-03 SQL a profundidad 15 (registrados, no descartados) — `docs/pruebas/benchmark-actual.{json,csv}` |
-| DA-01..08 demo ampliada y evidencia analítica | TESTING | DA-01..07 por servicios/drivers 1/1 OK; DA-08 con nueve perfiles, EXPLAIN/PROFILE y latencia API ejecutados; quedan UI/E2E y resolución del timeout QE-03 |
+| QE-01..05 benchmark | TESTING | Nueve perfiles repetidos: 2 700 mediciones, 450 calentamientos, 45/45 equivalencias y 0 errores; QE-03 SQL optimizado de timeout a mediana 4.149 ms a 10 000 lotes — `docs/pruebas/benchmark-actual.{json,csv}` |
+| DA-01..08 demo ampliada y evidencia analítica | TESTING | DA-01..07 por servicios/drivers 1/1 OK; DA-08 con nueve perfiles sin errores, EXPLAIN/PROFILE y latencia API ejecutados; queda UI/E2E |
 
 Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando exacto, número de tests pasados/fallidos/omitidos si disponible, duración si medida, enlace de log/PR, fallo y siguiente acción. Nunca inventar resultados. Actualizar por ID específico cuando proceda.
 
@@ -680,6 +681,12 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - Se añadió `tests/benchmark/api-latency.integration.mjs`: levanta NestJS con esquema SQL, base Mongo y UUID de Neo temporales, siembra una topología pequeña por servicios, drena Outbox de ambos destinos y mide seis endpoints autenticados (trazabilidad adelante/atrás/genealogía/comunes/caminos e impacto) con 5 calentamientos y 30 repeticiones. Evidencia en `docs/pruebas/api-latency-actual.{json,csv}`.
 - Resultado real: **1/1 OK, 180 peticiones, 0 errores**. Medianas (ms): forward 58.927, backward 62.912, genealogía 45.776, comunes 40.058, caminos 38.571, impacto 50.707; p95 máximo 140.022 en backward. `npm run build --workspace backend` y ESLint del script → exit 0. Estos tiempos son HTTP extremo a extremo y no se comparan con los 2 700 registros driver→motor.
 - Límites: no se resolvió el timeout de QE-03 SQL a profundidad 15; UI/E2E y release siguen pendientes. No afirmar objetivos RNF-01/02 cumplidos: solo se observó un escenario pequeño. Siguiente: decidir optimización de QE-03 o documentar límite; si el equipo autoriza F4, implementar las vistas funcionales.
+
+### TC-SESSION-20261127-I3-029
+- Fecha: 2026-11-27 14:30Z, I-3 desde `develop` (`b4fc282`). PR #19 verificado como fusionado; corrección de consulta SQL, sin cambios de esquema ni contrato.
+- Causa del timeout observado en I3-026: la CTE recursiva original arrastraba `ARRAY[...]` de nodos vistos y usaba `NOT id = ANY(seen)`, lo que enumeraba caminos y crecía con la convergencia. Se sustituyó por BFS por niveles con `UNION` (deduplicación por lote/nivel) en `tests/benchmark/lib/queries.mjs`; el grafo es acíclico por construcción, por lo que el arreglo no era necesario.
+- Verificación real: tras un humo 1/1 en profundidad 15, se repitieron los **nueve perfiles completos** con 30 repeticiones y 5 calentamientos → **2 700 mediciones, 45/45 equivalencias, 0 errores**. QE-03 SQL pasó de timeout a mediana 4.633 ms (1 000 lotes/profundidad 15) y 4.149 ms (10 000 lotes/profundidad 15). `node tests/benchmark/summarize.mjs` → `totalErrors=0`; `node --test tests/benchmark/explain.mjs` → 1/1 OK con planes actualizados; ESLint de `queries.mjs` → exit 0. No se descartaron ejecuciones previas: el registro histórico quedó en versiones anteriores de la evidencia.
+- Límites: no se comparó esta CTE optimizada contra una implementación alternativa de aplicación; la ventaja observada es solo para estas consultas y datos. Quedan UI/E2E y release. BENCH-01 sigue TESTING hasta aceptación.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
