@@ -35,7 +35,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | REL-03 | F1 | I-1 | Repositorios SQL incidencia/bloqueo + locks y versión confirmada | REL-02 | PENDING | — |
 | DOC-01 | F1 | I-2 | 3 colecciones strict/error e índices; PM-07/12 | BASE-02, BASE-05 | PENDING | — |
 | DOC-02 | F1 | I-2 | 6 plantillas v1 y selección/historial; PM-01/02/11 | DOC-01, BASE-06 | PENDING | — |
-| GRA-01 | F1 | I-3 | 6 etiquetas/7 relaciones constraints e índices | BASE-02, BASE-05 | VERIFIED | Rama `feature/graph-schema`; esquema real Neo4j 5.26, 4/4 estáticas y 2/2 integración |
+| GRA-01 | F1 | I-3 | 6 etiquetas/7 relaciones constraints e índices | BASE-02, BASE-05 | MERGED | PR #9 → `develop` (`b0e6894`); Neo4j real 4/4 estáticas y 2/2 integración |
 | REL-04 | F2 | I-1 | Auth, roles y throttling; PS-01..12 aplicables | REL-01 | PENDING | — |
 | REL-05 | F2 | I-1 | Catálogos completos; reactivación y restricciones históricas | REL-02, REL-04 | PENDING | — |
 | REL-06 | F2 | I-1 | Outbox, idempotencia, locks y retry; pruebas recuperación | REL-01, BASE-05 | PENDING | — |
@@ -67,7 +67,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | PENDING | — |
 | RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | PENDING | — |
 
-Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 0/42 MERGED según evidencia local vigente; no son estimaciones de horas.
+Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 1/42 MERGED según evidencia de integración de GRA-01; no son estimaciones de horas.
 
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
@@ -86,6 +86,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
+- Checkpoint posterior a PR #10: `feature/graph-schema` quedó integrada en `develop` por PR #9 (`b0e6894`); dispatcher Outbox parcial integrado por PR #10 (`9d5f196`). GRA-01 MERGED; GRA-02 sigue PENDING por REL-06 incompleta. `main.ts` y `app.module.ts` vacíos, `createIdempotencyStore` usa `Map` y falta registrar adaptadores reales Neo4j/MongoDB; no afirmar arranque integrado. Build frontend bloqueado por BASE-04 pospuesta.
 - `feature/pg-outbox-dispatcher` (base `b0e6894`): dispatcher REL-06 implementado y probado con PostgreSQL. PR #9 integrado; faltan registro de handlers y arranque del consumidor desde la aplicación.
 - Rama actual: `feature/graph-schema`, actualizada con `origin/develop` (`87206c5`); commits locales `470e21d`, merge `55736f5` y corrección de infraestructura autorizada `ede63a8`; PR pendiente.
 - Siguiente: revisión/PR de GRA-01 y coordinación de REL-06 antes de iniciar GRA-02. BASE-04, Cytoscape.js y todo frontend continúan pospuestos por decisión expresa durante esta fase.
@@ -518,6 +519,14 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - I-3 con autorización para la parte Outbox de REL-06 (RF-33/RN-120), rama `feature/pg-outbox-dispatcher`. El escritor conserva el UUID y serializa secuencias. `backend/src/integration/outbox/dispatcher.mts` expone `dispatchNext` y `runOutbox`: lock de sesión por destino, entrega fuera de transacción, ACK y estado documental atómicos, fallo permanente o backoff transitorio. El adaptador recibe `AbortSignal` y debe cancelar la operación de destino al vencimiento.
 - Node 22 en Docker: `npm run typecheck`, build backend, lint y 7/7 unitarias transaccionales OK. `npm run test:integration`: smoke 3/3, prueba RN-120 y Jest 3/3. Primer intento detectó SQLSTATE 42P08 en el ACK; corregido con tipo explícito. La prueba RN-120 ampliada pasó en esquema PostgreSQL aislado: exclusión concurrente, bloqueo de cabeza fallida, recuperación tras fallo del ACK con el mismo UUID, rechazo de versión y avance independiente del estado documental. El callback de prueba registra las entregas; esto no verifica aún una proyección GRA-02.
 - Siguiente: revisión de I-1, registrar adaptadores reales y conectar `runOutbox` al ciclo de vida/configuración del backend. La idempotencia de solicitudes de negocio de REL-06 sigue usando memoria en `createIdempotencyStore`; no se verifica REL-06 completa. Sin cambios de frontend.
+
+### TC-SESSION-20261126-I3-007
+- Fecha: 2026-11-26. Responsable: I-3 (rama `docs/graph-integration-checkpoint`, basada en `origin/develop` `9d5f196`).
+- Objetivo: verificar integración de PR #9/#10 y dependencias reales de GRA-02 antes de modificar contratos o módulos ajenos (AI-01/02/14/15/18/20).
+- Evidencia observada: Git y API GitHub confirman PR #9 fusionado (`b0e6894`) y PR #10 fusionado (`9d5f196`). La consulta única de check-runs para `9d5f196` devolvió `verify: in_progress`; resultado final no verificado, no se declara verde.
+- Estado: GRA-01 VERIFIED → MERGED por evidencia de PR. REL-06 conserva dispatcher con prueba real, pero el arranque de NestJS (`main.ts`, `app.module.ts`) está vacío, no existen adaptadores registrados de ambos destinos y `createIdempotencyStore` sigue usando memoria. GRA-02 permanece PENDING hasta acordar y verificar integración I-1/I-2; frontend sigue pospuesto.
+- Archivos modificados: `PROGRESS.md` únicamente. Pruebas de código en esta sesión: NOT_RUN (inspección Git/GitHub/código); no reinterpretar pruebas locales de sesiones anteriores como CI confirmado.
+- Próxima acción concreta: obtener acuerdo de I-1/I-2 para completar bootstrap, persistencia de idempotencia y handler Mongo, ejecutar CI e integración completa y entonces iniciar GRA-02 en rama nueva.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
