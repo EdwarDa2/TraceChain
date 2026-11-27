@@ -3,5 +3,5 @@
 # Uso: docker compose -f docker-compose.yml -f docker-compose.test.yml up -d postgres mongodb neo4j
 services:
   postgres:
-    ports:
+    ports: !override
       - "127.0.0.1:55432:5432"

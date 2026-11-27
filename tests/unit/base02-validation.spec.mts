@@ -5,11 +5,17 @@ import { readFile } from 'node:fs/promises';
 const BASE = new URL('../../', import.meta.url);
 const leer = (ruta: string) => readFile(new URL(ruta, BASE), 'utf8');
 
-test('existe un override de pruebas que usa un puerto alterno para PostgreSQL', async () => {
+test('el override reemplaza el puerto PostgreSQL y usa solo el alterno', async () => {
   const compose = await leer('docker-compose.test.yml');
   assert.equal(compose.includes('services:'), true);
   assert.equal(compose.includes('postgres:'), true);
+  assert.match(compose, /ports:\s*!override/, 'Debe reemplazar, no combinar, los puertos del Compose base');
   assert.equal(compose.includes('127.0.0.1:55432:5432'), true);
+  assert.equal(
+    compose.includes('127.0.0.1:5432:5432'),
+    false,
+    'El override no debe volver a publicar el puerto local ocupado',
+  );
   assert.equal(/docker\s+stop|kill|taskkill/i.test(compose), false, 'El override no debe detener servicios ajenos');
 });
 

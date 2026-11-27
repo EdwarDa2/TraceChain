@@ -8,7 +8,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest --passWithNoTests",
-    "test:integration": "jest --config test/jest-integration.json --passWithNoTests"
+    "test:integration": "node ../tests/integration/engines-smoke.mjs && node ../database/graph/apply-schema.mjs && jest --config test/jest-integration.json --runInBand"
   },
   "dependencies": {
     "@nestjs/common": "11.0.10",
