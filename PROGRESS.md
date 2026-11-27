@@ -64,7 +64,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | DEMO-01 | F5 | Equipo | Generar DEMO-150 por servicios/outbox, manifiesto y oráculo, validar conteos DA-01; I-1 datos/stock, I-2 calidad, I-3 grafo | REL-09, DOC-06, GRA-04, BASE-06 | TESTING | Conteos 150/60/40/80/10 y 279 nodos/540 relaciones observados por servicios — TC-SESSION-20261127-I3-018; faltan manifiesto/archivo de oráculo y UUID oficiales |
 | DEMO-02 | F5 | Equipo | Ejecutar DA-02..07 y documentar evidencia; I-3 recorridos/UI, I-2 investigación, I-1 inventario/recuperación | DEMO-01, GRA-07, DOC-09, REL-12 | TESTING | DA-01..07 por servicios/drivers 1/1 OK, sin UI/E2E — TC-SESSION-20261127-I3-018 |
 | TEST-04 | F5 | Equipo | PI, E2E, fallos/recuperación, accesibilidad, CI y aceptación | TEST-01, TEST-02, TEST-03, DEMO-02 | PENDING | — |
-| BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | PENDING | — |
+| BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | TESTING | Casos base 100/1000/10000 ejecutados 900 mediciones/0 errores con equivalencia verificada — TC-SESSION-20261127-I3-024; faltan volumen fijo/topologías |
 | RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | PENDING | — |
 
 Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 1/42 MERGED según evidencia de integración de GRA-01; no son estimaciones de horas.
@@ -86,6 +86,7 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Dependencias: I-1 LotReader/ProductReader/IncidentWriter/BlockWriter/OutboxWriter y repos SQL (REL-02/03/06); I-3 TraceabilityReader y verifyDescendant (GRA-03/05); coordinación BASE-05/06, BASE-04 para UI.
 - Archivos recientes / pruebas / PR: siete Markdown en raíz, `docs/rol-i2.md`, `docs/plan-ejecucion-i2.md`, `database/document/**`, `backend/src/modules/inspections/**`, `backend/src/modules/quality/**` y `backend/src/modules/incidents/**`. Pruebas ejecutadas (2026-11-26): `node database/document/tests/static-check.mjs` → 309 verificaciones OK; `node --experimental-strip-types --test <7 suites de backend y frontend>` → 78/78 OK (18+9+14+10+14+6+7). PM-01..23 y lint/typecheck/build: NOT_RUN (sin BASE-01/02 ni dependencias instaladas). PR: pendiente; `gh` no disponible en este entorno.
 ### I-3 Neo4j / trazabilidad / UX
+- 2026-11-27: benchmark QE-01..05 base ejecutado con 900 mediciones reales, equivalencia verificada y 0 errores; resumen en `docs/pruebas/benchmark-actual.{json,csv}` y TC-SESSION-20261127-I3-024. Casos adicionales volumen fijo/topologías NOT_RUN.
 - 2026-11-27: revisión humana aprobada; PR #12 fusionado en `develop` (`a3b3b51`, 06:34:16Z) con commits `f967f85` y `a701ee1`. Check `verify` aún `in_progress` al consultar; no afirmar CI verde. Ver TC-SESSION-20261127-I3-019/020.
 - 2026-11-27: DEMO-150 funcional por servicios/Outbox 1/1 OK con 279 nodos y 540 relaciones; DA-01..07 por servicios/drivers con evidencia en `docs/pruebas/demo150-actual.json` y TC-SESSION-20261127-I3-018. Sin DA-08/QE, UI/E2E ni CI de rama.
 - 2026-11-27: carreras SQL y recuperación Outbox probadas con motores reales 2/2 (incluidas en el conjunto 5/5); evidencia en `docs/pruebas/concurrency-recovery-actual.json` y TC-SESSION-20261127-I3-017.
@@ -261,8 +262,8 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 | E2E-01..05 | NOT_RUN | — |
 | Lint / typecheck / build | TESTING | Backend typecheck, lint y build OK 2026-11-27 en Docker Node 22.22.0; build global NOT_RUN por B-006 |
 | Accesibilidad / aceptación | NOT_RUN | — |
-| QE-01..05 benchmark | NOT_RUN | — |
-| DA-01..08 demo ampliada y evidencia analítica | TESTING | DA-01..07 por servicios/drivers 1/1 OK en `tests/integration/demo150-seed.integration.mjs` (2026-11-27); DA-08/QE-01..05 NOT_RUN; UI/E2E no ejecutados |
+| QE-01..05 benchmark | TESTING | Tres casos base ejecutados: 900 mediciones, 150 calentamientos, 0 errores, hash equivalente en 15/15 comparaciones — `docs/pruebas/benchmark-actual.{json,csv}`; casos adicionales volumen fijo/topologías NOT_RUN |
+| DA-01..08 demo ampliada y evidencia analítica | TESTING | DA-01..07 por servicios/drivers 1/1 OK y benchmark QE-01..05 base ejecutado (DA-08 parcial); casos adicionales de DA-08 y UI/E2E no ejecutados |
 
 Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando exacto, número de tests pasados/fallidos/omitidos si disponible, duración si medida, enlace de log/PR, fallo y siguiente acción. Nunca inventar resultados. Actualizar por ID específico cuando proceda.
 
@@ -638,6 +639,13 @@ D-002 — revisión documental v1.1, 2026-11-25. Solicitada por el integrante 2:
 - `npm run lint`, `npm run typecheck` y `npm run build` pasaron en contenedor Docker Node 22.22.0. Build de Next.js 16 con Turbopack: compilación correcta y tres páginas estáticas generadas. B-006 pasa a resuelto localmente; CI remoto del fix: NOT_RUN.
 - La rama `docs/record-pr12-merge` (PR #13) se actualizó con estos commits para que un solo PR contenga registro y corrección; el PR de `fix/ci-contracts-build-order` queda como alternativa y puede cerrarse si #13 se fusiona.
 - Siguiente: esperar el `verify` del PR #13 y verificar la conclusión real antes de marcar verde. Después, benchmark DA-08/QE-01..05.
+
+### TC-SESSION-20261127-I3-024
+- Fecha: 2026-11-27 07:10Z, I-3 en `bench/qe-benchmark` desde `develop` (`f9c1030`). Tarea BENCH-01 parcial y DA-08 base; sin frontend. Sin nuevos tipos de nodo, tablas ni colecciones.
+- Se añadieron `tests/benchmark/{run.mjs,summarize.mjs,lib/generator.mjs,lib/queries.mjs}`, consultas de referencia en `database/{relational,graph}/queries/qe-benchmark.*` y evidencia `tests/benchmark/results/` y `docs/pruebas/benchmark-actual.{json,csv}`. Generador con UUID v4 deterministas por caso, semilla 42, diez componentes, capas dirigidas y reutilización controlada de insumos; SQL y Neo cargados con los mismos UUID y proyección por tipo.
+- Verificación real en PostgreSQL 16.16, Neo4j 5.26.34, Node 22.22.0, Linux x64, 12 CPU, 3.69 GB: los tres casos base 100/1000/10000 lotes con profundidades 3/8/15 y 70/880/9370 procesos pasaron la comparación de hash de UUID/niveles/destinos en QE-01..05 antes de medir. 5 calentamientos y 30 repeticiones por motor/consulta/caso, orden alternado: **900 mediciones, 150 calentamientos, 0 errores**. Mediana/p95 SQL vs Cypher (ms): QE-01 3.096/4.841 vs 7.871/11.240 (100) y 172.699/525.581 vs 147.235/258.307 (10000); QE-04 150.127/581.719 vs 42.219/69.766 (10000). No se descartaron repeticiones; la desviación alta se conserva en los datos crudos.
+- Correcciones: rutas relativas de esquemas, Cypher `MERGE` sin `WITH`, placeholders `$1` duplicados en QE-03, duplicados por múltiples caminos en QE-03/QE-05 y UUID compartidos entre casos; todo corregido y repetido antes de registrar resultados. No se inventaron tiempos.
+- Límites: no se ejecutaron casos adicionales a volumen fijo 1000 variando profundidad 3/8/15 ni las topologías lineal/ramificada/convergente/independiente; tampoco EXPLAIN/PROFILE ni medición API extremo a extremo. No afirmar superioridad general: la comparación vale solo para esta topología y entorno. BENCH-01 queda TESTING, no VERIFIED. Siguiente: casos adicionales de DA-08 y, si el equipo autoriza F4, UI funcional y E2E.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
