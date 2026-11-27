@@ -21,7 +21,7 @@ export interface OperationsDeps {
   };
   outbox: { enqueue(evento: EventoOutbox, tx: Tx): Promise<void> };
   idempotencia: {
-    reserve(solicitud: SolicitudIdempotente): { replay: boolean } | { replay: true; status: number; body: unknown };
+    reserve(solicitud: SolicitudIdempotente): { replay: false } | { replay: true; status: number; body: unknown };
     confirm(solicitud: SolicitudIdempotente, status: number, body: unknown): Promise<void>;
   };
   catalogo: {
@@ -112,7 +112,7 @@ export async function registrarRecepcion(
   const reserva = deps.idempotencia.reserve(
     solicitud(entrada.actorId, 'POST /lots/receipts', entrada.idempotencyKey, entrada),
   );
-  if ('replay' in reserva && reserva.replay) return reserva.body as OperacionResultado;
+  if (reserva.replay) return reserva.body as OperacionResultado;
 
   let loteId = '';
   await deps.transaction.run(async (tx) => {

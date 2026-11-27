@@ -5,6 +5,7 @@
     "moduleResolution": "Bundler",
     "jsx": "preserve",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "allowJs": false,
     "plugins": [{ "name": "next" }]
   },

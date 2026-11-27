@@ -207,17 +207,21 @@ export function applyDossierPatch(
   if (presentes.length === 0) return { ok: false, code: 'INVALID_PATCH' };
 
   const cambios: Partial<DossierFields> = {};
-  for (const campo of presentes) {
-    (cambios as Record<string, unknown>)[campo] = (patch as Record<string, unknown>)[campo];
+  if ('description' in patch) cambios.description = patch.description;
+  if ('inspectionIds' in patch) cambios.inspectionIds = patch.inspectionIds;
+  if ('findings' in patch) cambios.findings = patch.findings;
+  if ('notes' in patch) cambios.notes = patch.notes;
+  if ('detailedResolution' in patch) cambios.detailedResolution = patch.detailedResolution;
+  if ('evidence' in patch) {
+    if (!Array.isArray(patch.evidence)) return { ok: false, code: 'INVALID_PATCH' };
+    cambios.evidence = conFechasDeServidor(patch.evidence, now);
   }
   const error = validarCampos(cambios);
   if (error) return { ok: false, code: error };
 
-  const evidencia = 'evidence' in patch ? conFechasDeServidor(patch.evidence ?? [], now) : actual.evidence;
   const siguiente: Dossier = {
     ...actual,
     ...cambios,
-    evidence: evidencia,
     version: actual.version + 1,
     ultimoEventoId: eventId,
     updatedAt: now,

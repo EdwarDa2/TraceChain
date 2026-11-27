@@ -172,7 +172,7 @@ export interface IdempotencyStore {
   reserve(
     solicitud: SolicitudIdempotente,
     cliente: PgClientLike,
-  ): { replay: boolean } | { replay: true; status: number; body: unknown };
+  ): { replay: false } | { replay: true; status: number; body: unknown };
   confirm(solicitud: SolicitudIdempotente, status: number, body: unknown, cliente: PgClientLike): Promise<void>;
 }
 

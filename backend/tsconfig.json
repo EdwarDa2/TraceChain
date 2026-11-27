@@ -5,7 +5,8 @@
     "rootDir": "src",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*.ts", "src/**/*.mts"],
   "exclude": ["dist", "node_modules"]
