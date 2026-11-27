@@ -169,46 +169,43 @@ export interface SolicitudIdempotente {
   hash: string;
 }
 
-type RespuestaGuardada = { status: number; body: unknown };
-
 export interface IdempotencyStore {
   reserve(
     solicitud: SolicitudIdempotente,
-    cliente: PgClientLike,
-  ): { replay: false } | { replay: true; status: number; body: unknown };
-  confirm(solicitud: SolicitudIdempotente, status: number, body: unknown, cliente: PgClientLike): Promise<void>;
+    tx: Tx,
+  ): Promise<{ replay: false } | { replay: true; status: number; body: unknown }>;
+  confirm(solicitud: SolicitudIdempotente, status: number, body: unknown, tx: Tx): Promise<void>;
 }
 
 /**
- * Reserva bajo lock transaccional por actor+operación+clave. Solo se guarda la
- * respuesta confirmada (2xx); un hash distinto con la misma clave es conflicto.
+ * Serialización por scope; solo se escribe la respuesta 2xx dentro del COMMIT
+ * de negocio. No hay caché de proceso ni filas de reserva que sobrevivan rollback.
  */
 export function createIdempotencyStore(): IdempotencyStore {
-  const respuestas = new Map<string, { hash: string; respuesta: RespuestaGuardada }>();
-  const claveDe = (s: SolicitudIdempotente) => `${s.actorId}|${s.operacion}|${s.clave}`;
-
   return {
-    reserve(solicitud, cliente) {
-      void cliente.query(
-        'SELECT response_status, response_body FROM solicitudes_idempotentes WHERE usuario_id = $1 AND operacion = $2 AND clave = $3 FOR UPDATE',
+    async reserve(solicitud, tx) {
+      await tx.query('SELECT pg_advisory_xact_lock(hashtext($1), hashtext($2))',
+        [`${solicitud.actorId}|${solicitud.operacion}`, solicitud.clave]);
+      const result = await tx.query(
+        `SELECT request_hash, response_status, response_body FROM solicitudes_idempotentes
+          WHERE usuario_id = $1 AND operacion = $2 AND clave = $3 FOR UPDATE`,
         [solicitud.actorId, solicitud.operacion, solicitud.clave],
       );
-      const guardada = respuestas.get(claveDe(solicitud));
-      if (guardada !== undefined) {
-        if (guardada.hash !== solicitud.hash) throw new Error('IDEMPOTENCY_CONFLICT: hash distinto para la misma clave');
-        return { replay: true, status: guardada.respuesta.status, body: guardada.respuesta.body };
+      const guardada = result.rows[0];
+      if (guardada) {
+        if (guardada.request_hash !== solicitud.hash) throw new Error('IDEMPOTENCY_CONFLICT');
+        return { replay: true, status: Number(guardada.response_status), body: guardada.response_body };
       }
-      respuestas.set(claveDe(solicitud), { hash: solicitud.hash, respuesta: { status: 0, body: null } });
       return { replay: false };
     },
-    async confirm(solicitud, status, body, cliente) {
-      const guardada = respuestas.get(claveDe(solicitud));
-      if (guardada === undefined) throw new Error('IDEMPOTENCY_NOT_RESERVED');
-      guardada.respuesta = { status, body };
-      await cliente.query(
-        `UPDATE solicitudes_idempotentes SET response_status = $1, response_body = $2
-         WHERE usuario_id = $3 AND operacion = $4 AND clave = $5`,
-        [status, JSON.stringify(body), solicitud.actorId, solicitud.operacion, solicitud.clave],
+    async confirm(solicitud, status, body, tx) {
+      if (!Number.isInteger(status) || status < 200 || status >= 300 ||
+          !/^[a-f0-9]{64}$/.test(solicitud.hash)) throw new Error('VALIDATION_ERROR');
+      await tx.query(
+        `INSERT INTO solicitudes_idempotentes
+          (usuario_id, operacion, clave, request_hash, response_status, response_body)
+          VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
+        [solicitud.actorId, solicitud.operacion, solicitud.clave, solicitud.hash, status, JSON.stringify(body)],
       );
     },
   };

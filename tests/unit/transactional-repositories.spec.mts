@@ -151,21 +151,21 @@ test('outbox guarda payloadVersion 1 y usa la transacción compartida', async ()
 
 test('idempotencia: replay con misma clave/hash y conflicto con hash distinto', async () => {
   const cliente = new ClienteFalso();
-  const manager = createTransactionManager(poolFalso(cliente));
   const store = createIdempotencyStore();
   const clave = '00000000-0000-4000-8000-000000000077';
+  const solicitud = { actorId: 'actor-1', operacion: 'POST /lots/receipts', clave, hash: 'a'.repeat(64) };
 
-  const primera = store.reserve({ actorId: 'actor-1', operacion: 'POST /lots/receipts', clave, hash: 'a'.repeat(64) }, cliente);
+  const primera = await store.reserve(solicitud, cliente);
   assert.equal(primera.replay, false);
-  await store.confirm({ actorId: 'actor-1', operacion: 'POST /lots/receipts', clave, hash: 'a'.repeat(64) }, 201, { data: { id: 'lote-1' } }, cliente);
+  await store.confirm(solicitud, 201, { data: { id: 'lote-1' } }, cliente);
+  assert.ok(cliente.llamadas.some((call) => call.sql.includes('INSERT INTO solicitudes_idempotentes')));
+  cliente.filas = [{ request_hash: solicitud.hash, response_status: 201, response_body: { data: { id: 'lote-1' } } }];
 
-  const replay = store.reserve({ actorId: 'actor-1', operacion: 'POST /lots/receipts', clave, hash: 'a'.repeat(64) }, cliente);
+  const replay = await store.reserve(solicitud, cliente);
   assert.deepEqual(replay, { replay: true, status: 201, body: { data: { id: 'lote-1' } } });
 
   await assert.rejects(
-    async () => {
-      store.reserve({ actorId: 'actor-1', operacion: 'POST /lots/receipts', clave, hash: 'b'.repeat(64) }, cliente);
-    },
+    store.reserve({ ...solicitud, hash: 'b'.repeat(64) }, cliente),
     (error: unknown) => error instanceof Error && error.message.includes('IDEMPOTENCY_CONFLICT'),
   );
   assert.equal(cliente.llamadas.some((llamada) => llamada.sql.includes('FOR UPDATE')), true);
