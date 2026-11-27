@@ -1,0 +1,53 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "E-14 plantillas_inspeccion",
+    "description": "Plantillas de inspeccion versionadas. Fuente: DATA_MODEL.md §3. Contenido inmutable por codigo+version.",
+    "required": ["_id", "codigo", "nombre", "producto_id", "version", "parametros", "activo", "created_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "codigo": { "bsonType": "string", "pattern": "^[A-Z0-9_-]{1,50}$" },
+      "nombre": { "bsonType": "string", "minLength": 1, "maxLength": 150 },
+      "descripcion": { "bsonType": ["string", "null"], "maxLength": 5000 },
+      "producto_id": {
+        "bsonType": ["string", "null"],
+        "description": "UUID del producto o null para la plantilla general"
+      },
+      "version": { "bsonType": "int", "minimum": 1 },
+      "parametros": {
+        "bsonType": "array",
+        "minItems": 1,
+        "maxItems": 30,
+        "description": "Claves unicas por servicio; minimo/maximo Decimal128 solo para tipos numericos",
+        "items": {
+          "bsonType": "object",
+          "required": ["key", "label", "dataType", "unit", "required", "options", "min", "max"],
+          "additionalProperties": false,
+          "properties": {
+            "key": { "bsonType": "string", "pattern": "^[a-z][a-z0-9_]*$", "maxLength": 64 },
+            "label": { "bsonType": "string", "minLength": 1, "maxLength": 150 },
+            "dataType": {
+              "enum": ["TEXTO", "ENTERO", "DECIMAL", "BOOLEANO", "SELECCION"]
+            },
+            "unit": { "bsonType": ["string", "null"] },
+            "required": { "bsonType": "bool" },
+            "options": {
+              "bsonType": "array",
+              "maxItems": 150,
+              "items": { "bsonType": "string" },
+              "description": "Solo SELECCION: no vacio y sin duplicados, validado en servicio"
+            },
+            "min": { "bsonType": ["decimal", "int", "null"] },
+            "max": { "bsonType": ["decimal", "int", "null"] }
+          }
+        }
+      },
+      "activo": { "bsonType": "bool" },
+      "created_at": { "bsonType": "date" }
+    }
+  }
+}

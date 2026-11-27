@@ -1,0 +1,79 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "E-13 inspecciones_calidad",
+    "description": "Inspecciones inmutables. Fuente: DATA_MODEL.md §3 y API_CONTRACT.md §2.",
+    "required": ["_id", "codigo", "lote_id", "producto_id", "plantilla_id", "plantilla_version", "inspector_id", "fecha_inspeccion", "parametros", "resultado", "hallazgos", "evidencias", "idempotency_key", "request_hash", "created_at"],
+    "additionalProperties": false,
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "codigo": {
+        "bsonType": "string",
+        "pattern": "^INS-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "lote_id": { "bsonType": "string", "pattern": "^[0-9a-f-]{36}$" },
+      "producto_id": { "bsonType": "string", "pattern": "^[0-9a-f-]{36}$" },
+      "plantilla_id": { "bsonType": "string", "pattern": "^[0-9a-f-]{36}$" },
+      "plantilla_version": { "bsonType": "int", "minimum": 1 },
+      "inspector_id": { "bsonType": "string", "pattern": "^[0-9a-f-]{36}$" },
+      "fecha_inspeccion": { "bsonType": "date" },
+      "parametros": {
+        "bsonType": "object",
+        "minProperties": 1,
+        "description": "Claves dinamicas autorizadas por plantilla; tipo exacto validado en servicio (RN-52, RN-115)",
+        "additionalProperties": {
+          "anyOf": [
+            { "bsonType": "string", "maxLength": 3000 },
+            { "bsonType": "int" },
+            { "bsonType": "decimal" },
+            { "bsonType": "bool" }
+          ]
+        }
+      },
+      "resultado": { "enum": ["CONFORME", "NO_CONFORME"] },
+      "hallazgos": {
+        "bsonType": "array",
+        "maxItems": 30,
+        "description": "NO_CONFORME exige al menos un hallazgo; se valida en servicio (RN-56)",
+        "items": {
+          "bsonType": "object",
+          "required": ["tipo", "descripcion", "severidad"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": {
+              "enum": ["IMPUREZAS", "HUMEDAD", "PESO", "EMPAQUE", "APARIENCIA", "TEXTURA", "TEMPERATURA", "OTRO"]
+            },
+            "parametro": { "bsonType": ["string", "null"], "maxLength": 64 },
+            "descripcion": { "bsonType": "string", "minLength": 1, "maxLength": 5000 },
+            "severidad": { "enum": ["BAJA", "MEDIA", "ALTA"] }
+          }
+        }
+      },
+      "observaciones": { "bsonType": ["string", "null"], "maxLength": 3000 },
+      "evidencias": {
+        "bsonType": "array",
+        "maxItems": 20,
+        "items": {
+          "bsonType": "object",
+          "required": ["tipo", "referencia", "fecha_registro"],
+          "additionalProperties": false,
+          "properties": {
+            "tipo": { "enum": ["IMAGEN", "DOCUMENTO", "REFERENCIA"] },
+            "referencia": { "bsonType": "string", "minLength": 1, "maxLength": 500 },
+            "descripcion": { "bsonType": ["string", "null"], "maxLength": 5000 },
+            "fecha_registro": { "bsonType": "date" }
+          }
+        }
+      },
+      "idempotency_key": {
+        "bsonType": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "request_hash": { "bsonType": "string", "pattern": "^[0-9a-f]{64}$" },
+      "created_at": { "bsonType": "date" }
+    }
+  }
+}
