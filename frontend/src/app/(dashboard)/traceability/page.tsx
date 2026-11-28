@@ -1,12 +1,13 @@
 'use client';
 
 import { GitBranch, Network, Search } from 'lucide-react';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   DataTable, ErrorState, LoadingState, PageHeader, Panel, StatusBadge,
 } from '../../../components/ui';
 import { GraphViewer, type GraphNode } from '../../../components/graph-viewer';
 import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
+import { statusLabel } from '../../../lib/labels';
 import type { Lot, TraceResult } from '../../../lib/types';
 
 type Mode = 'FORWARD' | 'BACKWARD' | 'GENEALOGY' | 'COMMON_ORIGINS' | 'PATHS';
@@ -26,6 +27,17 @@ export default function TraceabilityPage() {
   const [result, setResult] = useState<TraceResult | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [selected, setSelected] = useState<GraphNode | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const requested = params.get('mode');
+    if (requested && MODES.some((item) => item.value === requested)) {
+      setMode(requested as Mode);
+    }
+    const identifiers = (params.get('lotIds') ?? '').split(',').filter(Boolean).slice(0, 2);
+    if (identifiers.length > 0) setRoot(identifiers[0]);
+    if (identifiers.length > 1) setTarget(identifiers[1]);
+  }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -94,7 +106,7 @@ export default function TraceabilityPage() {
             <div className="panel" style={{ overflow: 'hidden' }}>
               <header className="panel-header">
                 <div className="toolbar"><GitBranch size={15} aria-hidden />
-                  <strong>{result.queryType.replaceAll('_', ' ')}</strong>
+                  <strong>{statusLabel(result.queryType)}</strong>
                   <StatusBadge status={result.status} />
                 </div>
                 <span data-muted>{result.metadata.durationMs.toFixed(0)} ms</span>
@@ -110,7 +122,8 @@ export default function TraceabilityPage() {
                   <div className="scope-bar" style={{ marginTop: 16 }}>
                     <i style={{ width: `${Math.min(100, result.lots.length * 2)}%` }} />
                   </div>
-                  <p data-muted style={{ marginTop: 6, fontSize: 12 }}>Alcance potencial verificado</p>
+                  <p data-muted style={{ marginTop: 6 }}>Alcance potencial verificado</p>
+                  <p data-muted className="critical-note">Un origen común es una hipótesis, no una causa. La dependencia productiva no demuestra contaminación.</p>
                   {result.metadata.warnings.map((warning) =>
                     <div className="warning-strip" key={warning.code} style={{ marginTop: 8 }}>{warning.message}</div>)}
                 </aside>

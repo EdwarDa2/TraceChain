@@ -305,6 +305,23 @@ tbody tr:hover { background: var(--color-surface-alt); }
 .login-card { width: 100%; max-width: 400px; background: var(--color-paper); border: 1px solid var(--color-hairline); border-radius: var(--radius-cards); padding: var(--space-8); box-shadow: var(--shadow-card); }
 .login-brand { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-6); }
 
+/* Recognisable lot references and guided analysis */
+.lot-label { display: grid; gap: 1px; min-width: 0; }
+.lot-label-detail { font-size: var(--text-caption); color: var(--color-mid-gray); }
+.lot-label-id { font-size: 10px; color: var(--color-mid-gray); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow: hidden; text-overflow: ellipsis; }
+.lot-picker { display: grid; gap: var(--space-2); max-height: 220px; overflow-y: auto; border: 1px solid var(--color-hairline); border-radius: var(--radius-nested); padding: var(--space-2); }
+.lot-picker label { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-caption); cursor: pointer; }
+.lot-picker input { width: auto; }
+.selection-actions { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; padding: var(--space-2) var(--space-5); border-bottom: 1px solid var(--color-hairline); }
+.quality-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.quality-strip > div { background: var(--color-canvas); border-radius: var(--radius-interactive); padding: var(--space-3); display: grid; gap: var(--space-1); }
+.quality-strip strong { font-size: var(--text-heading); font-weight: 600; letter-spacing: var(--tracking-heading); }
+.quality-strip span { font-size: var(--text-caption); color: var(--color-mid-gray); }
+.glossary { position: relative; }
+.glossary > button { width: 28px; height: 28px; padding: 0; }
+.glossary-panel { position: absolute; right: 0; top: 34px; z-index: 30; width: 320px; background: var(--color-paper); border: 1px solid var(--color-hairline); border-radius: var(--radius-cards); box-shadow: var(--shadow-card); padding: var(--space-5); display: grid; gap: var(--space-2); font-size: var(--text-caption); }
+.critical-note { font-size: var(--text-caption); color: var(--color-mid-gray); border-top: 1px solid var(--color-hairline); padding-top: var(--space-3); margin-top: var(--space-3); }
+
 /* Compact KPI strip used by impact */
 .kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--color-hairline); border-radius: var(--radius-cards); background: var(--color-paper); overflow: hidden; box-shadow: var(--shadow-card); }
 .kpi { padding: var(--space-5); border-right: 1px solid var(--color-hairline); text-decoration: none; color: inherit; display: block; }

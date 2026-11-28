@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import {
-  AlertTriangle, ArrowUpRight, Boxes, ClipboardCheck, Factory, Network,
+  AlertTriangle, ArrowUpRight, Boxes, ClipboardCheck, CircleHelp, Factory, Network,
   Radio, ShieldCheck,
 } from 'lucide-react';
+import { useState } from 'react';
 import { DataTable, ErrorState, LoadingState, Panel, StatusBadge } from '../../../components/ui';
 import { useApiQuery } from '../../../hooks/use-api';
+import { statusLabel } from '../../../lib/labels';
 import type { Activity, DashboardSummary, SystemStatus } from '../../../lib/types';
 
 function activityHref(type: string) {
@@ -26,6 +28,7 @@ const METRICS = [
 ] as const;
 
 export default function DashboardPage() {
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const summary = useApiQuery<DashboardSummary>('/dashboard/summary');
   const activity = useApiQuery<Activity[]>('/dashboard/recent-activity?limit=12');
   const system = useApiQuery<SystemStatus>('/system/sync-status');
@@ -36,6 +39,8 @@ export default function DashboardPage() {
   const data = summary.data;
   const failures = (system.data?.sync ?? []).reduce((total, motor) => total + motor.failed, 0);
   const pending = (system.data?.sync ?? []).reduce((total, motor) => total + motor.pending, 0);
+  const degraded = pending > 0 || failures > 0 ||
+    (system.data?.sync ?? []).some((motor) => motor.status !== 'SYNCHRONIZED');
   const incident = (activity.data ?? []).find((item) => item.type === 'INCIDENCIA');
   const impactHref = incident ? `/incidents/${incident.entityId}/impact` : '/incidents';
   const activityCounts = (activity.data ?? []).reduce<Record<string, number>>((acc, item) => {
@@ -53,9 +58,25 @@ export default function DashboardPage() {
           <h1>Vista general</h1>
           <p>Estado operativo de la red de lotes y del análisis en curso.</p>
         </div>
-        <span className="badge badge-neutral" style={{ borderRadius: 999, padding: '6px 12px' }}>
-          Estado actual
-        </span>
+        <div className="topbar-actions">
+          <StatusBadge status={degraded ? 'DEGRADED' : 'AVAILABLE'} />
+          <div className="glossary">
+            <button className="icon-button" aria-label="Glosario de estados"
+              aria-expanded={glossaryOpen} onClick={() => setGlossaryOpen((open) => !open)}>
+              <CircleHelp size={15} aria-hidden />
+            </button>
+            {glossaryOpen ? (
+              <div className="glossary-panel" role="note">
+                <strong>Qué significa cada estado</strong>
+                <span><b>Completo:</b> alcance verificado sin truncamiento.</span>
+                <span><b>Parcial:</b> hay límites de profundidad o proyección pendiente.</span>
+                <span><b>No disponible:</b> la fuente requerida no respondió; no es un resultado vacío.</span>
+                <span><b>Pendiente / Sincronizado:</b> estado del expediente documental.</span>
+                <span><b>Disponible / Degradado:</b> salud de la sincronización entre motores.</span>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </header>
 
       <div className="metric-grid">
@@ -134,7 +155,7 @@ export default function DashboardPage() {
             <div style={{ display: 'grid', gap: 12 }}>
               <div className="toolbar" style={{ justifyContent: 'space-between' }}>
                 <span data-muted>Sincronización</span>
-                <StatusBadge status={system.data?.status ?? 'NO_DISPONIBLE'} />
+                <StatusBadge status={degraded ? 'DEGRADED' : system.data?.status ?? 'NO_DISPONIBLE'} />
               </div>
               <div className="toolbar" style={{ justifyContent: 'space-between' }}>
                 <span data-muted><ClipboardCheck size={12} aria-hidden /> Eventos pendientes</span>
@@ -147,9 +168,14 @@ export default function DashboardPage() {
               {(system.data?.sync ?? []).map((motor) => (
                 <div className="toolbar" key={motor.destination} style={{ justifyContent: 'space-between' }}>
                   <span>{motor.destination}</span>
-                  <span className="sync-dot"><Radio size={12} aria-hidden /> {motor.status}</span>
+                  <span className="sync-dot"><Radio size={12} aria-hidden /> {statusLabel(motor.status)}</span>
                 </div>
               ))}
+              {degraded ? (
+                <p data-muted className="critical-note">
+                  {pending} eventos pendientes y {failures} fallidos: el impacto potencial puede estar desactualizado hasta que la sincronización termine.
+                </p>
+              ) : null}
             </div>
           </Panel>
         </div>

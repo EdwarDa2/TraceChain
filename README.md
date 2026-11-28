@@ -55,9 +55,21 @@ La suite usa una sesión compartida por worker porque el backend limita los inic
 2. **Analista:** inspecciones no conformes → incidencia con expediente → investigación → trazabilidad (adelante, atrás, comunes, caminos) → impacto integrado → bloqueo manual de descendientes verificados → resolución.
 3. El analista retira bloqueos individualmente; cerrar una incidencia no libera bloqueos. Un resultado vacío válido, parcial y no disponible se distinguen en la interfaz.
 
+### Recorrido guiado de cinco minutos
+
+1. Entra como analista y abre **Inspecciones**; filtra por *No conformes*.
+2. Marca de 2 a 5 lotes y pulsa **Analizar antecedentes comunes**: la vista de trazabilidad abre la modalidad *Orígenes comunes* con esos lotes precargados. El resultado es una hipótesis, no una causa.
+3. Abre **Incidencias** → una incidencia → **Ver impacto**. Revisa lotes afectados, destinos y calidad; después vuelve a **Trazabilidad** y consulta cualquier lote.
+4. En **Inventario** abre un lote para ver movimientos, saldos y bloqueos.
+5. En la ficha de incidencia aplica un bloqueo manual desde la lista de lotes verificados por el impacto; cierra la investigación y comprueba que el bloqueo permanece hasta su retiro individual.
+
+El glosario del dashboard (`?`) traduce `COMPLETO`, `PARCIAL`, `NO_DISPONIBLE`, `PENDIENTE`, `SINCRONIZADO` y `AVAILABLE/DEGRADED` sin cambiar los códigos oficiales.
+
 ## Evidencia y datos de demostración
 
-- Escenario DEMO-150: 150 lotes, 60 órdenes, 40 distribuciones, 80 inspecciones y 10 incidencias; 279 nodos y 540 relaciones.
+- **Producto final:** opera con datos que los usuarios registran; no depende de ningún fixture.
+- **Fixture canónico (9 lotes):** UUID deterministas para regresión, confinado a `tests/integration/**`.
+- **DEMO-150:** 150 lotes, 60 órdenes, 40 distribuciones, 80 inspecciones y 10 incidencias; 279 nodos y 540 relaciones. Se carga solo con `npm run db:seed` en un entorno autorizado y usa nombres del dominio panadero.
 - Manifiesto y oráculo: `tests/fixtures/demo/ampliada/`.
 - Resultados ejecutados: `docs/pruebas/`.
 - Trazabilidad de RF/RN a evidencia: `docs/pruebas/acceptance-matrix.md`.

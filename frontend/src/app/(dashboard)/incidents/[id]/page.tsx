@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { LotLabel } from '../../../../components/lot-label';
 import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Panel, StatusBadge,
 } from '../../../../components/ui';
 import { useApiMutation, useApiQuery, useApiResponse } from '../../../../hooks/use-api';
-import type { Block, Incident } from '../../../../lib/types';
+import type { Block, ImpactResult, Incident, Lot } from '../../../../lib/types';
 import { useAuth } from '../../../../providers/auth-provider';
 
 type DossierView = { dossierStatus: string; status: string; dossier: {
@@ -20,12 +21,14 @@ export default function IncidentDetailPage() {
   const incident = useApiQuery<Incident>(id ? `/incidents/${id}` : null);
   const dossier = useApiQuery<DossierView>(id ? `/incidents/${id}/dossier` : null);
   const blocks = useApiResponse<Block[]>(id ? `/incidents/${id}/blocks` : null);
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
+  const impact = useApiQuery<ImpactResult>(id ? `/incidents/${id}/impact` : null);
   const start = useApiMutation<Incident>();
   const close = useApiMutation<Incident>();
   const block = useApiMutation<Block[]>();
   const release = useApiMutation<{ blockId: string; lotBlocked: boolean }>();
   const [resolution, setResolution] = useState('');
-  const [lotIds, setLotIds] = useState('');
+  const [selectedLots, setSelectedLots] = useState<Set<string>>(new Set());
   const [reason, setReason] = useState('');
 
   async function submitClose(event: FormEvent) {
@@ -35,14 +38,18 @@ export default function IncidentDetailPage() {
   async function submitBlock(event: FormEvent) {
     event.preventDefault();
     await block.mutateAsync({ path: `/incidents/${id}/blocks`, idempotent: true,
-      body: { lotIds: lotIds.split(',').map((item) => item.trim()).filter(Boolean), reason } });
+      body: { lotIds: [...selectedLots], reason } });
   }
 
-  if (incident.isPending || dossier.isPending || blocks.isPending) return <LoadingState rows={5} />;
-  if (incident.isError || dossier.isError || blocks.isError) {
-    return <ErrorState error={incident.error ?? dossier.error ?? blocks.error} />;
+  if (incident.isPending || dossier.isPending || blocks.isPending || lots.isPending) return <LoadingState rows={5} />;
+  if (incident.isError || dossier.isError || blocks.isError || lots.isError) {
+    return <ErrorState error={incident.error ?? dossier.error ?? blocks.error ?? lots.error} />;
   }
   const canWrite = user?.role === 'ANALISTA_CALIDAD';
+  const candidateIds = [...new Set([
+    incident.data?.originLotId,
+    ...(impact.data?.affectedLots ?? []).map((item) => item.lotId),
+  ].filter((value): value is string => Boolean(value)))].slice(0, 100);
   return (
     <>
       <PageHeader title={incident.data?.code ?? 'Incidencia'} description={incident.data?.title}
@@ -71,7 +78,7 @@ export default function IncidentDetailPage() {
           </Panel>
           <Panel title="Bloqueos manuales" tight>
             <DataTable columns={[
-              { key: 'lotId', label: 'Lote' },
+              { key: 'lotId', label: 'Lote', render: (row) => <LotLabel lotId={row.lotId} /> },
               { key: 'reason', label: 'Motivo', title: true },
               { key: 'blockedAt', label: 'Fecha', render: (row) =>
                 <span data-timestamp>{new Date(row.blockedAt).toLocaleDateString('es-MX')}</span> },
@@ -104,13 +111,29 @@ export default function IncidentDetailPage() {
             ) : null}
             <Panel title="Aplicar bloqueo">
               <form className="form-grid" onSubmit={submitBlock}>
-                <Field label="Lotes (UUID separados por coma)">
-                  <input required value={lotIds} onChange={(event) => setLotIds(event.target.value)} />
+                <Field label={`Lotes verificados (${selectedLots.size})`}>
+                  <div className="lot-picker">
+                    {candidateIds.map((identifier) => {
+                      const lot = lots.data?.data.find((item) => item.id === identifier);
+                      return (
+                        <label key={identifier}>
+                          <input type="checkbox" checked={selectedLots.has(identifier)}
+                            onChange={() => setSelectedLots((current) => {
+                              const next = new Set(current);
+                              if (next.has(identifier)) next.delete(identifier); else next.add(identifier);
+                              return next;
+                            })} />
+                          <span>{`${lot?.code ?? identifier.slice(0, 8)} · ${lot?.productName ?? 'lote'}`}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </Field>
                 <Field label="Justificación">
                   <input required value={reason} onChange={(event) => setReason(event.target.value)} />
                 </Field>
-                <button className="button button-primary" disabled={block.isPending}>Bloquear</button>
+                <p data-muted className="critical-note">El bloqueo es manual y requiere justificación. Una dependencia productiva no demuestra contaminación.</p>
+                <button className="button button-primary" disabled={block.isPending || selectedLots.size === 0}>Bloquear</button>
               </form>
             </Panel>
           </div>
