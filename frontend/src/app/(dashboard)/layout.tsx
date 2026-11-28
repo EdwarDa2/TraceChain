@@ -2,26 +2,39 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, type ReactNode } from 'react';
+import {
+  AlertTriangle, Boxes, ClipboardCheck, Factory, LayoutDashboard, LogOut,
+  MapPin, Network, Package, Truck, Users,
+} from 'lucide-react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useAuth } from '../../providers/auth-provider';
 
-const NAV = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/inventory', label: 'Inventario' },
-  { href: '/production', label: 'Producción' },
-  { href: '/distribution', label: 'Distribución' },
-  { href: '/inspections', label: 'Inspecciones' },
-  { href: '/incidents', label: 'Incidencias' },
-  { href: '/traceability', label: 'Trazabilidad' },
-  { href: '/suppliers', label: 'Proveedores' },
-  { href: '/products', label: 'Productos' },
-  { href: '/locations', label: 'Ubicaciones' },
+const GROUPS = [
+  { label: 'General', items: [
+    { href: '/dashboard', label: 'Vista general', icon: LayoutDashboard },
+  ] },
+  { label: 'Operaciones', items: [
+    { href: '/inventory', label: 'Inventario', icon: Boxes },
+    { href: '/production', label: 'Producción', icon: Factory },
+    { href: '/distribution', label: 'Distribución', icon: Truck },
+  ] },
+  { label: 'Calidad y análisis', items: [
+    { href: '/inspections', label: 'Inspecciones', icon: ClipboardCheck },
+    { href: '/incidents', label: 'Incidencias', icon: AlertTriangle },
+    { href: '/traceability', label: 'Trazabilidad', icon: Network },
+  ] },
+  { label: 'Catálogos', items: [
+    { href: '/suppliers', label: 'Proveedores', icon: Users },
+    { href: '/products', label: 'Productos', icon: Package },
+    { href: '/locations', label: 'Ubicaciones', icon: MapPin },
+  ] },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { token, user, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!token) router.replace('/login');
@@ -29,25 +42,56 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (!token) return null;
 
+  const section = GROUPS.find((group) => group.items.some((item) =>
+    pathname === item.href || pathname.startsWith(`${item.href}/`)))?.label ?? 'General';
+  const initials = (user?.name ?? 'TC').split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase();
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/dashboard">TraceChain</Link>
-        <nav className="nav" aria-label="Navegación principal">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href}
-              data-active={pathname === item.href || pathname.startsWith(`${item.href}/`)}>
-              {item.label}
-            </Link>
+        <div className="brand-row">
+          <span className="brand-mark">T</span>
+          <Link className="brand-name" href="/dashboard">TraceChain</Link>
+        </div>
+        <div className="nav-groups">
+          {GROUPS.map((group) => (
+            <nav className="nav-group" key={group.label} aria-label={group.label}>
+              <p className="nav-group-label">{group.label}</p>
+              <div className="nav">
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  return <Link key={item.href} href={item.href} data-active={active}>
+                    <Icon aria-hidden /><span>{item.label}</span>
+                  </Link>;
+                })}
+              </div>
+            </nav>
           ))}
-        </nav>
-        <div>
-          <p data-muted>{user?.name ?? 'Sesión'}</p>
-          <button className="button" onClick={() => { logout(); router.push('/login'); }}>Salir</button>
+        </div>
+        <div className="user-area">
+          <button className="user-button" aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}>
+            <span className="user-avatar">{initials}</span>
+            <span className="user-meta">
+              <span className="user-name">{user?.name ?? 'Sesión'}</span>
+              <span className="user-role">{user?.role.replaceAll('_', ' ') ?? ''}</span>
+            </span>
+          </button>
+          {menuOpen ? (
+            <div className="user-menu">
+              <button onClick={() => { setMenuOpen(false); logout(); router.push('/login'); }}>
+                <LogOut size={14} aria-hidden /> Cerrar sesión
+              </button>
+            </div>
+          ) : null}
         </div>
       </aside>
       <div className="content">
-        <div className="topbar"><span className="badge">{user?.role ?? ''}</span></div>
+        <div className="topbar">
+          <div className="breadcrumb"><span>TraceChain</span><span>/</span><span>{section}</span></div>
+          <span className="badge badge-neutral">{user?.role?.replaceAll('_', ' ') ?? ''}</span>
+        </div>
         {children}
       </div>
     </div>

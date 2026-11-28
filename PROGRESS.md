@@ -27,7 +27,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
 | BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
-| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | TESTING | Shell, paleta, componentes y 14 rutas implementados; PRODUCT.md/DESIGN.md creados — TC-SESSION-20261127-I3-031; falta revisión visual/E2E |
+| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | TESTING | Rediseño integral Operate: sidebar agrupada, sistema de tokens, paneles/tablas densas y 14 rutas — TC-SESSION-20261127-I3-032; falta auditoría Lighthouse/E2E |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
 | BASE-06 | F0 | Equipo | Fixtures UUID, reloj, harness y resultados esperados comunes | BASE-05 | PENDING | — |
 | REL-01 | F1 | I-1 | Migraciones 16 tablas + registro, constraints, índices y vistas | BASE-02, BASE-05 | PENDING | — |
@@ -57,7 +57,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | REL-12 | F4 | I-1 | 8 vistas/secciones operativas, login, inventario/producción/distribución | REL-11, REL-09, BASE-04 | TESTING | Vistas conectadas a API real; ver TC-SESSION-20261127-I3-031 |
 | DOC-08 | F4 | I-2 | UI inspecciones, formulario dinámico, detalle, indicadores | DOC-04, BASE-04 | TESTING | Formulario dinámico por plantilla activa y listado conectados; same session |
 | DOC-09 | F4 | I-2 | UI incidencias, expediente, bloqueos, vínculo a impacto | DOC-07, BASE-04 | TESTING | Detalle, transiciones, bloqueos y enlace a impacto conectados; same session |
-| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | TESTING | Trazabilidad con alternativa textual, impacto y dashboard implementados; GraphViewer visual pendiente |
+| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | TESTING | Cytoscape integrado en trazabilidad e impacto con leyenda, zoom y panel lateral — TC-SESSION-20261127-I3-032; falta auditoría visual completa |
 | TEST-01 | F5 | I-1 | TP y PS completos, SQL benchmark queries, evidencia | REL-12, DOC-07 | PENDING | — |
 | TEST-02 | F5 | I-2 | PM completos, evidencia documental y matriz RF/RN | DOC-08, DOC-09 | PENDING | — |
 | TEST-03 | F5 | I-3 | PG completos y Cypher benchmark queries | GRA-07 | PENDING | — |
@@ -702,6 +702,12 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Frontend: `frontend/PRODUCT.md`, `DESIGN.md`, `globals.css`, providers de auth/Query, hook `use-api`, componentes comunes y 14 rutas operativas sobre endpoints verificados. Prioridad analítica: dashboard, inspecciones, incidencias, impacto y trazabilidad; operaciones y catálogos como soporte. No se conectó un GraphViewer visual: la trazabilidad ofrece alternativa textual.
 - Verificación: `npm run typecheck`, `lint` y `build` de backend y frontend → exit 0; `next build` generó 14 rutas; detector de Impeccable → `[]`. No se ejecutó revisión visual completa en navegador ni auditoría WCAG manual; E2E sigue pendiente.
 - Límites: BASE-04, REL-12, DOC-08/09 y GRA-07 quedan TESTING, no VERIFIED. Faltan GraphViewer visual, navegación E2E real, foco/contraste auditados y release. Siguiente: revisar en navegador, corregir hallazgos y completar TEST-04.
+
+### TC-SESSION-20261127-I3-032
+- Fecha: 2026-11-27 17:10Z, I-3 en rama de rediseño frontend (`redesign/frontend-platform`), worktree aislado. Usuario solicitó rediseño integral conservando backend, contratos, reglas, resultados y pruebas. Skills verificadas en disco: `design-taste-frontend/SKILL.md`, `impeccable/SKILL.md` y `emil-design-eng/SKILL.md`; se aplicaron para dirección, auditoría y microinteracciones. Auditoría previa documentada en `docs/pruebas/ui-audit-before.md`.
+- Cambios: sistema de diseño Operate en `globals.css` (tokens monocromáticos, tipografía fija, paneles, tablas densas, filtros, badges, estados y grafo), `components/ui.tsx` reutilizable, sidebar agrupada con iconos Lucide y menú de usuario inferior, dashboard como centro de control, formularios laterales en inventario/producción/distribución/catálogos, espacios de trabajo de inspecciones e incidencias, y `GraphViewer` con Cytoscape + leyenda + zoom + panel lateral en trazabilidad e impacto. No se modificó backend ni contratos; el cambio de catálogo que había empezado quedó en stash fuera de esta rama.
+- Verificación real: `npm run typecheck`, `lint` y `build` del workspace frontend → exit 0; `next build` generó 14 rutas; detector de Impeccable → `[]` tras eliminar el borde lateral del banner. Capturas reales del navegador confirmaron login, dashboard con datos reales (30 lotes/21 órdenes/1 incidencia) y navegación agrupada sin errores de consola. No se completó Lighthouse/E2E ni auditoría manual WCAG; la revisión de todas las vistas en navegador sigue en curso.
+- Límites: F4 continúa TESTING, no VERIFIED. El grafo usa datos reales de la API; no se agregaron mocks. Siguiente: terminar revisión visual por breakpoint, ejecutar Lighthouse/E2E, corregir hallazgos y preparar PR de la rama de rediseño.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN

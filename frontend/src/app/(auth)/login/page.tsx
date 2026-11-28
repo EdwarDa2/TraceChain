@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
-import { useAuth } from '../../../providers/auth-provider';
 import { ApiError } from '../../../lib/api';
-import { Field, PageHeader } from '../../../components/ui';
+import { Field } from '../../../components/ui';
+import { useAuth } from '../../../providers/auth-provider';
 
 export default function LoginPage() {
   const { login, token } = useAuth();
@@ -33,19 +33,27 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="home" data-surface>
-      <PageHeader title="Iniciar sesión"
-        description="TraceChain · análisis de trazabilidad e impacto potencial." />
-      <form className="form-grid" onSubmit={submit}>
-        <Field label="Correo">
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Field>
-        <Field label="Contraseña">
-          <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-        </Field>
-        {error ? <div className="state state-error" role="alert">{error}</div> : null}
-        <div className="form-actions">
-          <button className="button button-primary" disabled={busy} type="submit">
+    <main className="login-wrap">
+      <form className="login-card" onSubmit={submit}>
+        <div className="login-brand">
+          <span className="brand-mark">T</span>
+          <span className="brand-name">TraceChain</span>
+        </div>
+        <h1>Iniciar sesión</h1>
+        <p data-muted style={{ marginTop: 6, marginBottom: 24, fontSize: 13 }}>
+          Plataforma de trazabilidad e impacto potencial.
+        </p>
+        <div className="form-grid">
+          <Field label="Correo">
+            <input type="email" required autoComplete="username" value={email}
+              onChange={(event) => setEmail(event.target.value)} />
+          </Field>
+          <Field label="Contraseña">
+            <input type="password" required autoComplete="current-password" value={password}
+              onChange={(event) => setPassword(event.target.value)} />
+          </Field>
+          {error ? <div className="warning-strip" role="alert">{error}</div> : null}
+          <button className="button button-primary" disabled={busy} type="submit" style={{ justifySelf: 'start' }}>
             {busy ? 'Entrando…' : 'Entrar'}
           </button>
         </div>

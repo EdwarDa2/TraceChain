@@ -1,47 +1,55 @@
-# Design — TraceChain UI
+# Design — TraceChain platform
 
 ## Mode
 
-Operate. La interfaz sirve a una tarea: investigar dependencias e impacto. La familiaridad y la consistencia ganan sobre la expresión. No hay hero de marketing ni secciones de página de producto.
+Operate. Una plataforma de análisis, no un sitio de marketing. La densidad, la jerarquía y la consistencia importan más que la expresión. La interfaz debe desaparecer frente a la investigación.
 
-## Paleta
+## Dirección
 
-Restrained, derivada de la propuesta aprobada por el usuario y de `PROJECT.md §3`.
+Sistema monocromático con un solo acento de acción (`#2563EB`) y semántica reservada para estados. La geometría es rectangular, con radios pequeños y separadores finos; sin gradientes decorativos ni sombras de tarjeta. La navegación agrupa dominios; el contenido usa paneles con cabecera y tablas densas.
 
-| Token | Hex | Uso |
-|---|---|---|
-| `--canvas` | `#F6F8FB` | Fondo general |
-| `--surface` | `#FFFFFF` | Paneles, tablas, formularios |
-| `--surface-2` / `--surface-3` | `#EEF2F7` / `#E4EAF2` | Sidebar, toolbar, cabezera de tabla |
-| `--ink` | `#0B1220` | Texto principal |
-| `--ink-muted` | `#526071` | Etiquetas y texto secundario (AA sobre superficie) |
-| `--border` / `--border-strong` | `#D8E0EA` / `#B9C5D4` | Separadores y controles |
-| `--primary` | `#2563EB` | Acción principal, selección, foco |
-| `--success` / `--warning` / `--danger` | `#15803D` / `#B45309` / `#DC2626` | Éxito, aviso, error |
-| `--graph` | `#7C3AED` | Solo codificación semántica del grafo |
+Referencias conceptuales: Linear (jerarquía y compactación), Vercel (minimalismo geométrico), Palantir Foundry (densidad operativa), Neo4j Bloom (exploración de grafo). No se copian sus componentes.
 
-El violeta del grafo no se usa como acento decorativo. Se mantiene el primario `#2563EB` del contrato.
+## Tokens
+
+| Rol | Valor |
+|---|---|
+| Canvas | `#F7F8FA` |
+| Superficie | `#FFFFFF` |
+| Superficie 2 / 3 | `#F1F3F6` / `#E9EDF2` |
+| Tinta | `#101828` |
+| Tinta 2 / 3 | `#475467` / `#667085` |
+| Línea | `#E4E7EC` |
+| Línea fuerte | `#D0D5DD` |
+| Primario | `#2563EB` |
+| Éxito / aviso / error | `#15803D` / `#B45309` / `#DC2626` |
+| Radio | 4px controles, 6px paneles, 8px contenedores |
+| Espaciado | escala 4/8/12/16/24/32 |
+| Movimiento | 120–160ms, `cubic-bezier(0.23,1,0.32,1)` |
+
+El violeta del contrato (`#7C3AED`) se conserva únicamente como dato del grafo en el póster; la UI usa azul para origen, gris para descendientes y verde para destinos.
 
 ## Tipografía
 
-Una sola familia del sistema a escala fija en rem: 15px base, `1.125rem` para `h1`, `1.375rem` para `h2`, `1.875rem` para `h1` de página. Numeración tabular en cantidades y fechas. Sin tipografía display.
+Una familia del sistema, escala fija en rem: 14px base, 1rem para `h2`, 1.5rem para `h1`. Numeración tabular en cantidades y fechas. Sin tipografía display ni `clamp()`.
 
 ## Componentes
 
-- Un solo vocabulario: `.card`, `.button`, `.button-primary`, `.field`, `.badge`, `DataTable`, `SearchInput`.
-- Todo control tiene estados por defecto, hover, foco `:focus-visible`, `:active` con `scale(0.98)`, deshabilitado, carga y error.
-- `StatusBadge` y `SyncStatus` son la única fuente visual de estado; las etiquetas conservan los códigos oficiales en español.
-- Tablas densas con cabecera en superficie secundaria y desplazamiento horizontal;no se inventan datos cuando la fuente falla.
-- `LoadingState`, `EmptyState` y `ErrorState` son explícitos. Los resultados parciales muestran `warning` y `StatusBadge`.
+- `Panel`: cabecera + cuerpo, sin tarjeta decorativa.
+- `DataTable`: cabecera sticky, filas compactas, truncado con `title`, paginación.
+- `StatusBadge` / `SyncStatus`: códigos oficiales en español, con punto semántico.
+- `Field`, `SearchInput`, filtros y botones: un solo vocabulario visual.
+- Estados: skeleton para carga, texto específico para vacío y error con acción de recuperación.
+- `GraphViewer`: Cytoscape embebido, controles de zoom/fit, leyenda y panel lateral de detalle.
 
 ## Layout
 
-Shell de dos columnas: sidebar de navegación y contenido con `32px/40px` de padding. A `900px` la sidebar pasa a franja superior y las rejillas colapsan a una columna. Márgenes iguales a izquierda y derecha; sin desplazamiento lateral.
+Sidebar de 236px con cuatro grupos (GENERAL, OPERACIONES, CALIDAD Y ANÁLISIS, CATÁLOGOS), iconos Lucide, estado activo y menú de usuario inferior. El contenido usa breadcrumb, cabecera compacta y rejilla de trabajo `workspace`/`workspace-side`. A 900px la sidebar pasa a franja superior y el grafo a una columna.
 
-## Movimiento
+## Trazabilidad e impacto
 
-Transiciones de 160ms con `cubic-bezier(0.23, 1, 0.32, 1)` en transform y color. Sin animación de entrada por página. `prefers-reduced-motion` detiene todo movimiento.
+El grafo ocupa el espacio protagonista. El origen se distingue por tamaño y color; los procesos por forma rectangular y tono neutro; los destinos por rombo verde. El panel lateral muestra detalle del nodo, alcance potential y advertencias de parcialidad. La alternativa textual son las tablas de lotes/caminos.
 
 ## Verificación
 
-`npm run lint`, `typecheck` y `build` del workspace frontend pasan; `next build` genera 14 rutas. El detector mecánico de Impeccable devolvió `[]`. No se ha ejecutado aún una revisión visual completa en navegador ni auditoría WCAG manual.
+`typecheck`, `lint` y `build` del workspace frontend pasan; `next build` genera 14 rutas. El detector de Impeccable devolvió `[]` tras corregir el borde lateral del banner de incidencia. Auditoría visual documentada en `docs/pruebas/ui-audit-before.md`. Quedan pendientes screenshot exhaustivos por breakpoint, Lighthouse/E2E y auditoría manual WCAG.
