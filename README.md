@@ -19,14 +19,15 @@ Node 22.22.x / npm 10.x, Docker y Docker Compose. No se necesita PostgreSQL loca
 
 ```bash
 npm ci
-cp .env.example .env      # completar valores ficticios de desarrollo
+cp .env.example .env                 # OUTBOX_ENABLED=true para proyectar eventos
 npm run db:up
 npm run db:migrate
-npm run db:seed           # datos de demostración
-npm run dev               # API en :3001 y frontend en :3000
+node database/document/validators/apply-validators.mjs
+node database/document/data/seed-templates.mjs
+npm run dev                          # API en :3001 y frontend en :3000
 ```
 
-Las cuentas de demostración y la contraseña se entregan por entorno; los correos son ficticios (`*@example.invalid`). Nunca usar credenciales reales ni exponer secretos en el cliente.
+Para **demostración** (opcional, entorno autorizado) cargar DEMO-150 con `npm run db:seed`; no es necesario para operar la aplicación. Las cuentas de demostración y la contraseña se entregan por entorno; los correos son ficticios (`*@example.invalid`). Nunca usar credenciales reales ni exponer secretos en el cliente.
 
 ## Comandos
 

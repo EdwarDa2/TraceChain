@@ -3,6 +3,7 @@ import { login } from './helpers';
 
 type WorkerFixtures = {
   analystPage: Page;
+  operatorPage: Page;
 };
 
 /**
@@ -18,6 +19,15 @@ export const test = base.extend<{}, WorkerFixtures>({
     });
     const page = await context.newPage();
     await login(page, 'analista');
+    await use(page);
+    await context.close();
+  }, { scope: 'worker' }],
+  operatorPage: [async ({ browser }, use) => {
+    const context = await browser.newContext({
+      baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3000',
+    });
+    const page = await context.newPage();
+    await login(page, 'operador');
     await use(page);
     await context.close();
   }, { scope: 'worker' }],

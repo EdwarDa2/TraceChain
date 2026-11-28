@@ -3,11 +3,13 @@
  * Fuentes: API_CONTRACT.md §3, QP/QM/QG catálogos y RN-123.
  * Controller delgado: filtros allowlist, SQL parametrizado y respuesta camelCase.
  */
+import { randomUUID } from 'node:crypto';
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import neo4j, { type Driver } from 'neo4j-driver';
 import type { Document } from 'mongodb';
 import { SqlService } from '../../database/postgres/sql.service';
 import { MongoService } from '../../database/mongodb/mongo.service';
+import { createOutboxWriter } from '../../database/postgres/transaction.mts';
 import { validateEnv } from '../../config/env.validation.mts';
 
 type Row = Record<string, unknown>;
@@ -804,17 +806,39 @@ export class ReadService implements OnModuleDestroy {
       description: str(row.description) })) };
   }
 
+  /** Alta de catálogo y evento de proyección en la misma transacción SQL. */
+  private async createCatalog<T>(sql: string, params: unknown[], eventType: string,
+    entityType: 'SUPPLIER' | 'PRODUCT' | 'LOCATION',
+    eventPayload: (row: Row) => Record<string, unknown>, shape: (row: Row) => T): Promise<T> {
+    const client = await this.sql.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await client.query(sql, params);
+      const row = result.rows[0];
+      await createOutboxWriter().enqueue({
+        eventId: randomUUID(), eventType, entityType, entityId: str(row.id),
+        destination: 'NEO4J', payload: eventPayload(row),
+      }, client);
+      await client.query('COMMIT');
+      return shape(row);
+    } catch (error) {
+      await client.query('ROLLBACK');
+      if (String(error).includes('unique')) throw new Error('DUPLICATE_CODE');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   async createSupplier(body: Query) {
     const code = validateCode(body.code);
     const name = validateText(body.name, 150);
-    try {
-      const result = await this.sql.pool.query<Row>(
-        'INSERT INTO proveedores(codigo,nombre) VALUES($1,$2) RETURNING *', [code, name]);
-      return { data: this.supplierShape(result.rows[0]) };
-    } catch (error) {
-      if (String(error).includes('unique')) throw new Error('DUPLICATE_CODE');
-      throw error;
-    }
+    return this.createCatalog(
+      'INSERT INTO proveedores(codigo,nombre) VALUES($1,$2) RETURNING *', [code, name],
+      'PROVEEDOR_CREADO', 'SUPPLIER',
+      (row) => ({ supplier: { id: str(row.id), code: str(row.codigo),
+        name: str(row.nombre), active: bool(row.activo) } }),
+      (row) => ({ data: this.supplierShape(row) }));
   }
 
   async createProduct(body: Query) {
@@ -824,20 +848,17 @@ export class ReadService implements OnModuleDestroy {
     const unit = String(body.unit);
     if (!['MATERIA_PRIMA', 'INTERMEDIO', 'TERMINADO'].includes(type) ||
         !['KG', 'G', 'L', 'ML', 'UNIDAD'].includes(unit)) throw new Error('VALIDATION_ERROR');
-    try {
-      const result = await this.sql.pool.query<Row>(
-        `INSERT INTO productos(codigo,nombre,descripcion,tipo,unidad_medida)
-         VALUES($1,$2,$3,$4,$5) RETURNING *`,
-        [code, name, body.description ?? null, type, unit]);
-      const row = result.rows[0];
-      return { data: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
+    return this.createCatalog(
+      `INSERT INTO productos(codigo,nombre,descripcion,tipo,unidad_medida)
+       VALUES($1,$2,$3,$4,$5) RETURNING *`,
+      [code, name, body.description ?? null, type, unit],
+      'PRODUCTO_CREADO', 'PRODUCT',
+      (row) => ({ product: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
+        type: str(row.tipo), unit: str(row.unidad_medida), active: bool(row.activo) } }),
+      (row) => ({ data: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
         description: nullableStr(row.descripcion), type: str(row.tipo),
         unit: str(row.unidad_medida), active: bool(row.activo),
-        createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) } };
-    } catch (error) {
-      if (String(error).includes('unique')) throw new Error('DUPLICATE_CODE');
-      throw error;
-    }
+        createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) } }));
   }
 
   async createLocation(body: Query) {
@@ -845,18 +866,15 @@ export class ReadService implements OnModuleDestroy {
     const name = validateText(body.name, 150);
     const type = String(body.type);
     if (!['ALMACEN', 'PLANTA_PRODUCCION', 'SUCURSAL'].includes(type)) throw new Error('VALIDATION_ERROR');
-    try {
-      const result = await this.sql.pool.query<Row>(
-        `INSERT INTO ubicaciones(codigo,nombre,tipo,direccion) VALUES($1,$2,$3,$4) RETURNING *`,
-        [code, name, type, body.address ?? null]);
-      const row = result.rows[0];
-      return { data: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
+    return this.createCatalog(
+      `INSERT INTO ubicaciones(codigo,nombre,tipo,direccion) VALUES($1,$2,$3,$4) RETURNING *`,
+      [code, name, type, body.address ?? null],
+      'UBICACION_CREADA', 'LOCATION',
+      (row) => ({ location: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
+        type: str(row.tipo), active: bool(row.activo) } }),
+      (row) => ({ data: { id: str(row.id), code: str(row.codigo), name: str(row.nombre),
         type: str(row.tipo), address: nullableStr(row.direccion), active: bool(row.activo),
-        createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) } };
-    } catch (error) {
-      if (String(error).includes('unique')) throw new Error('DUPLICATE_CODE');
-      throw error;
-    }
+        createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) } }));
   }
 
   private supplierShape(row: Row) {

@@ -18,6 +18,18 @@ const operatorId = stableUuid(`${label}:user`, 1);
 try {
   const { manifest } = await loadCase({ pool, driver: graph, database,
     lots: 30, depth: 3, label, topology: 'balanced' });
+  // El cargador experimental inserta códigos OP-/DIST- directamente. Sin avanzar
+  // las secuencias operativas, las altas dinámicas posteriores colisionan.
+  for (const [table, column, sequence, prefix] of [
+    ['ordenes_produccion', 'codigo', 'codigo_op_seq', 'OP'],
+    ['distribuciones', 'codigo', 'codigo_dist_seq', 'DIST'],
+  ]) {
+    const max = await pool.query(
+      `SELECT COALESCE(max(substring(${column} from '[0-9]+$')::bigint), 0) AS n
+       FROM ${table} WHERE ${column} LIKE $1`, [`${prefix}-%`]);
+    await pool.query(`SELECT setval($1::regclass, GREATEST($2, 1), true)`,
+      [sequence, max.rows[0].n]);
+  }
   const hash = await argon2.hash('demo-tracechain-2026', { type: argon2.argon2id });
   await pool.query(`UPDATE usuarios SET nombre=$1, correo=$2, password_hash=$3, rol='ANALISTA_CALIDAD'
     WHERE id=$4`, ['Analista demo', 'analista@example.invalid', hash, analystId]);
