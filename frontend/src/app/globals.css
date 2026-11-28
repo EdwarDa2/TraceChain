@@ -80,6 +80,8 @@ input, textarea { caret-color: var(--accent); }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
 [data-numeric], [data-timestamp] { font-variant-numeric: tabular-nums; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 [data-muted] { color: var(--ink-2); }
 
 /* App shell */

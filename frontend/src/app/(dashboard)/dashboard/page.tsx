@@ -104,7 +104,7 @@ export default function DashboardPage() {
                 <span data-timestamp>
                   {new Date(row.occurredAt).toLocaleString('es-MX', { dateStyle: 'medium', timeStyle: 'short' })}
                 </span> },
-              { key: 'actions', label: '', render: (row) =>
+              { key: 'actions', label: '', srLabel: 'Acciones', render: (row) =>
                 <Link className="button button-quiet" href={activityHref(row.type)}
                   aria-label={`Abrir ${row.code}`}><ArrowUpRight size={14} aria-hidden /></Link> },
             ]} rows={activity.data ?? []} empty="Sin actividad registrada." />

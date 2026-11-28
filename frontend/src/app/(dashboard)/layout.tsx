@@ -105,10 +105,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 placeholder="Buscar lotes…" aria-label="Buscar lotes"
                 onChange={(event) => setSearch(event.target.value)} />
             </form>
-            <Link className="icon-button" href="/incidents" aria-label="Incidencias activas">
+            <Link className="icon-button" href="/incidents"
+              aria-label={`${Number(summary.data?.activeIncidents ?? 0)} incidencias activas`}>
               <Bell size={15} aria-hidden />
               {Number(summary.data?.activeIncidents ?? 0) > 0
-                ? <em>{summary.data?.activeIncidents}</em> : null}
+                ? <em aria-hidden>{summary.data?.activeIncidents}</em> : null}
             </Link>
             <div className="topbar-user">
               <span className="user-avatar">{initials}</span>
@@ -116,7 +117,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
         </div>
-        {children}
+        <main>{children}</main>
       </div>
     </div>
   );

@@ -70,7 +70,7 @@ export function EmptyState({ children }: { children: ReactNode }) {
   return <div className="state">{children}</div>;
 }
 
-export type Column<T> = { key: string; label: string; render?: (row: T) => ReactNode; title?: boolean };
+export type Column<T> = { key: string; label: string; srLabel?: string; render?: (row: T) => ReactNode; title?: boolean };
 
 export function DataTable<T extends object>({ columns, rows, empty = 'Sin resultados.',
   rowKey, onRowClick }: {
@@ -83,7 +83,9 @@ export function DataTable<T extends object>({ columns, rows, empty = 'Sin result
     <div className="table-wrap">
       <table>
         <thead>
-          <tr>{columns.map((column) => <th key={column.key}>{column.label}</th>)}</tr>
+          <tr>{columns.map((column) => <th key={column.key} scope="col">
+            {column.label}{column.srLabel ? <span className="sr-only">{column.srLabel}</span> : null}
+          </th>)}</tr>
         </thead>
         <tbody>
           {rows.map((row, index) => (
