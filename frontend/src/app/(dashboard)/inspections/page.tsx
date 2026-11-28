@@ -6,7 +6,7 @@ import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination,
   Panel, StatusBadge,
 } from '../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiQuery, useApiResponse } from '../../../hooks/use-api';
 import type { Inspection, Lot, Product, Template } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
@@ -20,10 +20,10 @@ export default function InspectionsPage() {
   const [finding, setFinding] = useState('');
   const [inspectionResult, setInspectionResult] = useState('CONFORME');
   const limit = 20;
-  const inspections = useApiQuery<{ data: Inspection[]; meta: { total: number } }>(
+  const inspections = useApiResponse<Inspection[]>(
     `/inspections?page=${page}&limit=${limit}${result ? `&result=${result}` : ''}`);
-  const lots = useApiQuery<{ data: Lot[] }>('/lots?limit=100');
-  const products = useApiQuery<{ data: Product[] }>('/products?limit=100');
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
+  const products = useApiResponse<Product[]>('/products?limit=100');
   const create = useApiMutation<Inspection>();
   const templateQuery = useApiQuery<Template>(productId ? `/inspection-templates/active?productId=${productId}` : null);
 

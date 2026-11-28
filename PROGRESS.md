@@ -16,7 +16,7 @@ Progreso de desarrollo = tareas base MERGED / total tareas base de tabla §3 * 1
 | F1 Persistencia | PENDING | Esquemas/validadores/restricciones y semillas | — |
 | F2 Funciones base | PENDING | Recepción/producción, inspección, sincronización y recorridos | — |
 | F3 Integración | PENDING | Distribución, incidencias, bloqueos, impacto y caminos | — |
-| F4 UI | PENDING | 14 vistas con API real | — |
+| F4 UI | MERGED | 14 vistas con API real | PR #22 fusionado en `develop` (`4105962`), CI `verify` success 2026-11-28T03:25Z |
 | F5 Entrega | PENDING | Tests, demo ampliada DA-01..08, benchmark, documentación, release | — |
 
 ## 3. Backlog base (IDs locales; vincular Issue real cuando exista)
@@ -27,7 +27,7 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | BASE-01 | F0 | I-1 | Inicializar workspaces, NestJS, scripts, CI y git; npm ci/build base | — | READY | — |
 | BASE-02 | F0 | I-1 | Docker y configuración; motores aislados y health degradado | BASE-01 | PENDING | — |
 | BASE-03 | F0 | I-2 | Incorporar siete documentos, revisar especificación con equipo, crear Issues | — | READY | — |
-| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | TESTING | Rediseño integral Operate: sidebar agrupada, sistema de tokens, paneles/tablas densas y 14 rutas — TC-SESSION-20261127-I3-032; falta auditoría Lighthouse/E2E |
+| BASE-04 | F0 | I-3 | Inicializar Next.js, layouts, componentes y guía visual accesible | BASE-01 | MERGED | PR #22 en `develop` (`4105962`); Lighthouse accesibilidad 1.00, responsive 1440/768/390 y E2E 19/19 — TC-SESSION-20261127-I3-034/035 |
 | BASE-05 | F0 | Equipo | Tipos compartidos, interfaces DI, eventos y DTO, compile check | BASE-01, BASE-03 | PENDING | — |
 | BASE-06 | F0 | Equipo | Fixtures UUID, reloj, harness y resultados esperados comunes | BASE-05 | PENDING | — |
 | REL-01 | F1 | I-1 | Migraciones 16 tablas + registro, constraints, índices y vistas | BASE-02, BASE-05 | PENDING | — |
@@ -54,20 +54,20 @@ Cada fila tiene un resultado verificable. Estado READY inicial solo para tareas 
 | DOC-07 | F3 | I-2 | Bloquear/liberar con SQL y verificación grafo; TP-17/PI-08 | DOC-06, GRA-05, REL-03 | PENDING | — |
 | GRA-06 | F3 | I-3 | Impacto integrado y mapeo visual; PI-07/10 | GRA-04, GRA-05, DOC-05, DOC-06, REL-02 | PENDING | — |
 | REL-11 | F3 | I-1 | Detalle lote integrado QI-01; PI-09 | DOC-04, GRA-03, REL-02 | PENDING | — |
-| REL-12 | F4 | I-1 | 8 vistas/secciones operativas, login, inventario/producción/distribución | REL-11, REL-09, BASE-04 | TESTING | Vistas conectadas a API real; ver TC-SESSION-20261127-I3-031 |
-| DOC-08 | F4 | I-2 | UI inspecciones, formulario dinámico, detalle, indicadores | DOC-04, BASE-04 | TESTING | Formulario dinámico por plantilla activa y listado conectados; same session |
-| DOC-09 | F4 | I-2 | UI incidencias, expediente, bloqueos, vínculo a impacto | DOC-07, BASE-04 | TESTING | Detalle, transiciones, bloqueos y enlace a impacto conectados; same session |
-| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | TESTING | Cytoscape integrado en trazabilidad e impacto con leyenda, zoom y panel lateral — TC-SESSION-20261127-I3-032; falta auditoría visual completa |
+| REL-12 | F4 | I-1 | 8 vistas/secciones operativas, login, inventario/producción/distribución | REL-11, REL-09, BASE-04 | MERGED | PR #22 (`4105962`) con CI verde; E2E cubre las 10 rutas navegables — TC-SESSION-20261128-I3-035 |
+| DOC-08 | F4 | I-2 | UI inspecciones, formulario dinámico, detalle, indicadores | DOC-04, BASE-04 | MERGED | PR #22 (`4105962`) con CI verde; revisión de dueño I-2 pendiente en la aceptación |
+| DOC-09 | F4 | I-2 | UI incidencias, expediente, bloqueos, vínculo a impacto | DOC-07, BASE-04 | MERGED | PR #22 (`4105962`) con CI verde; revisión de dueño I-2 pendiente en la aceptación |
+| GRA-07 | F4 | I-3 | GraphViewer, explorador accesible, impacto, dashboard UI | GRA-06, REL-10, BASE-04 | MERGED | PR #22 (`4105962`), CI verde; grafo, leyenda, zoom y panel lateral verificados por E2E — TC-SESSION-20261128-I3-035 |
 | TEST-01 | F5 | I-1 | TP y PS completos, SQL benchmark queries, evidencia | REL-12, DOC-07 | PENDING | — |
 | TEST-02 | F5 | I-2 | PM completos, evidencia documental y matriz RF/RN | DOC-08, DOC-09 | PENDING | — |
 | TEST-03 | F5 | I-3 | PG completos y Cypher benchmark queries | GRA-07 | PENDING | — |
-| DEMO-01 | F5 | Equipo | Generar DEMO-150 por servicios/outbox, manifiesto y oráculo, validar conteos DA-01; I-1 datos/stock, I-2 calidad, I-3 grafo | REL-09, DOC-06, GRA-04, BASE-06 | TESTING | Conteos 150/60/40/80/10 y 279 nodos/540 relaciones observados por servicios — TC-SESSION-20261127-I3-018; faltan manifiesto/archivo de oráculo y UUID oficiales |
-| DEMO-02 | F5 | Equipo | Ejecutar DA-02..07 y documentar evidencia; I-3 recorridos/UI, I-2 investigación, I-1 inventario/recuperación | DEMO-01, GRA-07, DOC-09, REL-12 | TESTING | DA-01..07 por servicios/drivers 1/1 OK, sin UI/E2E — TC-SESSION-20261127-I3-018 |
-| TEST-04 | F5 | Equipo | PI, E2E, fallos/recuperación, accesibilidad, CI y aceptación | TEST-01, TEST-02, TEST-03, DEMO-02 | PENDING | — |
+| DEMO-01 | F5 | Equipo | Generar DEMO-150 por servicios/outbox, manifiesto y oráculo, validar conteos DA-01; I-1 datos/stock, I-2 calidad, I-3 grafo | REL-09, DOC-06, GRA-04, BASE-06 | TESTING | Manifiesto y oráculo generados por la semilla real en `tests/fixtures/demo/ampliada/`; 1/1 OK con 279 nodos/540 relaciones — TC-SESSION-20261128-I3-035; falta repetición en entorno limpio con UUID oficiales |
+| DEMO-02 | F5 | Equipo | Ejecutar DA-02..07 y documentar evidencia; I-3 recorridos/UI, I-2 investigación, I-1 inventario/recuperación | DEMO-01, GRA-07, DOC-09, REL-12 | TESTING | DA-01..07 por servicios/drivers y cobertura UI con E2E 19/19 — TC-SESSION-20261128-I3-035; falta aceptación humana |
+| TEST-04 | F5 | Equipo | PI, E2E, fallos/recuperación, accesibilidad, CI y aceptación | TEST-01, TEST-02, TEST-03, DEMO-02 | TESTING | E2E 20/20, Lighthouse 1.00, auditoría funcional con registros nuevos 1/1 — TC-SESSION-20261128-I3-036; PI y aceptación humana pendientes |
 | BENCH-01 | F5 | Equipo | Generador y QE-01..05 equivalentes, casos base + volumen fijo/topologías, métricas reales CSV/JSON y DA-08 | TEST-01, TEST-03, BASE-06 | TESTING | Nueve perfiles repetidos sin errores: 2 700 mediciones, 45/45 equivalencias, EXPLAIN/PROFILE y 180 peticiones API — TC-SESSION-20261127-I3-026/027/028/029; BFS deduplicado resolvió el timeout QE-03 |
-| RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | PENDING | — |
+| RELSE-01 | F5 | Equipo | README, informe, revisión final, PR develop→main y tag si aprobado | TEST-04, BENCH-01 | IN_PROGRESS | README y matriz de aceptación escritos; faltan revisión humana, PR a `main` y tag — TC-SESSION-20261128-I3-035 |
 
-Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. 1/42 VERIFIED o MERGED, 1/42 MERGED según evidencia de integración de GRA-01; no son estimaciones de horas.
+Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tareas, dos nuevas DEMO-01/02. Estado observado 2026-11-28: 6/42 MERGED (GRA-01, BASE-04, REL-12, DOC-08, DOC-09, GRA-07), 4/42 TESTING, 3/42 IN_PROGRESS, 1/42 BLOCKED, 2/42 READY y 26/42 PENDING; 0/42 VERIFIED con aceptación humana. Progreso de desarrollo 6/42 = 14,3 %; progreso de verificación 6/42 = 14,3 %. No son estimaciones de horas.
 
 ## 4. Checkpoint por integrante (editar solo sección propia)
 ### I-1 PostgreSQL / operaciones / infraestructura
@@ -112,6 +112,9 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 - Corrección del harness de integración autorizada (2026-11-26): `test:integration` ejecuta smoke real de PostgreSQL/MongoDB/Neo4j, aplica esquema Neo4j y corre 3 pruebas Jest reales de conectividad/esquema (3/3 OK local). CI ahora arranca motores aislados con credenciales efímeras y `docker-compose.test.yml`, ejecuta integración antes de build y retira solo los contenedores de prueba. BASE-04 permanece pospuesta por elección expresa del usuario: `next build` sigue fallando y PR #9 no está listo para merge.
 
 ## 5. Estado RF (fuente REQUIREMENTS.md)
+
+> Registro histórico: las filas conservan el estado original; la correlación con evidencia ejecutada está en `docs/pruebas/acceptance-matrix.md`. No se marcan VERIFIED sin aceptación humana.
+
 | RF | Funcionalidad | Estado | Evidencia |
 |---|---|---|---|
 | RF-01 | Iniciar y cerrar sesión con cuentas precargadas; rechazar credenciales inválidas e cerrar sesión local y rechazar token expirado o cuenta inactiva. | PENDING | — |
@@ -151,6 +154,9 @@ Total línea base v1.0: 40 tareas. Total línea base v1.1 (2026-11-25): 42 tarea
 | RF-35 | Exponer estado de sincronización y disponibilidad; distinguir resultado vacío válido, parcial y no disponible. | PENDING | — |
 
 ## 6. Estado API (actualizar al implementar y probar)
+
+> Registro histórico: la verificación real de rutas está en `tests/integration/read-api.integration.mjs`, `tests/integration/operations-http.integration.mjs`, `docs/pruebas/api-latency-actual.json` y la suite E2E.
+
 | Método/ruta | Estado | Evidencia |
 |---|---|---|
 | POST /auth/login | PENDING | — |
@@ -274,9 +280,9 @@ Registrar por ejecución: fecha UTC, integrante, rama/commit, entorno, comando e
 ## 9. Bloqueadores y decisiones
 | ID | Estado | Descripción | Responsable / acción |
 |---|---|---|---|
-| B-001 | Por verificar | No se ha inspeccionado repositorio real ni ejecutado bootstrap | I-1: verificar estructura, rama, dependencias; equipo confirmar |
+| B-001 | Resuelto 2026-11-28 | Repositorio, ramas, dependencias y bootstrap inspeccionados; `npm ci`, lint, typecheck, build, motores y CI verificados en `develop` | Evidencia en sesiones I3-031..035 y check `verify` success de `4105962` |
 | B-002 | Pendiente de coordinación | Nombres nominales de I-1 e I-3, accesos/revisores | Equipo confirmar; no bloquea diseño por rol |
-| B-003 | Pendiente de coordinación | Parches exactos y compilación de stack, identidad visual | I-1 fija parches, I-3 sistema de diseño |
+| B-003 | Resuelto 2026-11-28 para el alcance implementado | Stack compila y CI pasa; identidad visual documentada en `frontend/DESIGN.md` y aplicada en las 14 vistas | Falta ratificación humana de D-003 y revisión de dueños I-1/I-2 sobre features tocadas |
 | B-004 | Resuelto 2026-11-26 | BASE-05 fue integrado en `origin/develop`; BASE-02 pasó smoke real 3/3 tras corregir el reemplazo del puerto PostgreSQL y la importación CommonJS de `pg` | Evidencia en sesión I3-002; GRA-01 ejecutada sin cambiar contratos |
 | B-005 | Resuelto localmente 2026-11-26, PR pendiente | Typecheck global pasó tras corregir imports `.mts` y dos errores de tipos con autorización de I-1/I-2 | Revisión humana de dueños y repetir CI en PR #9 |
 | B-006 | Resuelto 2026-11-27 | El build global fallaba por ausencia de `app/` o `pages/` en Next.js. El usuario autorizó un esqueleto mínimo (`src/app/layout.tsx`, `src/app/page.tsx`) sin vistas funcionales; `next build` pasa en CI del PR #13 | Verificado: `verify` success en run 45953924797; BASE-04 sigue pospuesta, no se implementaron vistas de negocio |
@@ -723,6 +729,21 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Responsive real: Chromium aislado de Playwright (fuera del repo) capturó `/dashboard` a 1440×900, 768×1024 y 390×844 con sesión real. Hallazgo corregido: `.workspace-main` usaba una pista `auto` con min-content de 791px, generando `scrollWidth=807` en móvil/tablet; se fijó `grid-template-columns: minmax(0, 1fr)`, `min-width:0` en sidebar/panel. Resultado final: `scrollWidth == innerWidth` en las tres resoluciones, 4/2/1 columnas de KPI, sidebar sticky/franja superior según breakpoint, tabla con scroll interno y console sin errores. Capturas: `dashboard-{desktop-1440,tablet-768,mobile-390}.png` en temp de OpenCode.
 - Límites: F4 continúa TESTING, no VERIFIED. La navegación móvil es una franja desplazable horizontalmente; no se implementó menú hamburguesa para no ampliar el alcance. Commits `4f8be12` y `f00c2a1` publicados en `redesign/frontend-platform-wt`; PR #22 abierto a `develop` (https://github.com/EdwarDa2/TraceChain/pull/22) vía API de GitHub (`gh` no disponible). Siguiente: revisión humana de dueños de módulos y CI del PR; no se declara merge ni aceptación.
 
+### TC-SESSION-20261128-I3-035
+- Fecha: 2026-11-28, I-3 en `fix/f5-closure` desde `develop` (`4105962`, merge de PR #22 con check `verify` success a las 03:25Z). Usuario pidió describir el flujo final y cerrar lo pendiente de F5. Sin cambios de backend, contratos, reglas ni resultados experimentales; la autorización para cerrar documentación y E2E es explícita.
+- Cambios: suite Playwright en `frontend/e2e` (19 pruebas: auth, 10 rutas, dashboard, búsqueda, permisos por rol y trazabilidad real) con sesión compartida por worker porque el backend limita 5 logins/minuto; `playwright.config.ts` con resultados fuera de `frontend` para no disparar HMR; `.gitignore` actualizado. Se corrigieron dos bugs funcionales detectados por E2E: `api()` devolvía el contenido de `data` y las vistas de lista esperaban el envelope `{data,meta}` (nuevo `useApiResponse`), y la consulta `forward/backward/genealogy` se enviaba por POST a rutas GET (ahora `method:'GET'`). Se corrigió además “Alcance potential” → “potencial”.
+- DEMO-01: `tests/integration/demo150-seed.integration.mjs` exporta manifiesto y oráculo cuando se define `DEMO150_ARTIFACTS_DIR`; ejecución real 1/1 OK sobre PostgreSQL/MongoDB/Neo4j con 150 lotes, 60 órdenes, 40 distribuciones, 80 inspecciones, 10 incidencias, 279 nodos y 540 relaciones. Artefactos versionados en `tests/fixtures/demo/ampliada/manifest.json` y `expected-results.json`. `docs/pruebas/demo150-actual.json` actualizado con cobertura E2E y sin DA-08 como no ejecutado.
+- Documentación: `README.md` completo, `docs/pruebas/acceptance-matrix.md` con trazabilidad RF/RN a evidencia, PROGRESS §2/§3/§5/§6/§9/§11 actualizados con merge, CI y pruebas reales.
+- Verificación real: `typecheck`, `lint` y `build` del frontend → exit 0, 14 rutas; E2E → 19/19 en 44 s contra API real; semilla DEMO-150 → 1/1 OK; CI `verify` del merge → success. Sin errores de consola en las pruebas.
+- Límites: la aceptación humana de DA-01..08, la ratificación de D-001/D-003, la repetición de DEMO-150 en entorno limpio con UUID oficiales, el PR `develop→main` y el tag `v1.0.0` siguen pendientes; no se declaran VERIFIED ni release. Commits `06925c4` y `2834fb1` publicados en `fix/f5-closure`; PR #23 abierto a `develop` (https://github.com/EdwarDa2/TraceChain/pull/23), check `verify` en ejecución al consultar.
+
+### TC-SESSION-20261128-I3-036
+- Fecha: 2026-11-28, I-3 en `fix/f5-closure`. Usuario solicitó auditoría funcional v1.1 y distinción explícita entre producto final, fixture canónico, DEMO-150 y escenarios experimentales. ZIP adjunto verificado: los siete documentos son idénticos a los del repo salvo `PROGRESS.md`. Sin cambios de contratos, modelos, reglas ni algoritmos.
+- Hallazgos: (A-01) altas de catálogos no emitían eventos al outbox, por lo que Neo4j no conocía proveedores/productos nuevos y el primer lote recibido fallaba de forma permanente bloqueando la cola; (A-02) `scripts/seed-dev.mjs` insertaba códigos OP/DIST sin avanzar las secuencias, provocando colisión en producción/distribución dinámica tras cargar DEMO; (A-03) backend de desarrollo con `OUTBOX_ENABLED=false` (configuración del entorno, consumidor existe y arranca con `true`); (A-04) faltaban validadores y plantillas en el entorno de desarrollo. No se encontraron valores DEMO en servicios de negocio ni UI: las coincidencias están confinadas a `*.spec.mts`, fixtures y scripts de carga.
+- Correcciones: `backend/src/modules/queries/read.service.ts` escribe catálogo y evento en la misma transacción SQL con el payload que exige `applyGraphEvent`; `scripts/seed-dev.mjs` sincroniza `codigo_op_seq` y `codigo_dist_seq`; `frontend/vitest.config.ts` excluye `e2e/**` de Vitest; README documenta outbox activo y carga independiente de validadores/plantillas; nueva prueba E2E de alta de proveedor por UI.
+- Verificación real: flujo `AUD-*` con proveedor/productos/ubicaciones nuevos → recepción 50.000 KG, producción 10.000 KG → 20.000 UNIDAD, distribución 5.000, inspección, incidencia, trazabilidad `COMPLETO` con el lote nuevo, impacto `COMPLETO` (2 lotes/1 destino), dashboard 40/25/2 y outbox 36 completos/0 pendientes/0 fallidos. E2E → 20/20; typecheck/lint/build de backend y frontend → exit 0; `npm run test` → 14 subtests OK; integración → todas las suites OK. Informe en `docs/pruebas/functional-audit-v1.1.md` y evidencia en `docs/pruebas/audit-dynamic-actual.json`.
+- Límites: los registros `AUD-*` permanecen en la base aislada (no se borraron datos); siguen pendientes la aceptación humana de DA-01..08, la revisión de dueños y el release. CI del PR #23 en `in_progress` al consultar; no se declara verde.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:
@@ -734,4 +755,4 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Próxima acción concreta y responsable:
 
 ## 11. Próximo punto de control
-F0: equipo revisa los siete documentos, confirma roles y repositorio, I-1 verifica workspace/backend y entorno, el equipo completa BASE-05 e I-2 coordina documentación y contratos. I-3 mantiene frontend pospuesto y comienza GRA-01 únicamente tras verificar BASE-02/05. Antes de implementar una tarea, comprobar dependencias y actualizar su estado. Al cierre de cada sesión, actualizar §3..9 y añadir registro §10. No modificar porcentajes sin evidencia.
+F5: el equipo revisa `docs/pruebas/acceptance-matrix.md` y ejecuta la aceptación humana de DA-01..08; I-1 e I-2 revisan las features tocadas en PR #22; se repite DEMO-150 en entorno limpio con los UUID del manifiesto; se ratifican D-001/D-002/D-003; luego se abre PR `develop→main` y, solo tras aprobación, se etiqueta `v1.0.0`. CI `verify` de `develop` ya está en success. Antes de cada tarea, comprobar dependencias y actualizar estado; al cerrar sesión, actualizar §3..9 y añadir registro §10. No modificar porcentajes sin evidencia.

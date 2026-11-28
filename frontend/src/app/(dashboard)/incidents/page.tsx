@@ -7,7 +7,7 @@ import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination,
   Panel, StatusBadge,
 } from '../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
 import type { Incident, Inspection } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
@@ -18,9 +18,9 @@ export default function IncidentsPage() {
   const [form, setForm] = useState({ originLotId: '', title: '', type: 'CALIDAD',
     severity: 'MEDIA', description: '', inspectionId: '' });
   const limit = 20;
-  const incidents = useApiQuery<{ data: Incident[]; meta: { total: number } }>(
+  const incidents = useApiResponse<Incident[]>(
     `/incidents?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`);
-  const inspections = useApiQuery<{ data: Inspection[] }>('/inspections?result=NO_CONFORME&limit=100');
+  const inspections = useApiResponse<Inspection[]>('/inspections?result=NO_CONFORME&limit=100');
   const create = useApiMutation<Incident>();
 
   async function submit(event: FormEvent) {

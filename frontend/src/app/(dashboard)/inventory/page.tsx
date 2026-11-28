@@ -7,7 +7,7 @@ import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination,
   Panel, QuantityDisplay, SearchInput, StatusBadge,
 } from '../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
 import type { Location, Lot, Product, Supplier } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
@@ -21,11 +21,11 @@ export default function InventoryPage() {
     if (query) setSearch(query);
   }, []);
   const limit = 20;
-  const lots = useApiQuery<{ data: Lot[]; meta: { total: number } }>(
+  const lots = useApiResponse<Lot[]>(
     `/lots?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
-  const suppliers = useApiQuery<{ data: Supplier[] }>('/suppliers?limit=100');
-  const products = useApiQuery<{ data: Product[] }>('/products?limit=100');
-  const locations = useApiQuery<{ data: Location[] }>('/locations?limit=100');
+  const suppliers = useApiResponse<Supplier[]>('/suppliers?limit=100');
+  const products = useApiResponse<Product[]>('/products?limit=100');
+  const locations = useApiResponse<Location[]>('/locations?limit=100');
   const create = useApiMutation<Lot>();
   const [form, setForm] = useState({ code: '', productId: '', supplierId: '',
     locationId: '', quantity: '100.000', receivedAt: '', expirationDate: '' });

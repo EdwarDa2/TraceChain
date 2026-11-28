@@ -6,7 +6,7 @@ import {
   DataTable, ErrorState, Field, LoadingState, PageHeader,
   Pagination, Panel, SearchInput, StatusBadge,
 } from '../../components/ui';
-import { useApiMutation, useApiQuery } from '../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../hooks/use-api';
 import type { Location, Product, Supplier } from '../../lib/types';
 import { useAuth } from '../../providers/auth-provider';
 
@@ -25,7 +25,7 @@ export function CatalogPage({ config }: { config: Config }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, string>>({});
   const limit = 20;
-  const query = useApiQuery<{ data: Item[]; meta: { total: number } }>(
+  const query = useApiResponse<Item[]>(
     `/${config.path}?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}` +
     (active ? `&active=${active}` : ''));
   const create = useApiMutation<Item>();

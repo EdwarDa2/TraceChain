@@ -6,7 +6,7 @@ import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination,
   Panel, StatusBadge,
 } from '../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
 import type { Location, Lot, Product } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
@@ -18,10 +18,10 @@ export default function ProductionPage() {
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const limit = 20;
-  const orders = useApiQuery<{ data: Order[]; meta: { total: number } }>(`/production-orders?page=${page}&limit=${limit}`);
-  const lots = useApiQuery<{ data: Lot[] }>('/lots?limit=100');
-  const products = useApiQuery<{ data: Product[] }>('/products?limit=100');
-  const locations = useApiQuery<{ data: Location[] }>('/locations?limit=100');
+  const orders = useApiResponse<Order[]>(`/production-orders?page=${page}&limit=${limit}`);
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
+  const products = useApiResponse<Product[]>('/products?limit=100');
+  const locations = useApiResponse<Location[]>('/locations?limit=100');
   const create = useApiMutation<Order>();
   const [form, setForm] = useState({ name: '', locationId: '', inputLotId: '',
     inputQuantity: '5.000', outputCode: '', outputProductId: '', outputQuantity: '20.000' });

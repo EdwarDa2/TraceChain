@@ -5,7 +5,7 @@ import { useState, type FormEvent } from 'react';
 import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination, Panel,
 } from '../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
 import type { Location, Lot } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
@@ -17,10 +17,10 @@ export default function DistributionPage() {
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const limit = 20;
-  const distributions = useApiQuery<{ data: Distribution[]; meta: { total: number } }>(
+  const distributions = useApiResponse<Distribution[]>(
     `/distributions?page=${page}&limit=${limit}`);
-  const lots = useApiQuery<{ data: Lot[] }>('/lots?limit=100');
-  const locations = useApiQuery<{ data: Location[] }>('/locations?limit=100');
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
+  const locations = useApiResponse<Location[]>('/locations?limit=100');
   const create = useApiMutation<Distribution>();
   const [form, setForm] = useState({ originLocationId: '', destinationLocationId: '',
     lotId: '', quantity: '1.000' });

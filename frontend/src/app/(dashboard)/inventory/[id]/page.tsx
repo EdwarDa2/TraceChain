@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import {
   DataTable, ErrorState, LoadingState, PageHeader, Panel, QuantityDisplay, StatusBadge,
 } from '../../../../components/ui';
-import { useApiQuery } from '../../../../hooks/use-api';
+import { useApiQuery, useApiResponse } from '../../../../hooks/use-api';
 import type { Block, Lot, Stock } from '../../../../lib/types';
 
 type Details = { lot: Lot; stocks: { data: Stock[] }; quality: { data: {
@@ -15,10 +15,10 @@ export default function LotDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? null;
   const details = useApiQuery<Details>(id ? `/lots/${id}/details` : null);
-  const movements = useApiQuery<{ data: { id: string; type: string; quantity: string;
-    beforeQuantity: string; afterQuantity: string; movementAt: string }[] }>(
+  const movements = useApiResponse<{ id: string; type: string; quantity: string;
+    beforeQuantity: string; afterQuantity: string; movementAt: string }[]>(
     id ? `/inventory/movements?lotId=${id}&limit=50` : null);
-  const blocks = useApiQuery<{ data: Block[] }>(id ? `/lots/${id}/blocks` : null);
+  const blocks = useApiResponse<Block[]>(id ? `/lots/${id}/blocks` : null);
   if (details.isPending || movements.isPending || blocks.isPending) return <LoadingState rows={5} />;
   if (details.isError || movements.isError || blocks.isError) {
     return <ErrorState error={details.error ?? movements.error ?? blocks.error} />;

@@ -32,6 +32,8 @@
     "DA-06: bloqueo manual de descendiente verificado, rechazo de distribución y cierre sin liberar",
     "DA-07: profundidad 1 devuelve PARCIAL/DEPTH_LIMIT"
   ],
-  "alcance": "Semilla generada por servicios reales, validadores Mongo reales y Outbox real drenado. UUID deterministas de harness, no los rangos oficiales de DATA_MODEL §5.1. Sin interfaz gráfica ni HTTP para toda la semilla; las verificaciones son por servicios y drivers. DA-08 (benchmark QE-01..05) NO EJECUTADO.",
-  "noEjecutado": ["DA-08", "QE-01..05", "UI/E2E-03..05", "repetición de carga en entorno ya usado", "caída de motores durante la semilla"]
+  "alcance": "Semilla generada por servicios reales, validadores Mongo reales y Outbox real drenado. UUID deterministas de harness, no los rangos oficiales de DATA_MODEL §5.1. Las verificaciones DA-01..07 son por servicios/drivers sobre la semilla. Manifiesto y oráculo versionados en tests/fixtures/demo/ampliada/. DA-08 se ejecutó por separado en docs/pruebas/benchmark-actual.json.",
+  "artefactos": ["tests/fixtures/demo/ampliada/manifest.json", "tests/fixtures/demo/ampliada/expected-results.json", "docs/pruebas/benchmark-actual.json"],
+  "coberturaUI": "Suite E2E de 19 pruebas sobre API real (frontend/e2e), incluye las 14 vistas, roles, búsqueda y consulta de trazabilidad; no ejecuta la semilla completa por UI.",
+  "noEjecutado": ["repetición de carga en entorno ya usado", "caída de motores durante la semilla", "aceptación humana formal de DA-01..08"]
 }
