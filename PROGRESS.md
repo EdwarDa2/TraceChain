@@ -749,7 +749,7 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Reproducción: sesión de analista real, `/incidents`, el desplegable “Lote origen” mostraba únicamente “Seleccionar…”. Causa: la lista se construía solo con lotes de inspecciones `NO_CONFORME`; el backend permite incidencias con cualquier lote existente y sin inspección (RF-20, `IncidentWriteService.create`).
 - Corrección: `frontend/src/app/(dashboard)/incidents/page.tsx` obtiene lotes de `GET /lots?limit=100`, muestra códigos en el selector, mantiene la inspección como opcional, limpia el formulario tras el alta y muestra el código creado. Nueva prueba E2E que crea una incidencia sin inspección; ajuste de reintento en la navegación E2E.
 - Verificación real: `typecheck`, `lint` y `build` del frontend → exit 0; `npm run test:e2e` → 21/21 contra API real. Sin cambios de backend, contratos ni reglas.
-- Límites: la incidencia creada por la prueba permanece en la base aislada; no se borraron datos. Aceptación humana y release siguen pendientes.
+- Límites: la incidencia creada por la prueba permanece en la base aislada; no se borraron datos. Commit `f370b1c` publicado; PR #24 abierto a `develop` (https://github.com/EdwarDa2/TraceChain/pull/24). Aceptación humana y release siguen pendientes.
 
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
