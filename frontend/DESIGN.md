@@ -2,56 +2,52 @@
 
 ## Mode
 
-Operate. Una plataforma de análisis, no un sitio de marketing. La densidad, la jerarquía y la consistencia importan más que la expresión. La interfaz debe desaparecer frente a la investigación.
+Operate. Plataforma de análisis, no sitio de marketing. La densidad, la jerarquía y la consistencia importan más que la expresión; la interfaz desaparece frente a la investigación.
 
 ## Dirección
 
-Sistema monocromático con un solo acento de acción (`#2563EB`) y semántica reservada para estados. La geometría es limpia y rectangular, con radios de 10–12px en tarjetas y 4–6px en controles; sombra sutil de 1px solo en superficies elevadas, sin gradientes decorativos. La navegación agrupa dominios; el contenido usa paneles con cabecera, tarjetas de métrica y tablas densas.
+“Clinical blueprint on frosted paper”: sistema casi acromático inspirado en shadcn/ui — canvas gris claro, papel blanco, tinta negra y una única superficie lateral ligeramente más cálida. El blanco y el gris construyen la jerarquía; el rojo `#E7000B` aparece solo en errores y acciones destructivas. No hay azul decorativo, verde de éxito ni ámbar de aviso: el estado se comunica con texto y forma, no con color.
 
-Referencias conceptuales: Linear (jerarquía y compactación), Vercel (minimalismo geométrico), Palantir Foundry (densidad operativa), Neo4j Bloom (exploración de grafo). No se copian sus componentes.
+Referencias: shadcn/ui (tokens explícitos y radios generosos), Vercel/Geist (neutralidad geométrica), Linear (densidad y jerarquía). No se copian componentes de terceros.
 
 ## Tokens
 
-| Rol | Valor |
-|---|---|
-| Canvas | `#F7F8FA` |
-| Superficie | `#FFFFFF` |
-| Superficie 2 / 3 | `#F1F3F6` / `#E9EDF2` |
-| Tinta | `#101828` |
-| Tinta 2 / 3 | `#475467` / `#667085` |
-| Línea | `#E4E7EC` |
-| Línea fuerte | `#D0D5DD` |
-| Primario | `#2563EB` |
-| Éxito / aviso / error | `#15803D` / `#B45309` / `#DC2626` |
-| Radio | 4px controles, 6px paneles, 8px contenedores |
-| Espaciado | escala 4/8/12/16/24/32 |
-| Movimiento | 120–160ms, `cubic-bezier(0.23,1,0.32,1)` |
+| Rol | Valor | Uso |
+|---|---|---|
+| Canvas | `#F5F5F5` | Fondo de página, relleno de inputs y botones secundarios |
+| Surface Alt | `#FAFAFA` | Sidebar, filas alternas, superficies sutiles |
+| Paper | `#FFFFFF` | Tarjetas, paneles y botón primario invertido |
+| Ink | `#0A0A0A` | Texto principal, encabezados |
+| Ink Soft | `#171717` | Botón primario, estado activo, barras |
+| Mid Gray | `#6B6B6B` | Texto secundario, etiquetas, iconos en reposo (ligera corrección de accesibilidad sobre `#737373`, que da 4.34:1 sobre canvas) |
+| Hairline | `#E5E5E5` | Bordes de tarjetas, tablas y badges |
+| Ember | `#E7000B` | Solo error/destructivo |
 
-El violeta del contrato (`#7C3AED`) se conserva únicamente como dato del grafo en el póster; la UI usa azul para origen, gris para descendientes y verde para destinos.
+- Radios: **24px** contenedores y tarjetas; **18px** botones, inputs y badges; **10px** anidados; **6px** elementos pequeños.
+- Sombra de tarjeta: `0 0 0 1px rgb(23 23 23 / 5%), 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px -1px rgb(0 0 0 / 10%)`.
+- Espaciado: 4/8/12/16/20/24/32/48/80 px. Ancho máximo de contenido: 1280px.
+- Movimiento: 120–160 ms con `cubic-bezier(0.23, 1, 0.32, 1)`; `:active scale(0.98)`; `prefers-reduced-motion` respetado.
+
+Excepción contractual: el violeta `#7C3AED` permanece **únicamente como codificación semántica del nodo de origen en el grafo** (D-003 / `PROJECT.md`), nunca como acento decorativo de la interfaz.
 
 ## Tipografía
 
-Una familia del sistema, escala fija en rem: 14px base, 1rem para `h2`, 1.5rem para `h1`. Numeración tabular en cantidades y fechas. Sin tipografía display ni `clamp()`.
+Pila `'Geist', 'Inter', ui-sans-serif, system-ui…` sin descargar fuentes externas en el build. Cuerpo 14px/1.43; caption 12px/1.33 con tracking `0.6px`; encabezado 30px/1.2 con tracking `-0.75px`. Numeración tabular en cantidades y fechas. Sin `clamp()` ni tipografía display.
 
 ## Componentes
 
-- `Panel`: cabecera + cuerpo, radio 10px y sombra de 1px.
-- Tarjeta de métrica: icon-tile semántico, valor tabular, enlace a su módulo y pie con acceso; 4 columnas en escritorio, 2 en tablet, 1 en móvil.
-- Gráfica mínima: barras derivadas de datos reales de actividad; sin datasets inventados.
-- `DataTable`: cabecera sticky, filas compactas, truncado con `title`, paginación.
-- `StatusBadge` / `SyncStatus`: códigos oficiales en español, con punto semántico.
-- `Field`, `SearchInput`, filtros y botones: un solo vocabulario visual.
-- Estados: skeleton para carga, texto específico para vacío y error con acción de recuperación.
-- `GraphViewer`: Cytoscape embebido, controles de zoom/fit, leyenda y panel lateral de detalle.
+- `Panel` / tarjeta de métrica: papel, borde hairline, radio 24px, sombra apilada y padding 20px.
+- Botones: píldora de 18px y 36–40px de alto. Primario tinta sobre papel; secundario gris sobre canvas; ambos comparten geometría y peso 500.
+- Inputs: relleno canvas, sin borde en reposo, radio 18px; foco con anillo hairline y outline visible de teclado.
+- Badges: píldora 18px, neutrales por defecto; solo el estado de error usa ember.
+- `DataTable`: cabecera sticky en Surface Alt, filas compactas, truncado con `title` y paginación.
+- Estados: skeleton, vacío con texto específico y error con ember; `warning-strip` en neutro para advertencias de parcialidad.
+- `GraphViewer`: Cytoscape con origen violeta (dato), descendientes negros, procesos grises y destinos ink-soft; leyenda, zoom/fit y panel lateral con alternativa textual.
 
 ## Layout
 
-Sidebar de 236px con cuatro grupos (GENERAL, OPERACIONES, CALIDAD Y ANÁLISIS, CATÁLOGOS), iconos Lucide, estado activo y menú de usuario inferior. El contenido usa breadcrumb, cabecera compacta y rejilla de trabajo `workspace`/`workspace-side`. A 900px la sidebar pasa a franja superior y el grafo a una columna.
-
-## Trazabilidad e impacto
-
-El grafo ocupa el espacio protagonista. El origen se distingue por tamaño y color; los procesos por forma rectangular y tono neutro; los destinos por rombo verde. El panel lateral muestra detalle del nodo, alcance potential y advertencias de parcialidad. La alternativa textual son las tablas de lotes/caminos.
+Sidebar de 236px en Surface Alt, sin divisor lateral, con cuatro grupos (GENERAL, OPERACIONES, CALIDAD Y ANÁLISIS, CATÁLOGOS), iconos Lucide y estado activo invertido. Breadcrumb tipográfico, cabecera de página y rejilla `workspace` / `workspace-side`. El contenido se centra hasta 1280px. A 900px la sidebar pasa a franja desplazable y el grafo a una columna.
 
 ## Verificación
 
-`typecheck`, `lint` y `build` del workspace frontend pasan; `next build` genera 14 rutas. El detector de Impeccable devolvió `[]` tras corregir el borde lateral del banner de incidencia. Auditoría visual documentada en `docs/pruebas/ui-audit-before.md`. Quedan pendientes screenshot exhaustivos por breakpoint, Lighthouse/E2E y auditoría manual WCAG.
+`typecheck`, `lint`, `build`, detector de Impeccable, Lighthouse y E2E contra API real; capturas en 1440/768/390. Los resultados reales se registran en `PROGRESS.md` y `docs/pruebas/`. No se declara certificación WCAG sin auditoría manual.

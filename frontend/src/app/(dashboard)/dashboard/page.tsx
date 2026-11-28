@@ -79,7 +79,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="workspace" style={{ marginTop: 20 }}>
+      <div className="workspace">
         <div className="workspace-main">
           <Panel title="Actividad por tipo" actions={<span data-muted>Últimos 12 registros</span>}>
             <div className="mini-bars">
