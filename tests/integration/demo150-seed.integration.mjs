@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import process from 'node:process';
 import { URL } from 'node:url';
 import pg from 'pg';
@@ -414,6 +414,54 @@ test('DEMO-150 real: 150 lotes, 60 órdenes, 40 distribuciones, 80 inspecciones 
     await blockService.release(manual[0].id, 'Retiro ficticio tras cierre', fixed(102), randomUUID());
     assert.equal((await pool.query(`SELECT count(*)::int AS n FROM bloqueos_lotes
       WHERE lote_id=$1 AND activo`, [lotIds.get('D01-F1')])).rows[0].n, 0);
+
+    if (process.env.DEMO150_ARTIFACTS_DIR) {
+      const directory = process.env.DEMO150_ARTIFACTS_DIR;
+      await mkdir(directory, { recursive: true });
+      const manifest = {
+        scenario: 'DEMO-150',
+        version: 'v1.1',
+        seed: 42,
+        clock: CLOCK,
+        catalogs: {
+          suppliers: Object.fromEntries(supplierIds),
+          products: Object.fromEntries(productIds),
+          locations: Object.fromEntries(locationIds),
+          templates: Object.fromEntries(templateIds),
+        },
+        aliases: {
+          lots: Object.fromEntries(lotIds),
+          inspections: Object.fromEntries(inspectionIds),
+          incidents: incidentIds,
+        },
+        generatedFrom: 'tests/integration/demo150-seed.integration.mjs',
+        notice: 'UUID deterministas de harness, no los rangos oficiales de DATA_MODEL §5.1. No usar en producción.',
+      };
+      const oracle = {
+        scenario: 'DEMO-150',
+        seed: 42,
+        counts: { ...sqlCounts, graphNodes: 279, graphEdges: 540,
+          inspections: 80, nonConforming: 40, incidents: 10, dossiers: 10 },
+        graphLabels: { Distribucion: 40, Lote: 150, Producto: 15, Proceso: 60,
+          Proveedor: 8, Ubicacion: 6 },
+        graphRelationships: { CORRESPONDE_A: 150, ENTREGADO_A: 40, GENERA: 120,
+          INCLUIDO_EN: 40, SALE_DE: 40, SUMINISTRA: 30, UTILIZADO_EN: 120 },
+        cases: {
+          'DA-01': 'conteos y proyección exactos',
+          'DA-02': { descendantLevels: levels, commonOrigins: ['D01-R1', 'D01-R2', 'D01-R3'] },
+          'DA-03': { nonConforming: 40, findings: 'APARIENCIA/MEDIA' },
+          'DA-04': { pathsToD1: toD1.paths.length, minPathToF1: toF1.paths[0]?.depth ?? null,
+            crossGroupPaths: toOtherGroup.paths.length },
+          'DA-05': { impactLots: impact.summary.totalAffectedLots,
+            destinations: impact.destinations.data.map(locationsOf).sort(),
+            f1Stock: f1Stock, rootStock: Number(firstRootStock) },
+          'DA-06': { manualBlock: true, distributionRejected: true, closeKeepsBlock: true },
+          'DA-07': { depthOne: shallow.status, warning: shallow.warnings },
+        },
+      };
+      await writeFile(`${directory}/manifest.json`, `${JSON.stringify(manifest, null, 2)}\n`);
+      await writeFile(`${directory}/expected-results.json`, `${JSON.stringify(oracle, null, 2)}\n`);
+    }
 
     process.stdout.write(`DEMO150_ACTUAL=${JSON.stringify({
       ...sqlCounts, graphNodes: 279, graphEdges: 540,
