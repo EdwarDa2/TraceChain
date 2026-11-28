@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { statusLabel } from '../lib/labels';
 
 export function PageHeader({ title, description, actions }: {
   title: string; description?: string; actions?: ReactNode;
@@ -40,11 +41,11 @@ function tone(status: string): string {
 }
 
 export function StatusBadge({ status }: { status: string }) {
-  return <span className={`badge badge-${tone(status)}`}>{status.replaceAll('_', ' ')}</span>;
+  return <span className={`badge badge-${tone(status)}`} title={status}>{statusLabel(status)}</span>;
 }
 
 export function SyncStatus({ status }: { status: string }) {
-  return <span className={`sync-dot badge-${tone(status)}`}><i />{status}</span>;
+  return <span className={`sync-dot badge-${tone(status)}`} title={status}><i />{statusLabel(status)}</span>;
 }
 
 export function QuantityDisplay({ value, unit }: { value: string; unit?: string }) {

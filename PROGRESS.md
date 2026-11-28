@@ -757,6 +757,13 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Verificación real: `lint`, `typecheck`, `test` y `build` de todos los workspaces → exit 0, 14 rutas; detector de Impeccable → `[]`; Lighthouse → accesibilidad **1.00**, best practices **1.00**, SEO 0.80 (robots.txt en dev); capturas reales en 1440/768/390 sin desbordamiento (`scrollWidth == innerWidth`); E2E → **21/21** contra API real. Sin cambios de backend, contratos, datos ni reglas.
 - Límites: no se declara certificación WCAG completa; el SEO sigue limitado por `robots.txt` en desarrollo. Commit `fd7af77` publicado; PR #25 abierto a `develop` (https://github.com/EdwarDa2/TraceChain/pull/25). Aceptación humana y release `v1.0.0` continúan pendientes.
 
+### TC-SESSION-20261128-I3-039
+- Fecha: 2026-11-28, I-3 en `feat/guided-analysis-flow` desde `develop` (`ccaa686`, PR #25 fusionado). Usuario pidió implementar el plan completo de `docs/evaluacion/` y versionar los dos archivos de evaluación. Sin cambios de contratos, reglas ni modelos.
+- Cambios: se versionaron `docs/evaluacion/evaluacion-docente.md` y `hallazgos-y-mejoras.md`. H-02: `/inspections` permite marcar 2–5 lotes no conformes (deduplicados, RN-127) y abre `/traceability?mode=COMMON_ORIGINS&lotIds=…` sin endpoint nuevo; H-06: franja de `/quality/summary` y `/quality/findings`, detalle lateral de inspección; H-03/H-09: componente `LotLabel` con código/producto y UUID secundario, selector de bloqueo por lotes verificados del impacto; H-05: estado `DEGRADED` en la cabecera del dashboard con consecuencia y glosario; H-07: `lib/labels.ts` traduce códigos oficiales manteniendo el original en `title`, con nota permanente de no contaminación; H-04: `scripts/seed-dev.mjs` aplica nombres panaderos a la demo sin tocar UUID/cantidades; H-08: README con recorrido guiado y diferencia entre datasets; H-01/H-10: smoke E2E de incidencia → impacto → trazabilidad → detalle y job `e2e` en CI.
+- Hallazgo de ejecución: el servidor de desarrollo de Next 16 en este entorno no registra `/incidents/[id]/impact` (404) aunque `next build` sí lo genera y `next start` responde 200. El smoke y el CI se ejecutan contra el build de producción para que H-01 sea verificable.
+- Verificación real: `lint`, `typecheck`, `test` y `build` de todos los workspaces → exit 0, 14 rutas; business labels y rutas nuevas compiladas; CI del smoke pendiente de ejecutar. Los resultados E2E se registrarán al terminar la corrida.
+- Límites: no se declara aceptación ni release; la evaluación del docente es formativa y se conserva sin editar.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:

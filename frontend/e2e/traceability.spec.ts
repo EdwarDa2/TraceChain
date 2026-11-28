@@ -13,7 +13,7 @@ test('consulta de trazabilidad muestra grafo y resultados con un lote real', asy
 
   await expect(analystPage.getByRole('heading', { name: 'Resultados' })).toBeVisible();
   await expect(analystPage.locator('.graph-canvas')).toBeVisible();
-  await expect(analystPage.getByText(/COMPLETO|PARCIAL|VACIO|NO_DISPONIBLE/).first()).toBeVisible();
+  await expect(analystPage.getByText(/Completo|Parcial|Vacío|No disponible/).first()).toBeVisible();
 });
 
 test('el analista ve la modalidad de orígenes comunes', async ({ analystPage }) => {
