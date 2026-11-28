@@ -1,10 +1,14 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useAuth } from '../providers/auth-provider';
+
 export default function Home() {
-  return (
-    <main className="home" data-surface>
-      <h1>TraceChain</h1>
-      <p data-muted>
-        Aplicación académica de trazabilidad e impacto potencial. La interfaz completa está pendiente.
-      </p>
-    </main>
-  );
+  const { token } = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    router.replace(token ? '/dashboard' : '/login');
+  }, [token, router]);
+  return null;
 }
