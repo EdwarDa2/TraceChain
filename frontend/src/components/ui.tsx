@@ -1,13 +1,15 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { GlassScene } from './glass-scene';
 import { statusLabel } from '../lib/labels';
 
 export function PageHeader({ title, description, actions }: {
   title: string; description?: string; actions?: ReactNode;
 }) {
   return (
-    <header className="page-header">
+    <header className="page-header module-header">
+      <GlassScene />
       <div>
         <h1>{title}</h1>
         {description ? <p>{description}</p> : null}

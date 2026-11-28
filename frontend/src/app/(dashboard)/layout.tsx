@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   AlertTriangle, Bell, Boxes, ClipboardCheck, Factory, LayoutDashboard, LogOut,
-  MapPin, Network, Package, Truck, Users,
+  MapPin, Menu, Network, Package, Route, Truck, Users,
 } from 'lucide-react';
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useApiQuery } from '../../hooks/use-api';
@@ -37,6 +37,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const [search, setSearch] = useState('');
   const summary = useApiQuery<DashboardSummary>('/dashboard/summary');
 
@@ -57,12 +58,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside className="sidebar" data-open={navOpen}>
         <div className="brand-row">
-          <span className="brand-mark">T</span>
+          <span className="brand-mark"><Route size={18} aria-hidden /></span>
           <Link className="brand-name" href="/dashboard">TraceChain</Link>
+          <button type="button" className="mobile-menu" aria-controls="module-navigation" aria-expanded={navOpen}
+            onClick={() => setNavOpen(!navOpen)}><Menu size={16} aria-hidden /> Menú</button>
         </div>
-        <div className="nav-groups">
+        <div className="nav-groups" id="module-navigation">
           {GROUPS.map((group) => (
             <nav className="nav-group" key={group.label} aria-label={group.label}>
               <p className="nav-group-label">{group.label}</p>
@@ -70,7 +73,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-                  return <Link key={item.href} href={item.href} data-active={active}>
+                  return <Link key={item.href} href={item.href} data-active={active}
+                    aria-current={active ? 'page' : undefined} onClick={() => setNavOpen(false)}>
                     <Icon aria-hidden /><span>{item.label}</span>
                   </Link>;
                 })}

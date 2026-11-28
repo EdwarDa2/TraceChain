@@ -777,3 +777,11 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 
 ## 11. Próximo punto de control
 F5: el equipo revisa `docs/pruebas/acceptance-matrix.md` y ejecuta la aceptación humana de DA-01..08; I-1 e I-2 revisan las features tocadas en PR #22; se repite DEMO-150 en entorno limpio con los UUID del manifiesto; se ratifican D-001/D-002/D-003; luego se abre PR `develop→main` y, solo tras aprobación, se etiqueta `v1.0.0`. CI `verify` de `develop` ya está en success. Antes de cada tarea, comprobar dependencias y actualizar estado; al cerrar sesión, actualizar §3..9 y añadir registro §10. No modificar porcentajes sin evidencia.
+
+### TC-SESSION-20261128-I3-040
+- I-3 · UX/UI · feature/rediseno-visual-tracechain desde develop (8572644). IN_PROGRESS. Rediseño visual solicitado para el frontend. RNF-15/16/17. Alcance de presentación y navegación adaptable.
+- IMPLEMENTED. Lint, TypeScript, pruebas unitarias del frontend y build de producción finalizaron con código 0. Revisión en Chromium a 1440, 768 y 390 px con respuestas de API simuladas solo en el navegador de prueba. Acceso, panel y navegación a Inventario operativos, sin desbordamiento horizontal del panel. E2E con los tres motores no ejecutado. Pendiente revisión humana e integración.
+
+### TC-SESSION-20261128-I3-041
+- I-3 · RNF-15/16/17 · IN_PROGRESS. Segunda iteración en feature/rediseno-visual-tracechain (5d5e5ee). Materiales, movimiento y preferencia de movimiento reducido.
+- IMPLEMENTED. Cabeceras compartidas, acceso y métricas con animaciones CSS finitas, respuesta al foco/puntero y alternativa sin animación. Lint, typecheck, test y build del frontend finalizaron con código 0. Chromium con API simulada: acceso → panel → inventario a 1440, 768 y 390 px, sin desbordamiento horizontal en panel e inventario; en 390 px se verificó animation-name: none con movimiento reducido. E2E con backend real no ejecutado. Publicación remota pendiente por HTTP 403.

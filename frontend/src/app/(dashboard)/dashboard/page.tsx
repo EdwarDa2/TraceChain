@@ -6,6 +6,7 @@ import {
   Radio, ShieldCheck,
 } from 'lucide-react';
 import { useState } from 'react';
+import { GlassScene } from '../../../components/glass-scene';
 import { DataTable, ErrorState, LoadingState, Panel, StatusBadge } from '../../../components/ui';
 import { useApiQuery } from '../../../hooks/use-api';
 import { statusLabel } from '../../../lib/labels';
@@ -53,7 +54,8 @@ export default function DashboardPage() {
 
   return (
     <>
-      <header className="page-header">
+      <header className="page-header dashboard-hero">
+        <GlassScene />
         <div>
           <h1>Vista general</h1>
           <p>Estado operativo de la red de lotes y del análisis en curso.</p>
