@@ -751,6 +751,12 @@ D-003 — paleta de interfaz propuesta e implementada, 2026-11-27. El usuario de
 - Verificación real: `typecheck`, `lint` y `build` del frontend → exit 0; `npm run test:e2e` → 21/21 contra API real. Sin cambios de backend, contratos ni reglas.
 - Límites: la incidencia creada por la prueba permanece en la base aislada; no se borraron datos. Commit `f370b1c` publicado; PR #24 abierto a `develop` (https://github.com/EdwarDa2/TraceChain/pull/24). Aceptación humana y release siguen pendientes.
 
+### TC-SESSION-20261128-I3-038
+- Fecha: 2026-11-28, I-3 en `redesign/clinical-blueprint-v2` desde `develop` (`b06efad`, PR #24 fusionado). Usuario pidió rediseñar de nuevo siguiendo `DESIGN (3).md` (referencia shadcn-like “clinical blueprint on frosted paper”). ZIP/adjunto leído; skills `emil-design-eng`, `impeccable` y `design-taste-frontend` disponibles y aplicadas como criterio de interacción, detección y dirección visual.
+- Cambios: `globals.css` reescrito con tokens canvas `#F5F5F5`, papel `#FFFFFF`, Surface Alt `#FAFAFA`, tinta `#0A0A0A`, ink-soft `#171717`, gris `#6B6B6B`, hairline `#E5E5E5` y ember `#E7000B` solo para error/destructivo; radios 24px en tarjetas y 18px en controles/badges, sombra apilada, pila Geist/Inter sin descarga externa, ancho máximo 1280px y espaciado de sección 48px. Botones primarios invertidos, navegación activa invertida, badges neutrales, tablas e inputs monocromáticos. `GraphViewer` lee los tokens: origen violeta `#7C3AED` como dato contractual (D-003), descendientes negros, procesos grises y destinos ink-soft. `DESIGN.md` documenta el sistema y la excepción violeta. Se corrigió una desviación de accesibilidad: `#737373` sobre canvas daba 4.34:1, por lo que el gris de texto es `#6B6B6B` (5.0:1).
+- Verificación real: `lint`, `typecheck`, `test` y `build` de todos los workspaces → exit 0, 14 rutas; detector de Impeccable → `[]`; Lighthouse → accesibilidad **1.00**, best practices **1.00**, SEO 0.80 (robots.txt en dev); capturas reales en 1440/768/390 sin desbordamiento (`scrollWidth == innerWidth`); E2E → **21/21** contra API real. Sin cambios de backend, contratos, datos ni reglas.
+- Límites: no se declara certificación WCAG completa; el SEO sigue limitado por `robots.txt` en desarrollo. Aceptación humana y release `v1.0.0` continúan pendientes.
+
 ### Plantilla para nueva sesión (copiar al final, no contar como trabajo)
 - ID único: TC-SESSION-YYYYMMDD-Ix-NNN
 - Fecha/hora UTC, integrante, rama, Issue/tarea, commit/PR si existe:

@@ -32,6 +32,18 @@ export function GraphViewer({ nodes, edges, rootIds = [], onSelect }: {
     (async () => {
       const { default: cytoscape } = await import('cytoscape');
       if (disposed) return;
+      const tokens = getComputedStyle(document.documentElement);
+      const color = (name: string, fallback: string) =>
+        tokens.getPropertyValue(name).trim() || fallback;
+      const ink = color('--color-ink', '#0a0a0a');
+      const inkSoft = color('--color-ink-soft', '#171717');
+      const midGray = color('--color-mid-gray', '#6b6b6b');
+      const hairline = color('--color-hairline', '#e5e5e5');
+      const paper = color('--color-paper', '#ffffff');
+      const origin = color('--graph-origin', '#7c3aed');
+      const descendant = color('--graph-descendant', '#0a0a0a');
+      const process = color('--graph-process', '#e5e5e5');
+      const destination = color('--graph-destination', '#171717');
       const roots = new Set(rootIds);
       const elements: ElementDefinition[] = [
         ...nodes.map((node) => ({
@@ -51,30 +63,30 @@ export function GraphViewer({ nodes, edges, rootIds = [], onSelect }: {
         layout: { name: 'breadthfirst', directed: true, spacingFactor: 1.15, padding: 32 },
         style: [
           { selector: 'node', style: {
-            'background-color': '#101828', 'label': 'data(label)', 'color': '#101828',
+            'background-color': descendant, 'label': 'data(label)', 'color': ink,
             'font-size': 10, 'font-weight': 600, 'text-valign': 'bottom',
-            'text-margin-y': 6, 'text-background-color': '#ffffff',
+            'text-margin-y': 6, 'text-background-color': paper,
             'text-background-opacity': 0.9, 'text-background-padding': '2px',
             'width': 26, 'height': 26,
           } },
           { selector: 'node[role = "origin"]', style: {
-            'background-color': '#2563eb', 'color': '#2563eb', 'width': 34, 'height': 34,
-            'border-width': 2, 'border-color': '#1d4ed8',
+            'background-color': origin, 'color': origin, 'width': 34, 'height': 34,
+            'border-width': 2, 'border-color': ink,
           } },
           { selector: 'node[role = "process"]', style: {
-            'background-color': '#f1f3f6', 'border-width': 1, 'border-color': '#98a2b3',
+            'background-color': process, 'border-width': 1, 'border-color': hairline,
             'width': 18, 'height': 18, 'shape': 'round-rectangle',
           } },
           { selector: 'node[role = "destination"]', style: {
-            'background-color': '#15803d', 'color': '#15803d', 'shape': 'diamond',
+            'background-color': destination, 'color': destination, 'shape': 'diamond',
           } },
           { selector: 'edge', style: {
-            'width': 1.5, 'line-color': '#d0d5dd', 'target-arrow-color': '#98a2b3',
+            'width': 1.5, 'line-color': hairline, 'target-arrow-color': midGray,
             'target-arrow-shape': 'triangle', 'curve-style': 'bezier', 'arrow-scale': 0.8,
           } },
-          { selector: 'edge[type = "GENERA"]', style: { 'line-color': '#2563eb', 'target-arrow-color': '#2563eb' } },
-          { selector: 'edge[type = "INCLUIDO_EN"]', style: { 'line-color': '#15803d', 'target-arrow-color': '#15803d' } },
-          { selector: 'node:selected', style: { 'border-width': 3, 'border-color': '#2563eb' } },
+          { selector: 'edge[type = "GENERA"]', style: { 'line-color': inkSoft, 'target-arrow-color': inkSoft } },
+          { selector: 'edge[type = "INCLUIDO_EN"]', style: { 'line-color': midGray, 'target-arrow-color': midGray } },
+          { selector: 'node:selected', style: { 'border-width': 3, 'border-color': ink } },
         ],
         minZoom: 0.2, maxZoom: 3,
       }) as GraphInstance;
