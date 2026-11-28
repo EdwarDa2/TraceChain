@@ -6,7 +6,10 @@ export class ApiError extends Error {
   }
 }
 
-export async function api<T>(path: string, token?: string | null, init?: RequestInit): Promise<T> {
+export type ApiEnvelope<T> = { data: T; meta?: { total: number; page: number; limit: number } };
+
+export async function apiResponse<T>(path: string, token?: string | null,
+  init?: RequestInit): Promise<ApiEnvelope<T>> {
   const headers = new Headers(init?.headers);
   headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
@@ -17,7 +20,11 @@ export async function api<T>(path: string, token?: string | null, init?: Request
     throw new ApiError(response.status, error?.code ?? 'INTERNAL_ERROR',
       error?.message ?? 'No se pudo completar la solicitud.');
   }
-  return (body as { data: T }).data;
+  return body as ApiEnvelope<T>;
+}
+
+export async function api<T>(path: string, token?: string | null, init?: RequestInit): Promise<T> {
+  return (await apiResponse<T>(path, token, init)).data;
 }
 
 export function idempotencyKey(): string {

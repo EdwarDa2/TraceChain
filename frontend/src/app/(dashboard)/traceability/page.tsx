@@ -6,7 +6,7 @@ import {
   DataTable, ErrorState, LoadingState, PageHeader, Panel, StatusBadge,
 } from '../../../components/ui';
 import { GraphViewer, type GraphNode } from '../../../components/graph-viewer';
-import { useApiMutation, useApiQuery } from '../../../hooks/use-api';
+import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
 import type { Lot, TraceResult } from '../../../lib/types';
 
 type Mode = 'FORWARD' | 'BACKWARD' | 'GENEALOGY' | 'COMMON_ORIGINS' | 'PATHS';
@@ -17,7 +17,7 @@ const MODES: { value: Mode; label: string }[] = [
 ];
 
 export default function TraceabilityPage() {
-  const lots = useApiQuery<{ data: Lot[] }>('/lots?limit=100');
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
   const run = useApiMutation<TraceResult>();
   const [mode, setMode] = useState<Mode>('FORWARD');
   const [root, setRoot] = useState('');
@@ -33,7 +33,7 @@ export default function TraceabilityPage() {
     try {
       const query = `?maxDepth=${depth}`;
       const data = mode === 'FORWARD' || mode === 'BACKWARD' || mode === 'GENEALOGY'
-        ? await run.mutateAsync({ path: `/traceability/${root}/${mode.toLowerCase()}${query}` })
+        ? await run.mutateAsync({ path: `/traceability/${root}/${mode.toLowerCase()}${query}`, method: 'GET' })
         : mode === 'COMMON_ORIGINS'
           ? await run.mutateAsync({ path: '/traceability/common-origins',
             body: { lotIds: [root, target], maxDepth: depth } })
@@ -110,7 +110,7 @@ export default function TraceabilityPage() {
                   <div className="scope-bar" style={{ marginTop: 16 }}>
                     <i style={{ width: `${Math.min(100, result.lots.length * 2)}%` }} />
                   </div>
-                  <p data-muted style={{ marginTop: 6, fontSize: 12 }}>Alcance potential verificado</p>
+                  <p data-muted style={{ marginTop: 6, fontSize: 12 }}>Alcance potencial verificado</p>
                   {result.metadata.warnings.map((warning) =>
                     <div className="warning-strip" key={warning.code} style={{ marginTop: 8 }}>{warning.message}</div>)}
                 </aside>

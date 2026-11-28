@@ -9,6 +9,9 @@ dist/
 .next/
 coverage/
 *.tsbuildinfo
+.playwright-results/
+test-results/
+playwright-report/
 
 # Secretos y entorno local
 .env

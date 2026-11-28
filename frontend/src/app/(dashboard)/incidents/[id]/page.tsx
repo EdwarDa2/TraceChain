@@ -6,7 +6,7 @@ import { useState, type FormEvent } from 'react';
 import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Panel, StatusBadge,
 } from '../../../../components/ui';
-import { useApiMutation, useApiQuery } from '../../../../hooks/use-api';
+import { useApiMutation, useApiQuery, useApiResponse } from '../../../../hooks/use-api';
 import type { Block, Incident } from '../../../../lib/types';
 import { useAuth } from '../../../../providers/auth-provider';
 
@@ -19,7 +19,7 @@ export default function IncidentDetailPage() {
   const { user } = useAuth();
   const incident = useApiQuery<Incident>(id ? `/incidents/${id}` : null);
   const dossier = useApiQuery<DossierView>(id ? `/incidents/${id}/dossier` : null);
-  const blocks = useApiQuery<{ data: Block[] }>(id ? `/incidents/${id}/blocks` : null);
+  const blocks = useApiResponse<Block[]>(id ? `/incidents/${id}/blocks` : null);
   const start = useApiMutation<Incident>();
   const close = useApiMutation<Incident>();
   const block = useApiMutation<Block[]>();
