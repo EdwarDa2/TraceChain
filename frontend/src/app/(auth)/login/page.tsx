@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
+import { ArrowUpRight, Route } from 'lucide-react';
+import { GlassScene } from '../../../components/glass-scene';
 import { ApiError } from '../../../lib/api';
 import { Field } from '../../../components/ui';
 import { useAuth } from '../../../providers/auth-provider';
@@ -34,30 +36,33 @@ export default function LoginPage() {
 
   return (
     <main className="login-wrap">
-      <form className="login-card" onSubmit={submit}>
-        <div className="login-brand">
-          <span className="brand-mark">T</span>
-          <span className="brand-name">TraceChain</span>
-        </div>
-        <h1>Iniciar sesión</h1>
-        <p data-muted style={{ marginTop: 6, marginBottom: 24, fontSize: 13 }}>
-          Plataforma de trazabilidad e impacto potencial.
-        </p>
-        <div className="form-grid">
-          <Field label="Correo">
-            <input type="email" required autoComplete="username" value={email}
-              onChange={(event) => setEmail(event.target.value)} />
-          </Field>
-          <Field label="Contraseña">
-            <input type="password" required autoComplete="current-password" value={password}
-              onChange={(event) => setPassword(event.target.value)} />
-          </Field>
-          {error ? <div className="warning-strip" role="alert">{error}</div> : null}
-          <button className="button button-primary" disabled={busy} type="submit" style={{ justifySelf: 'start' }}>
-            {busy ? 'Entrando…' : 'Entrar'}
-          </button>
-        </div>
-      </form>
+      <div className="login-composition">
+      <GlassScene />
+        <form className="login-card" onSubmit={submit}>
+          <div className="login-brand">
+            <span className="brand-mark"><Route size={18} aria-hidden /></span>
+            <span className="brand-name">TraceChain</span>
+          </div>
+          <h1>Iniciar sesión</h1>
+          <p data-muted style={{ marginTop: 6, marginBottom: 24, fontSize: 13 }}>
+            Plataforma de trazabilidad e impacto potencial.
+          </p>
+          <div className="form-grid">
+            <Field label="Correo">
+              <input type="email" required autoComplete="username" value={email}
+                onChange={(event) => setEmail(event.target.value)} />
+            </Field>
+            <Field label="Contraseña">
+              <input type="password" required autoComplete="current-password" value={password}
+                onChange={(event) => setPassword(event.target.value)} />
+            </Field>
+            {error ? <div className="warning-strip" role="alert">{error}</div> : null}
+            <button className="button button-primary" disabled={busy} type="submit">
+              {busy ? 'Entrando…' : 'Entrar'} <ArrowUpRight aria-hidden />
+            </button>
+          </div>
+        </form>
+      </div>
     </main>
   );
 }
