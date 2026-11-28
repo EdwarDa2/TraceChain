@@ -37,7 +37,7 @@ export default function LoginPage() {
   return (
     <main className="login-wrap">
       <div className="login-composition">
-      <GlassScene />
+        <GlassScene />
         <form className="login-card" onSubmit={submit}>
           <div className="login-brand">
             <span className="brand-mark"><Route size={18} aria-hidden /></span>

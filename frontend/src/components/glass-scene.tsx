@@ -4,6 +4,7 @@ export function GlassScene() {
     <div className="glass-scene" aria-hidden="true">
       <i className="scene-ring" />
       <i className="scene-orb" />
+      <i className="scene-pearl" />
       <i className="scene-pane" />
     </div>
   );
