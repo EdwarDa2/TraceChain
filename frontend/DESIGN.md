@@ -6,7 +6,7 @@ Operate. Una plataforma de análisis, no un sitio de marketing. La densidad, la 
 
 ## Dirección
 
-Sistema monocromático con un solo acento de acción (`#2563EB`) y semántica reservada para estados. La geometría es rectangular, con radios pequeños y separadores finos; sin gradientes decorativos ni sombras de tarjeta. La navegación agrupa dominios; el contenido usa paneles con cabecera y tablas densas.
+Sistema monocromático con un solo acento de acción (`#2563EB`) y semántica reservada para estados. La geometría es limpia y rectangular, con radios de 10–12px en tarjetas y 4–6px en controles; sombra sutil de 1px solo en superficies elevadas, sin gradientes decorativos. La navegación agrupa dominios; el contenido usa paneles con cabecera, tarjetas de métrica y tablas densas.
 
 Referencias conceptuales: Linear (jerarquía y compactación), Vercel (minimalismo geométrico), Palantir Foundry (densidad operativa), Neo4j Bloom (exploración de grafo). No se copian sus componentes.
 
@@ -35,7 +35,9 @@ Una familia del sistema, escala fija en rem: 14px base, 1rem para `h2`, 1.5rem p
 
 ## Componentes
 
-- `Panel`: cabecera + cuerpo, sin tarjeta decorativa.
+- `Panel`: cabecera + cuerpo, radio 10px y sombra de 1px.
+- Tarjeta de métrica: icon-tile semántico, valor tabular, enlace a su módulo y pie con acceso; 4 columnas en escritorio, 2 en tablet, 1 en móvil.
+- Gráfica mínima: barras derivadas de datos reales de actividad; sin datasets inventados.
 - `DataTable`: cabecera sticky, filas compactas, truncado con `title`, paginación.
 - `StatusBadge` / `SyncStatus`: códigos oficiales en español, con punto semántico.
 - `Field`, `SearchInput`, filtros y botones: un solo vocabulario visual.

@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  AlertTriangle, Boxes, ClipboardCheck, Factory, LayoutDashboard, LogOut,
+  AlertTriangle, Bell, Boxes, ClipboardCheck, Factory, LayoutDashboard, LogOut,
   MapPin, Network, Package, Truck, Users,
 } from 'lucide-react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useApiQuery } from '../../hooks/use-api';
+import type { DashboardSummary } from '../../lib/types';
 import { useAuth } from '../../providers/auth-provider';
 
 const GROUPS = [
@@ -35,6 +37,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const summary = useApiQuery<DashboardSummary>('/dashboard/summary');
+
+  function submitSearch(event: FormEvent) {
+    event.preventDefault();
+    router.push(`/inventory?search=${encodeURIComponent(search)}`);
+  }
 
   useEffect(() => {
     if (!token) router.replace('/login');
@@ -90,7 +99,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <div className="content">
         <div className="topbar">
           <div className="breadcrumb"><span>TraceChain</span><span>/</span><span>{section}</span></div>
-          <span className="badge badge-neutral">{user?.role?.replaceAll('_', ' ') ?? ''}</span>
+          <div className="topbar-actions">
+            <form onSubmit={submitSearch} role="search">
+              <input className="search topbar-search" type="search" value={search}
+                placeholder="Buscar lotes…" aria-label="Buscar lotes"
+                onChange={(event) => setSearch(event.target.value)} />
+            </form>
+            <Link className="icon-button" href="/incidents" aria-label="Incidencias activas">
+              <Bell size={15} aria-hidden />
+              {Number(summary.data?.activeIncidents ?? 0) > 0
+                ? <em>{summary.data?.activeIncidents}</em> : null}
+            </Link>
+            <div className="topbar-user">
+              <span className="user-avatar">{initials}</span>
+              <span>{user?.name ?? 'Sesión'}</span>
+            </div>
+          </div>
         </div>
         {children}
       </div>

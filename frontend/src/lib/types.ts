@@ -32,7 +32,7 @@ export type Block = { id: string; lotId: string; incidentId: string; reason: str
   blockedAt: string; active: boolean; releasedAt: string | null };
 export type DashboardSummary = { totalLots: number; totalProductions: number;
   activeIncidents: number; blockedLots: number };
-export type Activity = { type: string; code: string; occurredAt: string; description: string };
+export type Activity = { type: string; entityId: string; code: string; occurredAt: string; description: string };
 export type SystemStatus = { status: string; sync: { destination: string; pending: number;
   processing: number; failed: number; completed: number; status: string }[] };
 export type TraceResult = { status: string; queryType: string; summary: Record<string, number | null>;

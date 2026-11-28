@@ -2,7 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import {
   DataTable, ErrorState, Field, LoadingState, PageHeader, Pagination,
   Panel, QuantityDisplay, SearchInput, StatusBadge,
@@ -16,6 +16,10 @@ export default function InventoryPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search).get('search');
+    if (query) setSearch(query);
+  }, []);
   const limit = 20;
   const lots = useApiQuery<{ data: Lot[]; meta: { total: number } }>(
     `/lots?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`);
