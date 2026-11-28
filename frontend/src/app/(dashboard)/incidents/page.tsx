@@ -8,7 +8,7 @@ import {
   Panel, StatusBadge,
 } from '../../../components/ui';
 import { useApiMutation, useApiResponse } from '../../../hooks/use-api';
-import type { Incident, Inspection } from '../../../lib/types';
+import type { Incident, Inspection, Lot } from '../../../lib/types';
 import { useAuth } from '../../../providers/auth-provider';
 
 export default function IncidentsPage() {
@@ -17,26 +17,33 @@ export default function IncidentsPage() {
   const [status, setStatus] = useState('');
   const [form, setForm] = useState({ originLotId: '', title: '', type: 'CALIDAD',
     severity: 'MEDIA', description: '', inspectionId: '' });
+  const [created, setCreated] = useState('');
   const limit = 20;
   const incidents = useApiResponse<Incident[]>(
     `/incidents?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`);
+  const lots = useApiResponse<Lot[]>('/lots?limit=100');
   const inspections = useApiResponse<Inspection[]>('/inspections?result=NO_CONFORME&limit=100');
   const create = useApiMutation<Incident>();
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    await create.mutateAsync({ path: '/incidents', idempotent: true, body: {
+    const incident = await create.mutateAsync({ path: '/incidents', idempotent: true, body: {
       originLotId: form.originLotId, title: form.title, type: form.type,
       severity: form.severity, detectedAt: new Date().toISOString(),
       description: form.description,
       inspectionIds: form.inspectionId ? [form.inspectionId] : [],
       findings: [], evidence: [],
     } });
+    setCreated(incident.code);
+    setForm({ originLotId: '', title: '', type: 'CALIDAD', severity: 'MEDIA',
+      description: '', inspectionId: '' });
   }
 
-  if (incidents.isPending || inspections.isPending) return <LoadingState rows={4} />;
-  if (incidents.isError) return <ErrorState error={incidents.error} />;
-  const nonConforming = [...new Set((inspections.data?.data ?? []).map((item) => item.lotId))];
+  if (incidents.isPending || inspections.isPending || lots.isPending) return <LoadingState rows={4} />;
+  if (incidents.isError || inspections.isError || lots.isError) {
+    return <ErrorState error={incidents.error ?? inspections.error ?? lots.error} />;
+  }
+  const lotList = lots.data?.data ?? [];
 
   return (
     <>
@@ -70,7 +77,7 @@ export default function IncidentsPage() {
                 <Field label="Lote origen"><select required value={form.originLotId}
                   onChange={(e) => setForm({ ...form, originLotId: e.target.value })}>
                   <option value="">Seleccionar…</option>
-                  {nonConforming.map((lotId) => <option key={lotId} value={lotId}>{lotId}</option>)}
+                  {lotList.map((lot) => <option key={lot.id} value={lot.id}>{lot.code}</option>)}
                 </select></Field>
                 <Field label="Título"><input required value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field>
@@ -93,6 +100,7 @@ export default function IncidentsPage() {
                     <option key={item.id} value={item.id}>{item.code}</option>)}
                 </select></Field>
                 {create.isError ? <ErrorState error={create.error} /> : null}
+                {created ? <p className="badge badge-success">Incidencia {created} creada</p> : null}
                 <button className="button button-primary" disabled={create.isPending}>Abrir incidencia</button>
               </form>
             </Panel>

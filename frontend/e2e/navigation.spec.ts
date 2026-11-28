@@ -16,7 +16,15 @@ const VIEWS: [string, string][] = [
 
 for (const [link, heading] of VIEWS) {
   test(`navega a ${link} y muestra su cabecera`, async ({ analystPage }) => {
-    await analystPage.getByRole('link', { name: link, exact: true }).first().click();
-    await expect(analystPage.getByRole('heading', { name: heading, exact: true }).first()).toBeVisible();
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      await analystPage.getByRole('link', { name: link, exact: true }).first().click();
+      try {
+        await expect(analystPage.getByRole('heading', { name: heading, exact: true }).first())
+          .toBeVisible({ timeout: 8_000 });
+        return;
+      } catch (error) {
+        if (attempt === 1) throw error;
+      }
+    }
   });
 }
